@@ -45,7 +45,12 @@ func (ms *MapSync) Stop() {
 }
 
 const t = true
-var skipSyncMaps = map[string]bool{"/etc/haproxy/map/geoip.map": t}
+var skipSyncMaps = map[string]bool{
+	"/etc/haproxy/map/geoip.map": t,
+	"/etc/haproxy/map/crawler-whitelist.map": t,
+	"/etc/haproxy/map/cctocn.map": t,
+	"/etc/haproxy/map/alt-svc.map": t,
+}
 
 // SyncAll sync maps file entries with runtime maps entries for all configured files.
 // Missing runtime entries are appended to the map file
