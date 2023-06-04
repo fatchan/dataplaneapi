@@ -44,6 +44,9 @@ func (ms *MapSync) Stop() {
 	ms.mapQuitChan <- struct{}{}
 }
 
+const t = true
+var skipSyncMaps = map[string]bool{"/etc/haproxy/map/geoip.map": t}
+
 // SyncAll sync maps file entries with runtime maps entries for all configured files.
 // Missing runtime entries are appended to the map file
 func (ms *MapSync) SyncAll(client client_native.HAProxyClient) {
@@ -66,12 +69,14 @@ func (ms *MapSync) SyncAll(client client_native.HAProxyClient) {
 				continue
 			}
 			for _, mp := range maps {
-				go func(mp *models.Map) {
-					_, err := ms.Sync(mp, client)
-					if err != nil {
-						log.Warning(err.Error())
-					}
-				}(mp)
+				if !skipSyncMaps[mp.File] {
+					go func(mp *models.Map) {
+						_, err := ms.Sync(mp, client)
+						if err != nil {
+							log.Warning(err.Error())
+						}
+					}(mp)
+			    }
 			}
 		case <-ms.mapQuitChan:
 			return
@@ -81,6 +86,10 @@ func (ms *MapSync) SyncAll(client client_native.HAProxyClient) {
 
 // Sync syncs one map file to runtime entries
 func (ms *MapSync) Sync(mp *models.Map, client client_native.HAProxyClient) (bool, error) {
+	if skipSyncMaps[mp.File] {
+		return true, nil
+	}
+
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
 
