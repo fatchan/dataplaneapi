@@ -23,8 +23,8 @@ import (
 	"sync"
 	"time"
 
-	client_native "github.com/haproxytech/client-native/v4"
-	"github.com/haproxytech/client-native/v4/models"
+	client_native "github.com/haproxytech/client-native/v5"
+	"github.com/haproxytech/client-native/v5/models"
 	"github.com/haproxytech/dataplaneapi/log"
 )
 
@@ -159,7 +159,6 @@ func equalSomeEntries(fEntries, rEntries models.MapEntries, index ...int) bool {
 	}
 
 	for i := 0; i < maxRandom; i++ {
-		rand.Seed(time.Now().UTC().UnixNano())
 		// There's no need for strong number generation, here, just need for performance
 		r := rand.Intn(max)
 		if len(index) > 0 {

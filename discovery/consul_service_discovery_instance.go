@@ -25,8 +25,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/haproxytech/client-native/v4/configuration"
-	"github.com/haproxytech/client-native/v4/models"
+	"github.com/haproxytech/client-native/v5/configuration"
+	"github.com/haproxytech/client-native/v5/models"
 	"github.com/haproxytech/dataplaneapi/log"
 	jsoniter "github.com/json-iterator/go"
 )
@@ -360,6 +360,7 @@ func (c *consulInstance) doConsulQuery(method string, path string, params *query
 	if err != nil {
 		return nil, err
 	}
+	defer httpResp.Body.Close()
 	raw, err := io.ReadAll(httpResp.Body)
 	if err != nil {
 		return nil, err

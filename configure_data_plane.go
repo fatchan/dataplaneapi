@@ -36,12 +36,12 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-	client_native "github.com/haproxytech/client-native/v4"
-	"github.com/haproxytech/client-native/v4/models"
-	"github.com/haproxytech/client-native/v4/options"
-	cn_runtime "github.com/haproxytech/client-native/v4/runtime"
-	"github.com/haproxytech/client-native/v4/spoe"
-	"github.com/haproxytech/client-native/v4/storage"
+	client_native "github.com/haproxytech/client-native/v5"
+	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v5/options"
+	cn_runtime "github.com/haproxytech/client-native/v5/runtime"
+	"github.com/haproxytech/client-native/v5/spoe"
+	"github.com/haproxytech/client-native/v5/storage"
 	"github.com/haproxytech/dataplaneapi/log"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/rs/cors"
@@ -65,7 +65,7 @@ import (
 	_ "github.com/GehirnInc/crypt/sha512_crypt"
 )
 
-// go:generate swagger generate server --target ../../../../../../github.com/haproxytech --name controller --spec ../../../../../../../../haproxy-api/haproxy-open-api-spec/build/haproxy_spec.yaml --server-package controller --tags Stats --tags Information --tags Configuration --tags Discovery --tags Frontend --tags Backend --tags Bind --tags Server --tags TCPRequestRule --tags HTTPRequestRule --tags HTTPResponseRule --tags Acl --tags BackendSwitchingRule --tags ServerSwitchingRule --tags TCPResponseRule --skip-models --exclude-main
+//go:generate swagger generate server --target ../../../../../../github.com/haproxytech --name controller --spec ../../../../../../../../haproxy-api/haproxy-open-api-spec/build/haproxy_spec.yaml --server-package controller --tags Stats --tags Information --tags Configuration --tags Discovery --tags Frontend --tags Backend --tags Bind --tags Server --tags TCPRequestRule --tags HTTPRequestRule --tags HTTPResponseRule --tags Acl --tags BackendSwitchingRule --tags ServerSwitchingRule --tags TCPResponseRule --skip-models --exclude-main
 
 var (
 	Version               string
