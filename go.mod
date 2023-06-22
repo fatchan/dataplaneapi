@@ -80,3 +80,5 @@ require (
 )
 
 replace github.com/haproxytech/client-native/v4 => /home/tom/Documents/client-native/
+
+replace github.com/haproxytech/client-native/v5 => /home/tom/Documents/client-native

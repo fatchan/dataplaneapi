@@ -49,7 +49,7 @@ func (h *StorageCreateStorageMapFileHandlerImpl) Handle(params storage.CreateSto
 		return storage.NewCreateStorageMapFileDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	filename, err := st.Create(file.Header.Filename, params.FileUpload)
+	filename, _, err := st.Create(file.Header.Filename, params.FileUpload)
 	if err != nil {
 		status := misc.GetHTTPStatusFromErr(err)
 		return storage.NewCreateStorageMapFileDefault(status).WithPayload(misc.SetError(status, err.Error()))

@@ -220,7 +220,9 @@ type StorageCreateStorageSSLCertificateHandlerImpl struct {
 }
 
 func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.CreateStorageSSLCertificateParams, principal interface{}) middleware.Responder {
+	fmt.Println("StorageCreateStorageSSLCertificateHandlerImpl")
 	sslStorage, err := h.Client.SSLCertStorage()
+	runtimeClient, err := h.Client.Runtime()
 	if err != nil {
 		e := misc.HandleError(err)
 		return storage.NewCreateStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
@@ -230,7 +232,7 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 	if !ok {
 		return storage.NewCreateStorageSSLCertificateBadRequest()
 	}
-	filename, err := sslStorage.Create(file.Header.Filename, params.FileUpload)
+	filename, contents, err := sslStorage.Create(file.Header.Filename, params.FileUpload)
 	if err != nil {
 		e := misc.HandleError(err)
 		return storage.NewCreateStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
@@ -253,5 +255,13 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 			return storage.NewReplaceStorageMapFileDefault(int(*e.Code)).WithPayload(e)
 		}
 	}
+
+	// fmt.Printf("%s\n%s\n", filename, contents)
+	err2 := runtimeClient.AddSetCommitSSLCert(filename, contents)
+	if err2 != nil {
+		e := misc.HandleError(err2)
+		return storage.NewCreateStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
+	}
+
 	return storage.NewCreateStorageSSLCertificateCreated().WithPayload(retf)
 }
