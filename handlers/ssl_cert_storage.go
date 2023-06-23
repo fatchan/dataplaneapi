@@ -143,7 +143,7 @@ func (h *StorageDeleteStorageSSLCertificateHandlerImpl) Handle(params storage.De
 		return storage.NewDeleteStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	fmt.Printf("%s", filename)
+	// fmt.Printf("%s", filename)
 	err2 := runtimeClient.DelSSLCert(filename)
 	if err2 != nil {
 		e := misc.HandleError(err2)
