@@ -103,6 +103,12 @@ func (h *StorageDeleteStorageSSLCertificateHandlerImpl) Handle(params storage.De
 	}
 	runningConf := strings.NewReader(configuration.Parser().String())
 
+	runtimeClient, err := h.Client.Runtime()
+	if err != nil {
+		e := misc.HandleError(err)
+		return storage.NewDeleteStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
+	}
+
 	sslStorage, err := h.Client.SSLCertStorage()
 	if err != nil {
 		e := misc.HandleError(err)
@@ -135,6 +141,13 @@ func (h *StorageDeleteStorageSSLCertificateHandlerImpl) Handle(params storage.De
 	if err != nil {
 		e := misc.HandleError(err)
 		return storage.NewDeleteStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
+	}
+
+	fmt.Printf("%s", filename)
+	err2 := runtimeClient.DelSSLCert(filename)
+	if err2 != nil {
+		e := misc.HandleError(err2)
+		return storage.NewCreateStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
 	}
 
 	skipReload := false
@@ -222,6 +235,11 @@ type StorageCreateStorageSSLCertificateHandlerImpl struct {
 func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.CreateStorageSSLCertificateParams, principal interface{}) middleware.Responder {
 	fmt.Println("StorageCreateStorageSSLCertificateHandlerImpl")
 	sslStorage, err := h.Client.SSLCertStorage()
+	if err != nil {
+		e := misc.HandleError(err)
+		return storage.NewCreateStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
+	}
+
 	runtimeClient, err := h.Client.Runtime()
 	if err != nil {
 		e := misc.HandleError(err)
