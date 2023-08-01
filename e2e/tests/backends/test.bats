@@ -25,6 +25,24 @@ load 'utils/_helpers'
 @test "backends: Add a backend" {
   resource_post "$_BACKEND_BASE_PATH" "data/post.json" "force_reload=true"
   assert_equal "$SC" "201"
+
+  resource_get "$_BACKEND_BASE_PATH/test_backend"  assert_equal "$SC" 200
+  assert_equal "$(get_json_path "$BODY" ".data.adv_check")" "httpchk"
+  assert_equal "$(get_json_path "$BODY" ".data.httpchk_params.method")" "GET"
+  assert_equal "$(get_json_path "$BODY" ".data.httpchk_params.uri")" "/check"
+  assert_equal "$(get_json_path "$BODY" ".data.httpchk_params.version")" "HTTP/1.1"
+}
+
+@test "backends: fail adding a backend (invalid send method in httpchk_params)" {
+  resource_post "$_BACKEND_BASE_PATH" "data/post_invalid_send_method_1.json" "force_reload=true"
+	assert_equal "$SC" 422
+    assert_equal "$(get_json_path "$BODY" ".code")" "606"
+}
+
+@test "backends: fail adding a backend (invalid send method in http-check)" {
+  resource_post "$_BACKEND_BASE_PATH" "data/post_invalid_send_method_2.json" "force_reload=true"
+	assert_equal "$SC" 422
+    assert_equal "$(get_json_path "$BODY" ".code")" "606"
 }
 
 @test "backends: Return a backend" {
@@ -36,6 +54,12 @@ load 'utils/_helpers'
 @test "backends: Replace a backend" {
 	resource_put "$_BACKEND_BASE_PATH/test_backend" "data/put.json" "force_reload=true"
 	assert_equal "$SC" 200
+
+	resource_get "$_BACKEND_BASE_PATH/test_backend"  assert_equal "$SC" 200
+    assert_equal "$(get_json_path "$BODY" ".data.adv_check")" "httpchk"
+    assert_equal "$(get_json_path "$BODY" ".data.httpchk_params.method")" "GET"
+    assert_equal "$(get_json_path "$BODY" ".data.httpchk_params.uri")" "/healthz"
+    assert_equal "$(get_json_path "$BODY" ".data.httpchk_params.version")" "HTTP/1.1"
 }
 
 @test "backends: Return an array of backends" {

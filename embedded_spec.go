@@ -7441,11 +7441,11 @@ func init() {
     },
     "/services/haproxy/configuration/named_defaults/{name}": {
       "get": {
-        "description": "Returns one defautls section configuration by it's name.",
+        "description": "Returns one defaults section configuration by it's name.",
         "tags": [
           "Defaults"
         ],
-        "summary": "Return a defautls section",
+        "summary": "Return a defaults section",
         "operationId": "getDefaultsSection",
         "parameters": [
           {
@@ -17524,14 +17524,6 @@ func init() {
         "npn": {
           "type": "string"
         },
-        "ocsp_update": {
-          "type": "string",
-          "x-dependency": {
-            "ssl": {
-              "value": true
-            }
-          }
-        },
         "prefer_client_ciphers": {
           "type": "boolean"
         },
@@ -19949,6 +19941,10 @@ func init() {
         "id": {
           "type": "string"
         },
+        "size": {
+          "description": "File size in bytes.",
+          "type": "integer"
+        },
         "storage_name": {
           "type": "string"
         }
@@ -20841,7 +20837,7 @@ func init() {
               "type": "integer",
               "x-display-name": "Max Used Low FD Ratio"
             },
-            "quic_frontend_conn_tc_buffers_limit": {
+            "quic_frontend_conn_tx_buffers_limit": {
               "type": "integer",
               "x-display-name": "QUIC Frontend Connection TX Buffer Limit",
               "x-nullable": true
@@ -20886,7 +20882,7 @@ func init() {
             },
             "recv_enough": {
               "type": "integer",
-              "x-display-name": "Recieve Enough Socket Buffer Size"
+              "x-display-name": "Receive Enough Socket Buffer Size"
             },
             "runqueue_depth": {
               "type": "integer",
@@ -21599,6 +21595,17 @@ func init() {
         },
         "method": {
           "type": "string",
+          "enum": [
+            "HEAD",
+            "PUT",
+            "POST",
+            "GET",
+            "TRACE",
+            "PATCH",
+            "DELETE",
+            "CONNECT",
+            "OPTIONS"
+          ],
           "x-dependency": {
             "type": {
               "value": "send"
@@ -22747,6 +22754,7 @@ func init() {
               "value": "track-sc0"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc0 Key"
         },
         "track-sc0-table": {
@@ -22757,6 +22765,7 @@ func init() {
               "value": "track-sc0"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc0 Table"
         },
         "track-sc1-key": {
@@ -22768,6 +22777,7 @@ func init() {
               "value": "track-sc1"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc1 Key"
         },
         "track-sc1-table": {
@@ -22778,6 +22788,7 @@ func init() {
               "value": "track-sc1"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc1 Table"
         },
         "track-sc2-key": {
@@ -22789,6 +22800,7 @@ func init() {
               "value": "track-sc2"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc2 Key"
         },
         "track-sc2-table": {
@@ -22799,7 +22811,39 @@ func init() {
               "value": "track-sc2"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc2 Table"
+        },
+        "track_sc_key": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc Key"
+        },
+        "track_sc_stick_counter": {
+          "type": "integer",
+          "x-dependency": {
+            "type": {
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc StickCounter",
+          "x-nullable": true
+        },
+        "track_sc_table": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc Table"
         },
         "type": {
           "type": "string",
@@ -22858,6 +22902,7 @@ func init() {
             "track-sc0",
             "track-sc1",
             "track-sc2",
+            "track-sc",
             "unset-var",
             "use-service",
             "wait-for-body",
@@ -23521,6 +23566,7 @@ func init() {
               "value": "track-sc0"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc0 Key"
         },
         "track-sc0-table": {
@@ -23531,6 +23577,7 @@ func init() {
               "value": "track-sc0"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc0 Table"
         },
         "track-sc1-key": {
@@ -23542,6 +23589,7 @@ func init() {
               "value": "track-sc1"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc1 Key"
         },
         "track-sc1-table": {
@@ -23552,6 +23600,7 @@ func init() {
               "value": "track-sc1"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc1 Table"
         },
         "track-sc2-key": {
@@ -23563,6 +23612,7 @@ func init() {
               "value": "track-sc2"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc2 Key"
         },
         "track-sc2-table": {
@@ -23573,7 +23623,39 @@ func init() {
               "value": "track-sc2"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc2 Table"
+        },
+        "track_sc_key": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc Key"
+        },
+        "track_sc_stick_counter": {
+          "type": "integer",
+          "x-dependency": {
+            "type": {
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc StickCounter",
+          "x-nullable": true
+        },
+        "track_sc_table": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc Table"
         },
         "type": {
           "type": "string",
@@ -23612,6 +23694,7 @@ func init() {
             "track-sc0",
             "track-sc1",
             "track-sc2",
+            "track-sc",
             "unset-var",
             "wait-for-body",
             "set-bandwidth-limit"
@@ -23715,7 +23798,10 @@ func init() {
             "POST",
             "GET",
             "TRACE",
-            "PATCH"
+            "PATCH",
+            "DELETE",
+            "CONNECT",
+            "OPTIONS"
           ]
         },
         "uri": {
@@ -23918,9 +24004,13 @@ func init() {
         "format": {
           "type": "string",
           "enum": [
+            "local",
             "rfc3164",
             "rfc5424",
+            "priority",
             "short",
+            "timed",
+            "iso",
             "raw"
           ],
           "x-dependency": {
@@ -24112,6 +24202,10 @@ func init() {
         },
         "id": {
           "type": "string"
+        },
+        "size": {
+          "description": "File size in bytes.",
+          "type": "integer"
         },
         "storage_name": {
           "type": "string"
@@ -27398,8 +27492,38 @@ func init() {
         "description": {
           "type": "string"
         },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "file": {
           "type": "string"
+        },
+        "ip_addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "issuers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "not_after": {
+          "type": "string",
+          "format": "date"
+        },
+        "not_before": {
+          "type": "string",
+          "format": "date"
+        },
+        "size": {
+          "description": "File size in bytes.",
+          "type": "integer"
         },
         "storage_name": {
           "type": "string"
@@ -28272,6 +28396,7 @@ func init() {
             "track-sc0",
             "track-sc1",
             "track-sc2",
+            "track-sc",
             "unset-var",
             "use-service",
             "lua",
@@ -28760,7 +28885,8 @@ func init() {
               "value": [
                 "track-sc0",
                 "track-sc1",
-                "track-sc2"
+                "track-sc2",
+                "track-sc"
               ]
             },
             "type": {
@@ -28773,6 +28899,29 @@ func init() {
           },
           "x-display-name": "Sample expression rule"
         },
+        "track_stick_counter": {
+          "type": "integer",
+          "x-dependency": {
+            "action": {
+              "required": false,
+              "value": [
+                "track-sc0",
+                "track-sc1",
+                "track-sc2",
+                "track-sc"
+              ]
+            },
+            "type": {
+              "value": [
+                "session",
+                "connection",
+                "content"
+              ]
+            }
+          },
+          "x-display-name": "Track Stick Counter",
+          "x-nullable": true
+        },
         "track_table": {
           "type": "string",
           "x-dependency": {
@@ -28781,7 +28930,8 @@ func init() {
               "value": [
                 "track-sc0",
                 "track-sc1",
-                "track-sc2"
+                "track-sc2",
+                "track-sc"
               ]
             },
             "type": {
@@ -29614,7 +29764,7 @@ func init() {
       "name": "Table"
     },
     {
-      "description": "Managing transactions. Configuration changes can be grouped in the transaction. You start the\ntransaction with trasactions POST, and call the configuration changes you need with parameter\ntransaction_id. When you want to commit the transaction, you call the transactions PUT and all changes\nin that transaction is commited. If you call a configuration change without the transaction_id,\ntransaction mechanism is implicitly called with one operation in transaction.\n",
+      "description": "Managing transactions. Configuration changes can be grouped in the transaction. You start the\ntransaction with trasactions POST, and call the configuration changes you need with parameter\ntransaction_id. When you want to commit the transaction, you call the transactions PUT and all changes\nin that transaction is committed. If you call a configuration change without the transaction_id,\ntransaction mechanism is implicitly called with one operation in transaction.\n",
       "name": "Transactions"
     },
     {
@@ -40503,11 +40653,11 @@ func init() {
     },
     "/services/haproxy/configuration/named_defaults/{name}": {
       "get": {
-        "description": "Returns one defautls section configuration by it's name.",
+        "description": "Returns one defaults section configuration by it's name.",
         "tags": [
           "Defaults"
         ],
-        "summary": "Return a defautls section",
+        "summary": "Return a defaults section",
         "operationId": "getDefaultsSection",
         "parameters": [
           {
@@ -54059,7 +54209,7 @@ func init() {
           "type": "integer",
           "x-display-name": "Max Used Low FD Ratio"
         },
-        "quic_frontend_conn_tc_buffers_limit": {
+        "quic_frontend_conn_tx_buffers_limit": {
           "type": "integer",
           "x-display-name": "QUIC Frontend Connection TX Buffer Limit",
           "x-nullable": true
@@ -54104,7 +54254,7 @@ func init() {
         },
         "recv_enough": {
           "type": "integer",
-          "x-display-name": "Recieve Enough Socket Buffer Size"
+          "x-display-name": "Receive Enough Socket Buffer Size"
         },
         "runqueue_depth": {
           "type": "integer",
@@ -55906,14 +56056,6 @@ func init() {
         },
         "npn": {
           "type": "string"
-        },
-        "ocsp_update": {
-          "type": "string",
-          "x-dependency": {
-            "ssl": {
-              "value": true
-            }
-          }
         },
         "prefer_client_ciphers": {
           "type": "boolean"
@@ -58292,6 +58434,10 @@ func init() {
         "id": {
           "type": "string"
         },
+        "size": {
+          "description": "File size in bytes.",
+          "type": "integer"
+        },
         "storage_name": {
           "type": "string"
         }
@@ -59027,7 +59173,7 @@ func init() {
               "type": "integer",
               "x-display-name": "Max Used Low FD Ratio"
             },
-            "quic_frontend_conn_tc_buffers_limit": {
+            "quic_frontend_conn_tx_buffers_limit": {
               "type": "integer",
               "x-display-name": "QUIC Frontend Connection TX Buffer Limit",
               "x-nullable": true
@@ -59072,7 +59218,7 @@ func init() {
             },
             "recv_enough": {
               "type": "integer",
-              "x-display-name": "Recieve Enough Socket Buffer Size"
+              "x-display-name": "Receive Enough Socket Buffer Size"
             },
             "runqueue_depth": {
               "type": "integer",
@@ -59785,6 +59931,17 @@ func init() {
         },
         "method": {
           "type": "string",
+          "enum": [
+            "HEAD",
+            "PUT",
+            "POST",
+            "GET",
+            "TRACE",
+            "PATCH",
+            "DELETE",
+            "CONNECT",
+            "OPTIONS"
+          ],
           "x-dependency": {
             "type": {
               "value": "send"
@@ -60933,6 +61090,7 @@ func init() {
               "value": "track-sc0"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc0 Key"
         },
         "track-sc0-table": {
@@ -60943,6 +61101,7 @@ func init() {
               "value": "track-sc0"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc0 Table"
         },
         "track-sc1-key": {
@@ -60954,6 +61113,7 @@ func init() {
               "value": "track-sc1"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc1 Key"
         },
         "track-sc1-table": {
@@ -60964,6 +61124,7 @@ func init() {
               "value": "track-sc1"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc1 Table"
         },
         "track-sc2-key": {
@@ -60975,6 +61136,7 @@ func init() {
               "value": "track-sc2"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc2 Key"
         },
         "track-sc2-table": {
@@ -60985,7 +61147,39 @@ func init() {
               "value": "track-sc2"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc2 Table"
+        },
+        "track_sc_key": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc Key"
+        },
+        "track_sc_stick_counter": {
+          "type": "integer",
+          "x-dependency": {
+            "type": {
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc StickCounter",
+          "x-nullable": true
+        },
+        "track_sc_table": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc Table"
         },
         "type": {
           "type": "string",
@@ -61044,6 +61238,7 @@ func init() {
             "track-sc0",
             "track-sc1",
             "track-sc2",
+            "track-sc",
             "unset-var",
             "use-service",
             "wait-for-body",
@@ -61707,6 +61902,7 @@ func init() {
               "value": "track-sc0"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc0 Key"
         },
         "track-sc0-table": {
@@ -61717,6 +61913,7 @@ func init() {
               "value": "track-sc0"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc0 Table"
         },
         "track-sc1-key": {
@@ -61728,6 +61925,7 @@ func init() {
               "value": "track-sc1"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc1 Key"
         },
         "track-sc1-table": {
@@ -61738,6 +61936,7 @@ func init() {
               "value": "track-sc1"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc1 Table"
         },
         "track-sc2-key": {
@@ -61749,6 +61948,7 @@ func init() {
               "value": "track-sc2"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc2 Key"
         },
         "track-sc2-table": {
@@ -61759,7 +61959,39 @@ func init() {
               "value": "track-sc2"
             }
           },
+          "x-deprecated": true,
           "x-display-name": "track-sc2 Table"
+        },
+        "track_sc_key": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc Key"
+        },
+        "track_sc_stick_counter": {
+          "type": "integer",
+          "x-dependency": {
+            "type": {
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc StickCounter",
+          "x-nullable": true
+        },
+        "track_sc_table": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "value": "track-sc"
+            }
+          },
+          "x-display-name": "track-sc Table"
         },
         "type": {
           "type": "string",
@@ -61798,6 +62030,7 @@ func init() {
             "track-sc0",
             "track-sc1",
             "track-sc2",
+            "track-sc",
             "unset-var",
             "wait-for-body",
             "set-bandwidth-limit"
@@ -61901,7 +62134,10 @@ func init() {
             "POST",
             "GET",
             "TRACE",
-            "PATCH"
+            "PATCH",
+            "DELETE",
+            "CONNECT",
+            "OPTIONS"
           ]
         },
         "uri": {
@@ -62104,9 +62340,13 @@ func init() {
         "format": {
           "type": "string",
           "enum": [
+            "local",
             "rfc3164",
             "rfc5424",
+            "priority",
             "short",
+            "timed",
+            "iso",
             "raw"
           ],
           "x-dependency": {
@@ -62299,6 +62539,10 @@ func init() {
         },
         "id": {
           "type": "string"
+        },
+        "size": {
+          "description": "File size in bytes.",
+          "type": "integer"
         },
         "storage_name": {
           "type": "string"
@@ -65521,8 +65765,38 @@ func init() {
         "description": {
           "type": "string"
         },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "file": {
           "type": "string"
+        },
+        "ip_addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "issuers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "not_after": {
+          "type": "string",
+          "format": "date"
+        },
+        "not_before": {
+          "type": "string",
+          "format": "date"
+        },
+        "size": {
+          "description": "File size in bytes.",
+          "type": "integer"
         },
         "storage_name": {
           "type": "string"
@@ -66353,6 +66627,7 @@ func init() {
             "track-sc0",
             "track-sc1",
             "track-sc2",
+            "track-sc",
             "unset-var",
             "use-service",
             "lua",
@@ -66841,7 +67116,8 @@ func init() {
               "value": [
                 "track-sc0",
                 "track-sc1",
-                "track-sc2"
+                "track-sc2",
+                "track-sc"
               ]
             },
             "type": {
@@ -66854,6 +67130,29 @@ func init() {
           },
           "x-display-name": "Sample expression rule"
         },
+        "track_stick_counter": {
+          "type": "integer",
+          "x-dependency": {
+            "action": {
+              "required": false,
+              "value": [
+                "track-sc0",
+                "track-sc1",
+                "track-sc2",
+                "track-sc"
+              ]
+            },
+            "type": {
+              "value": [
+                "session",
+                "connection",
+                "content"
+              ]
+            }
+          },
+          "x-display-name": "Track Stick Counter",
+          "x-nullable": true
+        },
         "track_table": {
           "type": "string",
           "x-dependency": {
@@ -66862,7 +67161,8 @@ func init() {
               "value": [
                 "track-sc0",
                 "track-sc1",
-                "track-sc2"
+                "track-sc2",
+                "track-sc"
               ]
             },
             "type": {
@@ -67695,7 +67995,7 @@ func init() {
       "name": "Table"
     },
     {
-      "description": "Managing transactions. Configuration changes can be grouped in the transaction. You start the\ntransaction with trasactions POST, and call the configuration changes you need with parameter\ntransaction_id. When you want to commit the transaction, you call the transactions PUT and all changes\nin that transaction is commited. If you call a configuration change without the transaction_id,\ntransaction mechanism is implicitly called with one operation in transaction.\n",
+      "description": "Managing transactions. Configuration changes can be grouped in the transaction. You start the\ntransaction with trasactions POST, and call the configuration changes you need with parameter\ntransaction_id. When you want to commit the transaction, you call the transactions PUT and all changes\nin that transaction is committed. If you call a configuration change without the transaction_id,\ntransaction mechanism is implicitly called with one operation in transaction.\n",
       "name": "Transactions"
     },
     {
