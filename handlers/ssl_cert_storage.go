@@ -23,7 +23,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
+	// "github.com/go-openapi/strfmt"
 	client_native "github.com/haproxytech/client-native/v5"
 	models "github.com/haproxytech/client-native/v5/models"
 
@@ -91,9 +91,9 @@ func (h *StorageGetOneStorageSSLCertificateHandlerImpl) Handle(params storage.Ge
 		File:        filename,
 		Description: "managed SSL file",
 		StorageName: filepath.Base(filename),
-		Size:        size,
-		NotAfter:    strfmt.Date(info.NotAfter),
-		NotBefore:   strfmt.Date(info.NotBefore),
+		Size:        &size,
+		// NotAfter:    strfmt.Date(info.NotAfter),
+		// NotBefore:   strfmt.Date(info.NotBefore),
 		Issuers:     info.Issuers,
 		Domains:     info.DNS,
 		IPAddresses: info.IPs,
@@ -215,9 +215,9 @@ func (h *StorageReplaceStorageSSLCertificateHandlerImpl) Handle(params storage.R
 		File:        filename,
 		Description: "managed SSL file",
 		StorageName: filepath.Base(filename),
-		Size:        int64(len(params.Data)),
-		NotAfter:    strfmt.Date(info.NotAfter),
-		NotBefore:   strfmt.Date(info.NotBefore),
+		// Size:        int64(len(params.Data)),
+		// NotAfter:    strfmt.Date(info.NotAfter),
+		// NotBefore:   strfmt.Date(info.NotBefore),
 		Issuers:     info.Issuers,
 		Domains:     info.DNS,
 		IPAddresses: info.IPs,
@@ -287,9 +287,9 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 		File:        filename,
 		Description: "managed SSL file",
 		StorageName: filepath.Base(filename),
-		Size:        size,
-		NotAfter:    strfmt.Date(info.NotAfter),
-		NotBefore:   strfmt.Date(info.NotBefore),
+		Size:        &size,
+		// NotAfter:    strfmt.Date(info.NotAfter),
+		// NotBefore:   strfmt.Date(info.NotBefore),
 		Issuers:     info.Issuers,
 		Domains:     info.DNS,
 		IPAddresses: info.IPs,

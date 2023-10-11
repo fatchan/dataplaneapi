@@ -46,6 +46,8 @@ func (ms *MapSync) Stop() {
 
 const t = true
 var skipSyncMaps = map[string]bool{
+	"/etc/haproxy/map/backends.map": t,
+	"/etc/haproxy/map/iptoasn.map": t,
 	"/etc/haproxy/map/geoip.map": t,
 	"/etc/haproxy/map/crawler-whitelist.map": t,
 	"/etc/haproxy/map/cctocn.map": t,
