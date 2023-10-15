@@ -8674,6 +8674,14 @@ func init() {
               }
             },
             "headers": {
+              "Cluster-Version": {
+                "type": "string",
+                "description": "Cluster configuration version"
+              },
+              "Configuration-Checksum": {
+                "type": "string",
+                "description": "Configuration file md5 checksum"
+              },
               "Configuration-Version": {
                 "type": "string",
                 "description": "Configuration file version"
@@ -8746,6 +8754,20 @@ func init() {
             "description": "New HAProxy configuration pushed",
             "schema": {
               "type": "string"
+            },
+            "headers": {
+              "Cluster-Version": {
+                "type": "string",
+                "description": "Cluster configuration version"
+              },
+              "Configuration-Checksum": {
+                "type": "string",
+                "description": "Configuration file md5 checksum"
+              },
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
             }
           },
           "202": {
@@ -8754,6 +8776,18 @@ func init() {
               "type": "string"
             },
             "headers": {
+              "Cluster-Version": {
+                "type": "string",
+                "description": "Cluster configuration version"
+              },
+              "Configuration-Checksum": {
+                "type": "string",
+                "description": "Configuration file md5 checksum"
+              },
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              },
               "Reload-ID": {
                 "type": "string",
                 "description": "ID of the requested reload"
@@ -15740,6 +15774,18 @@ func init() {
               "$ref": "#/definitions/ssl_certificate"
             }
           },
+          "202": {
+            "description": "SSL certificate created requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificate"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
           "400": {
             "$ref": "#/responses/BadRequest"
           },
@@ -17953,6 +17999,14 @@ func init() {
           "pattern": "^[^\\s]+$",
           "x-nullable": true
         },
+        "mode": {
+          "type": "string",
+          "default": "http",
+          "enum": [
+            "http",
+            "https"
+          ]
+        },
         "name": {
           "type": "string"
         },
@@ -19945,7 +19999,8 @@ func init() {
         },
         "size": {
           "description": "File size in bytes.",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "storage_name": {
           "type": "string"
@@ -20171,6 +20226,10 @@ func init() {
           ],
           "x-display-name": "HTTP Client Resolvers Prefer"
         },
+        "httpclient_retries": {
+          "type": "integer",
+          "x-display-name": "HTTP Client Retries"
+        },
         "httpclient_ssl_ca_file": {
           "type": "string",
           "x-display-name": "HTTP Client SSL CA File"
@@ -20183,6 +20242,11 @@ func init() {
             "required"
           ],
           "x-display-name": "HTTP Client SSL Verify",
+          "x-nullable": true
+        },
+        "httpclient_timeout_connect": {
+          "type": "integer",
+          "x-display-name": "HTTP Client Connect Timeout",
           "x-nullable": true
         },
         "insecure_fork_wanted": {
@@ -20566,9 +20630,21 @@ func init() {
           "type": "string",
           "x-display-name": "SSL Default Server Ciphersuites"
         },
+        "ssl_default_server_client_sigalgs": {
+          "type": "string",
+          "x-display-name": "SSL Default Server Client Sigalgs"
+        },
+        "ssl_default_server_curves": {
+          "type": "string",
+          "x-display-name": "SSL Default Server Curves"
+        },
         "ssl_default_server_options": {
           "type": "string",
           "x-display-name": "SSL Default Server Options"
+        },
+        "ssl_default_server_sigalgs": {
+          "type": "string",
+          "x-display-name": "SSL Default Server Sigalgs"
         },
         "ssl_dh_param_file": {
           "type": "string"
@@ -20608,6 +20684,18 @@ func init() {
             "disabled"
           ],
           "x-display-name": "Asynchronous TLS I/O operations"
+        },
+        "ssl_propquery": {
+          "type": "string",
+          "x-display-name": "SSL Query String Property"
+        },
+        "ssl_provider": {
+          "type": "string",
+          "x-display-name": "SSL Provider"
+        },
+        "ssl_provider_path": {
+          "type": "string",
+          "x-display-name": "SSL Provider Path"
         },
         "ssl_server_verify": {
           "type": "string",
@@ -24207,7 +24295,8 @@ func init() {
         },
         "size": {
           "description": "File size in bytes.",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "storage_name": {
           "type": "string"
@@ -26383,6 +26472,14 @@ func init() {
             }
           }
         },
+        "client_sigalgs": {
+          "type": "string",
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          }
+        },
         "cookie": {
           "type": "string",
           "pattern": "^[^\\s]+$"
@@ -26392,6 +26489,14 @@ func init() {
           "x-dependency": {
             "ssl": {
               "value": "enabled"
+            }
+          }
+        },
+        "curves": {
+          "type": "string",
+          "x-dependency": {
+            "ssl": {
+              "value": true
             }
           }
         },
@@ -26678,6 +26783,14 @@ func init() {
         },
         "shard": {
           "type": "integer"
+        },
+        "sigalgs": {
+          "type": "string",
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          }
         },
         "slowstart": {
           "type": "integer",
@@ -27495,37 +27608,42 @@ func init() {
           "type": "string"
         },
         "domains": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "type": "string",
+          "x-omitempty": true,
+          "readOnly": true
         },
         "file": {
           "type": "string"
         },
         "ip_addresses": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "type": "string",
+          "x-omitempty": true,
+          "readOnly": true
         },
         "issuers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "type": "string",
+          "x-omitempty": true,
+          "readOnly": true
         },
         "not_after": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-go-custom-tag": "gorm:\"type:timestamp with time zone\"",
+          "x-nullable": true,
+          "readOnly": true
         },
         "not_before": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-go-custom-tag": "gorm:\"type:timestamp with time zone\"",
+          "x-nullable": true,
+          "readOnly": true
         },
         "size": {
           "description": "File size in bytes.",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "readOnly": true
         },
         "storage_name": {
           "type": "string"
@@ -42520,6 +42638,14 @@ func init() {
               }
             },
             "headers": {
+              "Cluster-Version": {
+                "type": "string",
+                "description": "Cluster configuration version"
+              },
+              "Configuration-Checksum": {
+                "type": "string",
+                "description": "Configuration file md5 checksum"
+              },
               "Configuration-Version": {
                 "type": "string",
                 "description": "Configuration file version"
@@ -42609,6 +42735,20 @@ func init() {
             "description": "New HAProxy configuration pushed",
             "schema": {
               "type": "string"
+            },
+            "headers": {
+              "Cluster-Version": {
+                "type": "string",
+                "description": "Cluster configuration version"
+              },
+              "Configuration-Checksum": {
+                "type": "string",
+                "description": "Configuration file md5 checksum"
+              },
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
             }
           },
           "202": {
@@ -42617,6 +42757,18 @@ func init() {
               "type": "string"
             },
             "headers": {
+              "Cluster-Version": {
+                "type": "string",
+                "description": "Cluster configuration version"
+              },
+              "Configuration-Checksum": {
+                "type": "string",
+                "description": "Configuration file md5 checksum"
+              },
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              },
               "Reload-ID": {
                 "type": "string",
                 "description": "ID of the requested reload"
@@ -52970,6 +53122,18 @@ func init() {
               "$ref": "#/definitions/ssl_certificate"
             }
           },
+          "202": {
+            "description": "SSL certificate created requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificate"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
           "400": {
             "description": "Bad request",
             "schema": {
@@ -56462,6 +56626,14 @@ func init() {
           "pattern": "^[^\\s]+$",
           "x-nullable": true
         },
+        "mode": {
+          "type": "string",
+          "default": "http",
+          "enum": [
+            "http",
+            "https"
+          ]
+        },
         "name": {
           "type": "string"
         },
@@ -58440,7 +58612,8 @@ func init() {
         },
         "size": {
           "description": "File size in bytes.",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "storage_name": {
           "type": "string"
@@ -58639,6 +58812,10 @@ func init() {
           ],
           "x-display-name": "HTTP Client Resolvers Prefer"
         },
+        "httpclient_retries": {
+          "type": "integer",
+          "x-display-name": "HTTP Client Retries"
+        },
         "httpclient_ssl_ca_file": {
           "type": "string",
           "x-display-name": "HTTP Client SSL CA File"
@@ -58651,6 +58828,11 @@ func init() {
             "required"
           ],
           "x-display-name": "HTTP Client SSL Verify",
+          "x-nullable": true
+        },
+        "httpclient_timeout_connect": {
+          "type": "integer",
+          "x-display-name": "HTTP Client Connect Timeout",
           "x-nullable": true
         },
         "insecure_fork_wanted": {
@@ -58933,9 +59115,21 @@ func init() {
           "type": "string",
           "x-display-name": "SSL Default Server Ciphersuites"
         },
+        "ssl_default_server_client_sigalgs": {
+          "type": "string",
+          "x-display-name": "SSL Default Server Client Sigalgs"
+        },
+        "ssl_default_server_curves": {
+          "type": "string",
+          "x-display-name": "SSL Default Server Curves"
+        },
         "ssl_default_server_options": {
           "type": "string",
           "x-display-name": "SSL Default Server Options"
+        },
+        "ssl_default_server_sigalgs": {
+          "type": "string",
+          "x-display-name": "SSL Default Server Sigalgs"
         },
         "ssl_dh_param_file": {
           "type": "string"
@@ -58960,6 +59154,18 @@ func init() {
             "disabled"
           ],
           "x-display-name": "Asynchronous TLS I/O operations"
+        },
+        "ssl_propquery": {
+          "type": "string",
+          "x-display-name": "SSL Query String Property"
+        },
+        "ssl_provider": {
+          "type": "string",
+          "x-display-name": "SSL Provider"
+        },
+        "ssl_provider_path": {
+          "type": "string",
+          "x-display-name": "SSL Provider Path"
         },
         "ssl_server_verify": {
           "type": "string",
@@ -62546,7 +62752,8 @@ func init() {
         },
         "size": {
           "description": "File size in bytes.",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "storage_name": {
           "type": "string"
@@ -64722,6 +64929,14 @@ func init() {
             }
           }
         },
+        "client_sigalgs": {
+          "type": "string",
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          }
+        },
         "cookie": {
           "type": "string",
           "pattern": "^[^\\s]+$"
@@ -64731,6 +64946,14 @@ func init() {
           "x-dependency": {
             "ssl": {
               "value": "enabled"
+            }
+          }
+        },
+        "curves": {
+          "type": "string",
+          "x-dependency": {
+            "ssl": {
+              "value": true
             }
           }
         },
@@ -65017,6 +65240,14 @@ func init() {
         },
         "shard": {
           "type": "integer"
+        },
+        "sigalgs": {
+          "type": "string",
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          }
         },
         "slowstart": {
           "type": "integer",
@@ -65770,37 +66001,42 @@ func init() {
           "type": "string"
         },
         "domains": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "type": "string",
+          "x-omitempty": true,
+          "readOnly": true
         },
         "file": {
           "type": "string"
         },
         "ip_addresses": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "type": "string",
+          "x-omitempty": true,
+          "readOnly": true
         },
         "issuers": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "type": "string",
+          "x-omitempty": true,
+          "readOnly": true
         },
         "not_after": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-go-custom-tag": "gorm:\"type:timestamp with time zone\"",
+          "x-nullable": true,
+          "readOnly": true
         },
         "not_before": {
           "type": "string",
-          "format": "date"
+          "format": "date-time",
+          "x-go-custom-tag": "gorm:\"type:timestamp with time zone\"",
+          "x-nullable": true,
+          "readOnly": true
         },
         "size": {
           "description": "File size in bytes.",
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true,
+          "readOnly": true
         },
         "storage_name": {
           "type": "string"

@@ -94,6 +94,8 @@ func (h *StorageGetOneStorageSSLCertificateHandlerImpl) Handle(params storage.Ge
 		Size:        &size,
 		// NotAfter:    strfmt.Date(info.NotAfter),
 		// NotBefore:   strfmt.Date(info.NotBefore),
+		NotAfter:    (*strfmt.DateTime)(info.NotAfter),
+		NotBefore:   (*strfmt.DateTime)(info.NotBefore),
 		Issuers:     info.Issuers,
 		Domains:     info.DNS,
 		IPAddresses: info.IPs,
@@ -218,6 +220,9 @@ func (h *StorageReplaceStorageSSLCertificateHandlerImpl) Handle(params storage.R
 		// Size:        int64(len(params.Data)),
 		// NotAfter:    strfmt.Date(info.NotAfter),
 		// NotBefore:   strfmt.Date(info.NotBefore),
+		Size:        misc.Int64P(len(params.Data)),
+		NotAfter:    (*strfmt.DateTime)(info.NotAfter),
+		NotBefore:   (*strfmt.DateTime)(info.NotBefore),
 		Issuers:     info.Issuers,
 		Domains:     info.DNS,
 		IPAddresses: info.IPs,
@@ -290,6 +295,8 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 		Size:        &size,
 		// NotAfter:    strfmt.Date(info.NotAfter),
 		// NotBefore:   strfmt.Date(info.NotBefore),
+		NotAfter:    (*strfmt.DateTime)(info.NotAfter),
+		NotBefore:   (*strfmt.DateTime)(info.NotBefore),
 		Issuers:     info.Issuers,
 		Domains:     info.DNS,
 		IPAddresses: info.IPs,
@@ -306,6 +313,7 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 			e := misc.HandleError(err)
 			return storage.NewReplaceStorageMapFileDefault(int(*e.Code)).WithPayload(e)
 		}
+		return storage.NewCreateStorageSSLCertificateCreated().WithPayload(retf)
 	}
 
 	// fmt.Printf("%s\n%s\n", filename, contents)
@@ -316,4 +324,5 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 	}
 
 	return storage.NewCreateStorageSSLCertificateCreated().WithPayload(retf)
+
 }
