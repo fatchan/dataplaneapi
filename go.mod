@@ -24,7 +24,7 @@ require (
 	github.com/google/renameio v1.0.1
 	github.com/google/uuid v1.6.0
 	github.com/haproxytech/client-native/v6 v6.0.0-20240219081441-398247ed999f
-	github.com/haproxytech/config-parser/v5 v5.1.0
+	github.com/haproxytech/config-parser/v5 v5.1.1-0.20240228090858-f72c25c8ad69
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/json-iterator/go v1.1.12
 	github.com/kr/pretty v0.3.1
@@ -92,4 +92,4 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/haproxytech/client-native/v5 => /home/tom/Documents/client-native
+replace github.com/haproxytech/client-native/v6 => /home/tom/Documents/client-native
