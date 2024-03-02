@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetFCGIAppOKCode is the HTTP code returned for type GetFCGIAppOK
@@ -45,7 +45,7 @@ type GetFCGIAppOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetFCGIAppOKBody `json:"body,omitempty"`
+	Payload *models.FCGIApp `json:"body,omitempty"`
 }
 
 // NewGetFCGIAppOK creates GetFCGIAppOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetFCGIAppOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get Fcgi app o k response
-func (o *GetFCGIAppOK) WithPayload(payload *GetFCGIAppOKBody) *GetFCGIAppOK {
+func (o *GetFCGIAppOK) WithPayload(payload *models.FCGIApp) *GetFCGIAppOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get Fcgi app o k response
-func (o *GetFCGIAppOK) SetPayload(payload *GetFCGIAppOKBody) {
+func (o *GetFCGIAppOK) SetPayload(payload *models.FCGIApp) {
 	o.Payload = payload
 }
 

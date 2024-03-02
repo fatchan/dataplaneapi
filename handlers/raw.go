@@ -21,8 +21,8 @@ import (
 	"strings"
 
 	"github.com/go-openapi/runtime/middleware"
-	client_native "github.com/haproxytech/client-native/v5"
-	"github.com/haproxytech/client-native/v5/models"
+	client_native "github.com/haproxytech/client-native/v6"
+	"github.com/haproxytech/client-native/v6/models"
 	cn "github.com/haproxytech/dataplaneapi/client-native"
 	"github.com/haproxytech/dataplaneapi/haproxy"
 	"github.com/haproxytech/dataplaneapi/misc"
@@ -58,7 +58,7 @@ func (h *GetRawConfigurationHandlerImpl) Handle(params configuration.GetHAProxyC
 		return configuration.NewGetConfigurationVersionDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	v, clusterVersion, md5Hash, data, err := cfg.GetRawConfigurationWithClusterData(t, v)
+	_, clusterVersion, md5Hash, data, err := cfg.GetRawConfigurationWithClusterData(t, v)
 	if err != nil {
 		e := misc.HandleError(err)
 		return configuration.NewGetHAProxyConfigurationDefault(int(*e.Code)).WithPayload(e)
@@ -67,7 +67,7 @@ func (h *GetRawConfigurationHandlerImpl) Handle(params configuration.GetHAProxyC
 	if clusterVersion != 0 {
 		cVersion = strconv.FormatInt(clusterVersion, 10)
 	}
-	return configuration.NewGetHAProxyConfigurationOK().WithPayload(&configuration.GetHAProxyConfigurationOKBody{Version: v, Data: &data}).WithClusterVersion(cVersion).WithConfigurationChecksum(md5Hash)
+	return configuration.NewGetHAProxyConfigurationOK().WithPayload(&configuration.GetHAProxyConfigurationOKBody{Data: &data}).WithClusterVersion(cVersion).WithConfigurationChecksum(md5Hash)
 }
 
 // Handle executing the request and returning a response

@@ -17,8 +17,8 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	client_native "github.com/haproxytech/client-native/v5"
-	"github.com/haproxytech/client-native/v5/models"
+	client_native "github.com/haproxytech/client-native/v6"
+	"github.com/haproxytech/client-native/v6/models"
 
 	"github.com/haproxytech/dataplaneapi/haproxy"
 	"github.com/haproxytech/dataplaneapi/misc"
@@ -160,13 +160,13 @@ func (h *GetACLHandlerImpl) Handle(params acl.GetACLParams, principal interface{
 		return acl.NewGetACLDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	v, rule, err := configuration.GetACL(params.Index, params.ParentType, params.ParentName, t)
+	_, rule, err := configuration.GetACL(params.Index, params.ParentType, params.ParentName, t)
 	if err != nil {
 		e := misc.HandleError(err)
 		return acl.NewGetACLDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	return acl.NewGetACLOK().WithPayload(&acl.GetACLOKBody{Version: v, Data: rule})
+	return acl.NewGetACLOK().WithPayload(rule)
 }
 
 // Handle executing the request and returning a response
@@ -186,15 +186,15 @@ func (h *GetAclsHandlerImpl) Handle(params acl.GetAclsParams, principal interfac
 		return acl.NewGetACLDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	v, rules, err := configuration.GetACLs(params.ParentType, params.ParentName, t, aclName...)
+	_, rules, err := configuration.GetACLs(params.ParentType, params.ParentName, t, aclName...)
 	if err != nil {
 		e := misc.HandleContainerGetError(err)
 		if *e.Code == misc.ErrHTTPOk {
-			return acl.NewGetAclsOK().WithPayload(&acl.GetAclsOKBody{Version: v, Data: models.Acls{}})
+			return acl.NewGetAclsOK().WithPayload(rules)
 		}
 		return acl.NewGetAclsDefault(int(*e.Code)).WithPayload(e)
 	}
-	return acl.NewGetAclsOK().WithPayload(&acl.GetAclsOKBody{Version: v, Data: rules})
+	return acl.NewGetAclsOK().WithPayload(rules)
 }
 
 // Handle executing the request and returning a response

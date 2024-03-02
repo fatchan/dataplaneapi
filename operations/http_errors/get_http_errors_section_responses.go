@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetHTTPErrorsSectionOKCode is the HTTP code returned for type GetHTTPErrorsSectionOK
@@ -45,7 +45,7 @@ type GetHTTPErrorsSectionOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetHTTPErrorsSectionOKBody `json:"body,omitempty"`
+	Payload *models.HTTPErrorsSection `json:"body,omitempty"`
 }
 
 // NewGetHTTPErrorsSectionOK creates GetHTTPErrorsSectionOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetHTTPErrorsSectionOK) SetConfigurationVersion(configurationVersion st
 }
 
 // WithPayload adds the payload to the get Http errors section o k response
-func (o *GetHTTPErrorsSectionOK) WithPayload(payload *GetHTTPErrorsSectionOKBody) *GetHTTPErrorsSectionOK {
+func (o *GetHTTPErrorsSectionOK) WithPayload(payload *models.HTTPErrorsSection) *GetHTTPErrorsSectionOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get Http errors section o k response
-func (o *GetHTTPErrorsSectionOK) SetPayload(payload *GetHTTPErrorsSectionOKBody) {
+func (o *GetHTTPErrorsSectionOK) SetPayload(payload *models.HTTPErrorsSection) {
 	o.Payload = payload
 }
 

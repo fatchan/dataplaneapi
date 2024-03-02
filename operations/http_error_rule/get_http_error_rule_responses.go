@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetHTTPErrorRuleOKCode is the HTTP code returned for type GetHTTPErrorRuleOK
@@ -45,7 +45,7 @@ type GetHTTPErrorRuleOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetHTTPErrorRuleOKBody `json:"body,omitempty"`
+	Payload *models.HTTPErrorRule `json:"body,omitempty"`
 }
 
 // NewGetHTTPErrorRuleOK creates GetHTTPErrorRuleOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetHTTPErrorRuleOK) SetConfigurationVersion(configurationVersion string
 }
 
 // WithPayload adds the payload to the get Http error rule o k response
-func (o *GetHTTPErrorRuleOK) WithPayload(payload *GetHTTPErrorRuleOKBody) *GetHTTPErrorRuleOK {
+func (o *GetHTTPErrorRuleOK) WithPayload(payload *models.HTTPErrorRule) *GetHTTPErrorRuleOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get Http error rule o k response
-func (o *GetHTTPErrorRuleOK) SetPayload(payload *GetHTTPErrorRuleOKBody) {
+func (o *GetHTTPErrorRuleOK) SetPayload(payload *models.HTTPErrorRule) {
 	o.Payload = payload
 }
 

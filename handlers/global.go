@@ -17,8 +17,8 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	client_native "github.com/haproxytech/client-native/v5"
-	"github.com/haproxytech/client-native/v5/models"
+	client_native "github.com/haproxytech/client-native/v6"
+	"github.com/haproxytech/client-native/v6/models"
 	cn "github.com/haproxytech/dataplaneapi/client-native"
 	"github.com/haproxytech/dataplaneapi/haproxy"
 	"github.com/haproxytech/dataplaneapi/misc"
@@ -49,12 +49,12 @@ func (h *GetGlobalHandlerImpl) Handle(params global.GetGlobalParams, principal i
 		return global.NewGetGlobalDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	v, data, err := configuration.GetGlobalConfiguration(t)
+	_, data, err := configuration.GetGlobalConfiguration(t)
 	if err != nil {
 		e := misc.HandleError(err)
 		return global.NewGetGlobalDefault(int(*e.Code)).WithPayload(e)
 	}
-	return global.NewGetGlobalOK().WithPayload(&global.GetGlobalOKBody{Version: v, Data: data})
+	return global.NewGetGlobalOK().WithPayload(data)
 }
 
 // Handle executing the request and returning a response

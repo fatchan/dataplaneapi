@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetMailersSectionOKCode is the HTTP code returned for type GetMailersSectionOK
@@ -45,7 +45,7 @@ type GetMailersSectionOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetMailersSectionOKBody `json:"body,omitempty"`
+	Payload *models.MailersSection `json:"body,omitempty"`
 }
 
 // NewGetMailersSectionOK creates GetMailersSectionOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetMailersSectionOK) SetConfigurationVersion(configurationVersion strin
 }
 
 // WithPayload adds the payload to the get mailers section o k response
-func (o *GetMailersSectionOK) WithPayload(payload *GetMailersSectionOKBody) *GetMailersSectionOK {
+func (o *GetMailersSectionOK) WithPayload(payload *models.MailersSection) *GetMailersSectionOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get mailers section o k response
-func (o *GetMailersSectionOK) SetPayload(payload *GetMailersSectionOKBody) {
+func (o *GetMailersSectionOK) SetPayload(payload *models.MailersSection) {
 	o.Payload = payload
 }
 

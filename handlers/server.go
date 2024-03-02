@@ -19,8 +19,8 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
-	client_native "github.com/haproxytech/client-native/v5"
-	"github.com/haproxytech/client-native/v5/models"
+	client_native "github.com/haproxytech/client-native/v6"
+	"github.com/haproxytech/client-native/v6/models"
 
 	"github.com/haproxytech/dataplaneapi/haproxy"
 	"github.com/haproxytech/dataplaneapi/log"
@@ -225,12 +225,12 @@ func (h *GetServerHandlerImpl) Handle(params server.GetServerParams, principal i
 		return server.NewGetRuntimeServerDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	v, srv, err := configuration.GetServer(params.Name, pType, pName, t)
+	_, srv, err := configuration.GetServer(params.Name, pType, pName, t)
 	if err != nil {
 		e := misc.HandleError(err)
 		return server.NewGetServerDefault(int(*e.Code)).WithPayload(e)
 	}
-	return server.NewGetServerOK().WithPayload(&server.GetServerOKBody{Version: v, Data: srv})
+	return server.NewGetServerOK().WithPayload(srv)
 }
 
 // Handle executing the request and returning a response
@@ -252,15 +252,15 @@ func (h *GetServersHandlerImpl) Handle(params server.GetServersParams, principal
 		return server.NewGetRuntimeServersDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	v, srvs, err := configuration.GetServers(pType, pName, t)
+	_, srvs, err := configuration.GetServers(pType, pName, t)
 	if err != nil {
 		e := misc.HandleContainerGetError(err)
 		if *e.Code == misc.ErrHTTPOk {
-			return server.NewGetServersOK().WithPayload(&server.GetServersOKBody{Version: v, Data: models.Servers{}})
+			return server.NewGetServersOK().WithPayload(models.Servers{})
 		}
 		return server.NewGetServersDefault(int(*e.Code)).WithPayload(e)
 	}
-	return server.NewGetServersOK().WithPayload(&server.GetServersOKBody{Version: v, Data: srvs})
+	return server.NewGetServersOK().WithPayload(srvs)
 }
 
 // Handle executing the request and returning a response

@@ -17,8 +17,8 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	client_native "github.com/haproxytech/client-native/v5"
-	"github.com/haproxytech/client-native/v5/models"
+	client_native "github.com/haproxytech/client-native/v6"
+	"github.com/haproxytech/client-native/v6/models"
 
 	"github.com/haproxytech/dataplaneapi/haproxy"
 	"github.com/haproxytech/dataplaneapi/misc"
@@ -161,12 +161,12 @@ func (h *GetRingHandlerImpl) Handle(params ring.GetRingParams, principal interfa
 		return ring.NewGetRingDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	v, bck, err := configuration.GetRing(params.Name, t)
+	_, bck, err := configuration.GetRing(params.Name, t)
 	if err != nil {
 		e := misc.HandleError(err)
 		return ring.NewGetRingDefault(int(*e.Code)).WithPayload(e)
 	}
-	return ring.NewGetRingOK().WithPayload(&ring.GetRingOKBody{Version: v, Data: bck})
+	return ring.NewGetRingOK().WithPayload(bck)
 }
 
 // Handle executing the request and returning a response
@@ -182,12 +182,12 @@ func (h *GetRingsHandlerImpl) Handle(params ring.GetRingsParams, principal inter
 		return ring.NewGetRingsDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	v, bcks, err := configuration.GetRings(t)
+	_, bcks, err := configuration.GetRings(t)
 	if err != nil {
 		e := misc.HandleError(err)
 		return ring.NewGetRingsDefault(int(*e.Code)).WithPayload(e)
 	}
-	return ring.NewGetRingsOK().WithPayload(&ring.GetRingsOKBody{Version: v, Data: bcks})
+	return ring.NewGetRingsOK().WithPayload(bcks)
 }
 
 // Handle executing the request and returning a response

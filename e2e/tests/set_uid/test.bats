@@ -18,7 +18,7 @@
 load '../../libs/dataplaneapi'
 
 setup() {
-  run dpa_docker_exec 'kill -SIGUSR2 1'
+  run dpa_docker_exec 'kill -s 12 1'
   assert_success
 
   run dpa_docker_exec 'pkill -9 dataplaneapi'
@@ -48,7 +48,7 @@ teardown() {
   run docker cp "${E2E_DIR}/fixtures/dataplaneapi.yaml" "${DOCKER_CONTAINER_NAME}:/usr/local/bin/dataplaneapi.yaml"
   assert_success
 
-  run dpa_docker_exec 'kill -SIGUSR2 1'
+  run dpa_docker_exec 'kill -s 12 1'
   assert_success
 
   run dpa_docker_exec 'pkill -9 dataplaneapi'
@@ -62,7 +62,6 @@ teardown() {
 }
 
 @test "set_uid: check if running user is testuiduser for dataplane" {
-    PS=$(dpa_docker_exec "ps -eo ruser,user,comm | grep dataplaneapi")
-    echo $PS
-    [ "${PS}" = "testuidu testuidu dataplaneapi" ]
+    run dpa_docker_exec "ps -eo ruser,user,comm | grep dataplaneapi"
+    assert_output --regexp  '^testuid.* testuid.* dataplaneapi$'
 }

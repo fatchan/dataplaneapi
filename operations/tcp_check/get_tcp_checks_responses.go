@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetTCPChecksOKCode is the HTTP code returned for type GetTCPChecksOK
@@ -45,7 +45,7 @@ type GetTCPChecksOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetTCPChecksOKBody `json:"body,omitempty"`
+	Payload models.TCPChecks `json:"body,omitempty"`
 }
 
 // NewGetTCPChecksOK creates GetTCPChecksOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetTCPChecksOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get Tcp checks o k response
-func (o *GetTCPChecksOK) WithPayload(payload *GetTCPChecksOKBody) *GetTCPChecksOK {
+func (o *GetTCPChecksOK) WithPayload(payload models.TCPChecks) *GetTCPChecksOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get Tcp checks o k response
-func (o *GetTCPChecksOK) SetPayload(payload *GetTCPChecksOKBody) {
+func (o *GetTCPChecksOK) SetPayload(payload models.TCPChecks) {
 	o.Payload = payload
 }
 
@@ -87,11 +87,14 @@ func (o *GetTCPChecksOK) WriteResponse(rw http.ResponseWriter, producer runtime.
 	}
 
 	rw.WriteHeader(200)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if payload == nil {
+		// return empty array
+		payload = models.TCPChecks{}
+	}
+
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 

@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetTableOKCode is the HTTP code returned for type GetTableOK
@@ -45,7 +45,7 @@ type GetTableOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetTableOKBody `json:"body,omitempty"`
+	Payload *models.Table `json:"body,omitempty"`
 }
 
 // NewGetTableOK creates GetTableOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetTableOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get table o k response
-func (o *GetTableOK) WithPayload(payload *GetTableOKBody) *GetTableOK {
+func (o *GetTableOK) WithPayload(payload *models.Table) *GetTableOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get table o k response
-func (o *GetTableOK) SetPayload(payload *GetTableOKBody) {
+func (o *GetTableOK) SetPayload(payload *models.Table) {
 	o.Payload = payload
 }
 

@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetConsulOKCode is the HTTP code returned for type GetConsulOK
@@ -41,7 +41,7 @@ type GetConsulOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetConsulOKBody `json:"body,omitempty"`
+	Payload *models.Consul `json:"body,omitempty"`
 }
 
 // NewGetConsulOK creates GetConsulOK with default headers values
@@ -51,13 +51,13 @@ func NewGetConsulOK() *GetConsulOK {
 }
 
 // WithPayload adds the payload to the get consul o k response
-func (o *GetConsulOK) WithPayload(payload *GetConsulOKBody) *GetConsulOK {
+func (o *GetConsulOK) WithPayload(payload *models.Consul) *GetConsulOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get consul o k response
-func (o *GetConsulOK) SetPayload(payload *GetConsulOKBody) {
+func (o *GetConsulOK) SetPayload(payload *models.Consul) {
 	o.Payload = payload
 }
 

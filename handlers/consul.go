@@ -19,7 +19,7 @@ import (
 	"errors"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 
 	sc "github.com/haproxytech/dataplaneapi/discovery"
 	"github.com/haproxytech/dataplaneapi/misc"
@@ -121,7 +121,7 @@ func (c *GetConsulHandlerImpl) Handle(params service_discovery.GetConsulParams, 
 		e := misc.HandleError(errors.New("expected *models.Consul"))
 		return service_discovery.NewGetConsulsDefault(int(*e.Code)).WithPayload(e)
 	}
-	return service_discovery.NewGetConsulOK().WithPayload(&service_discovery.GetConsulOKBody{Data: consul})
+	return service_discovery.NewGetConsulOK().WithPayload(consul)
 }
 
 // Handle executing the request and returning a response
@@ -131,7 +131,7 @@ func (c *GetConsulsHandlerImpl) Handle(params service_discovery.GetConsulsParams
 		e := misc.HandleError(err)
 		return service_discovery.NewGetConsulDefault(int(*e.Code)).WithPayload(e)
 	}
-	return service_discovery.NewGetConsulsOK().WithPayload(&service_discovery.GetConsulsOKBody{Data: consuls})
+	return service_discovery.NewGetConsulsOK().WithPayload(consuls)
 }
 
 // Handle executing the request and returning a response

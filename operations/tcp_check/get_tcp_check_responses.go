@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetTCPCheckOKCode is the HTTP code returned for type GetTCPCheckOK
@@ -45,7 +45,7 @@ type GetTCPCheckOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetTCPCheckOKBody `json:"body,omitempty"`
+	Payload *models.TCPCheck `json:"body,omitempty"`
 }
 
 // NewGetTCPCheckOK creates GetTCPCheckOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetTCPCheckOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get Tcp check o k response
-func (o *GetTCPCheckOK) WithPayload(payload *GetTCPCheckOKBody) *GetTCPCheckOK {
+func (o *GetTCPCheckOK) WithPayload(payload *models.TCPCheck) *GetTCPCheckOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get Tcp check o k response
-func (o *GetTCPCheckOK) SetPayload(payload *GetTCPCheckOKBody) {
+func (o *GetTCPCheckOK) SetPayload(payload *models.TCPCheck) {
 	o.Payload = payload
 }
 

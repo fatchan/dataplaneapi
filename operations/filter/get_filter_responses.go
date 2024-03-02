@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetFilterOKCode is the HTTP code returned for type GetFilterOK
@@ -45,7 +45,7 @@ type GetFilterOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetFilterOKBody `json:"body,omitempty"`
+	Payload *models.Filter `json:"body,omitempty"`
 }
 
 // NewGetFilterOK creates GetFilterOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetFilterOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get filter o k response
-func (o *GetFilterOK) WithPayload(payload *GetFilterOKBody) *GetFilterOK {
+func (o *GetFilterOK) WithPayload(payload *models.Filter) *GetFilterOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get filter o k response
-func (o *GetFilterOK) SetPayload(payload *GetFilterOKBody) {
+func (o *GetFilterOK) SetPayload(payload *models.Filter) {
 	o.Payload = payload
 }
 

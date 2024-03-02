@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetHTTPCheckOKCode is the HTTP code returned for type GetHTTPCheckOK
@@ -45,7 +45,7 @@ type GetHTTPCheckOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetHTTPCheckOKBody `json:"body,omitempty"`
+	Payload *models.HTTPCheck `json:"body,omitempty"`
 }
 
 // NewGetHTTPCheckOK creates GetHTTPCheckOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetHTTPCheckOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get Http check o k response
-func (o *GetHTTPCheckOK) WithPayload(payload *GetHTTPCheckOKBody) *GetHTTPCheckOK {
+func (o *GetHTTPCheckOK) WithPayload(payload *models.HTTPCheck) *GetHTTPCheckOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get Http check o k response
-func (o *GetHTTPCheckOK) SetPayload(payload *GetHTTPCheckOKBody) {
+func (o *GetHTTPCheckOK) SetPayload(payload *models.HTTPCheck) {
 	o.Payload = payload
 }
 

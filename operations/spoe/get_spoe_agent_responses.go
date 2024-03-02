@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetSpoeAgentOKCode is the HTTP code returned for type GetSpoeAgentOK
@@ -45,7 +45,7 @@ type GetSpoeAgentOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetSpoeAgentOKBody `json:"body,omitempty"`
+	Payload *models.SpoeAgent `json:"body,omitempty"`
 }
 
 // NewGetSpoeAgentOK creates GetSpoeAgentOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetSpoeAgentOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get spoe agent o k response
-func (o *GetSpoeAgentOK) WithPayload(payload *GetSpoeAgentOKBody) *GetSpoeAgentOK {
+func (o *GetSpoeAgentOK) WithPayload(payload *models.SpoeAgent) *GetSpoeAgentOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get spoe agent o k response
-func (o *GetSpoeAgentOK) SetPayload(payload *GetSpoeAgentOKBody) {
+func (o *GetSpoeAgentOK) SetPayload(payload *models.SpoeAgent) {
 	o.Payload = payload
 }
 

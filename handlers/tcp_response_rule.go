@@ -17,8 +17,8 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	client_native "github.com/haproxytech/client-native/v5"
-	"github.com/haproxytech/client-native/v5/models"
+	client_native "github.com/haproxytech/client-native/v6"
+	"github.com/haproxytech/client-native/v6/models"
 
 	"github.com/haproxytech/dataplaneapi/haproxy"
 	"github.com/haproxytech/dataplaneapi/misc"
@@ -160,12 +160,12 @@ func (h *GetTCPResponseRuleHandlerImpl) Handle(params tcp_response_rule.GetTCPRe
 		e := misc.HandleError(err)
 		return tcp_response_rule.NewGetTCPResponseRuleDefault(int(*e.Code)).WithPayload(e)
 	}
-	v, rule, err := configuration.GetTCPResponseRule(params.Index, params.Backend, t)
+	_, rule, err := configuration.GetTCPResponseRule(params.Index, params.Backend, t)
 	if err != nil {
 		e := misc.HandleError(err)
 		return tcp_response_rule.NewGetTCPResponseRuleDefault(int(*e.Code)).WithPayload(e)
 	}
-	return tcp_response_rule.NewGetTCPResponseRuleOK().WithPayload(&tcp_response_rule.GetTCPResponseRuleOKBody{Version: v, Data: rule})
+	return tcp_response_rule.NewGetTCPResponseRuleOK().WithPayload(rule)
 }
 
 // Handle executing the request and returning a response
@@ -181,15 +181,15 @@ func (h *GetTCPResponseRulesHandlerImpl) Handle(params tcp_response_rule.GetTCPR
 		return tcp_response_rule.NewGetTCPResponseRulesDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	v, rules, err := configuration.GetTCPResponseRules(params.Backend, t)
+	_, rules, err := configuration.GetTCPResponseRules(params.Backend, t)
 	if err != nil {
 		e := misc.HandleContainerGetError(err)
 		if *e.Code == misc.ErrHTTPOk {
-			return tcp_response_rule.NewGetTCPResponseRulesOK().WithPayload(&tcp_response_rule.GetTCPResponseRulesOKBody{Version: v, Data: models.TCPResponseRules{}})
+			return tcp_response_rule.NewGetTCPResponseRulesOK().WithPayload(models.TCPResponseRules{})
 		}
 		return tcp_response_rule.NewGetTCPResponseRulesDefault(int(*e.Code)).WithPayload(e)
 	}
-	return tcp_response_rule.NewGetTCPResponseRulesOK().WithPayload(&tcp_response_rule.GetTCPResponseRulesOKBody{Version: v, Data: rules})
+	return tcp_response_rule.NewGetTCPResponseRulesOK().WithPayload(rules)
 }
 
 // Handle executing the request and returning a response

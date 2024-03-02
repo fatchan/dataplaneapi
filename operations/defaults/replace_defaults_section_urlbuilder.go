@@ -61,7 +61,7 @@ func (o *ReplaceDefaultsSectionURL) SetBasePath(bp string) {
 func (o *ReplaceDefaultsSectionURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/services/haproxy/configuration/named_defaults/{name}"
+	var _path = "/services/haproxy/configuration/defaults/{name}"
 
 	name := o.Name
 	if name != "" {
@@ -72,7 +72,7 @@ func (o *ReplaceDefaultsSectionURL) Build() (*url.URL, error) {
 
 	_basePath := o._basePath
 	if _basePath == "" {
-		_basePath = "/v2"
+		_basePath = "/v3"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 

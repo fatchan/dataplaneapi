@@ -21,18 +21,19 @@ load '../../libs/get_json_path'
 load '../../libs/haproxy_config_setup'
 load '../../libs/resource_client'
 load '../../libs/version'
+load '../../libs/haproxy_version'
 
 load 'utils/_helpers'
 
 @test "binds: Replace a bind (>=2.8)" {
   if haproxy_version_ge "2.8"
   then
-	PUT_FILE="/data/put_2.8.son"
+	PUT_FILE="data/put_2.8.json"
     resource_put "$_BIND_BASE_PATH/fixture" "$PUT_FILE" "frontend=test_frontend&force_reload=true"
 	assert_equal "$SC" 200
 
 	resource_get "$_BIND_BASE_PATH/fixture" "frontend=test_frontend&force_reload=true"
 	assert_equal "$SC" 200
-	assert_equal "$(get_json_path "$BODY" '.data')" "$(cat "$BATS_TEST_DIRNAME/$PUT_FILE")"
+	assert_equal "$(get_json_path "$BODY" '.')" "$(cat "$BATS_TEST_DIRNAME/$PUT_FILE")"
   fi
 }

@@ -4,7 +4,7 @@ stages:
   - e2e
 variables:
   DOCKER_HOST: tcp://docker:2375
-  DOCKER_BASE_IMAGE: $CI_REGISTRY_GO/haproxy-alpine
+  DOCKER_BASE_IMAGE: $CI_REGISTRY_GO/haproxy-debian
   BATS_VERSION: v1.4.1
   GO_VERSION: '1.21'
 
@@ -95,7 +95,7 @@ build:
     name: $CI_REGISTRY_GO/docker:stable
     entrypoint: [ "" ]
   services:
-    - name: $CI_REGISTRY_GO/docker:20.10.5-dind
+    - name: $CI_REGISTRY_GO/docker:24.0-dind
       alias: docker
   variables:
     LOCAL_IP_ADDRESS: docker
@@ -104,7 +104,7 @@ build:
   before_script:
     - apk add git bash curl jq git
     - git clone https://github.com/bats-core/bats-core.git && cd bats-core && git checkout $BATS_VERSION && ./install.sh /usr/local && cd ..
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY_GO
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY_GO
   script:
     - bash -x ./e2e/run.bash
   rules:
@@ -153,9 +153,21 @@ HAProxy_2_7:
     matrix:
       - TESTPART: [ "1/2", "2/2" ]
         HAPROXY_VERSION: "2.7"
-HAProxy_latest_dev:
+HAProxy_2_8:
   extends: .e2e
   parallel:
     matrix:
       - TESTPART: [ "1/2", "2/2" ]
         HAPROXY_VERSION: "2.8"
+HAProxy_2_9:
+  extends: .e2e
+  parallel:
+    matrix:
+      - TESTPART: [ "1/2", "2/2" ]
+        HAPROXY_VERSION: "2.9"
+HAProxy_3_0:
+  extends: .e2e
+  parallel:
+    matrix:
+      - TESTPART: [ "1/2", "2/2" ]
+        HAPROXY_VERSION: "3.0"

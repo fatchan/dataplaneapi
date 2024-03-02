@@ -27,13 +27,15 @@ import (
 	"github.com/go-openapi/runtime/security"
 	flags "github.com/jessevdk/go-flags"
 
-	"github.com/haproxytech/client-native/v5/models"
-	"github.com/haproxytech/client-native/v5/storage"
+	_ "github.com/KimMachineGun/automemlimit"
+	"github.com/haproxytech/client-native/v6/models"
+	"github.com/haproxytech/client-native/v6/storage"
 	"github.com/haproxytech/dataplaneapi"
 	"github.com/haproxytech/dataplaneapi/configuration"
 	"github.com/haproxytech/dataplaneapi/log"
 	"github.com/haproxytech/dataplaneapi/operations"
 	socket_runtime "github.com/haproxytech/dataplaneapi/runtime"
+	_ "go.uber.org/automaxprocs"
 )
 
 // GitRepo ...

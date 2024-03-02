@@ -17,7 +17,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	client_native "github.com/haproxytech/client-native/v5"
+	client_native "github.com/haproxytech/client-native/v6"
 
 	"github.com/haproxytech/dataplaneapi/misc"
 	"github.com/haproxytech/dataplaneapi/operations/spoe"
@@ -116,7 +116,7 @@ func (h *SpoeGetSpoeScopesHandlerImpl) Handle(params spoe.GetSpoeScopesParams, p
 		e := misc.HandleError(err)
 		return spoe.NewGetAllSpoeFilesDefault(int(*e.Code)).WithPayload(e)
 	}
-	return spoe.NewGetSpoeScopesOK().WithPayload(&spoe.GetSpoeScopesOKBody{Data: scopes})
+	return spoe.NewGetSpoeScopesOK().WithPayload(scopes)
 }
 
 // SpoeGetSpoeScopeHandlerImpl implementation of the SpoeGetSpoeScopeHandler interface
@@ -140,7 +140,7 @@ func (h *SpoeGetSpoeScopeHandlerImpl) Handle(params spoe.GetSpoeScopeParams, pri
 	if params.TransactionID != nil {
 		t = *params.TransactionID
 	}
-	v, scope, err := ss.GetScope(params.Name, t)
+	_, scope, err := ss.GetScope(params.Name, t)
 	if err != nil {
 		e := misc.HandleError(err)
 		return spoe.NewGetSpoeScopeDefault(int(*e.Code)).WithPayload(e)
@@ -148,5 +148,5 @@ func (h *SpoeGetSpoeScopeHandlerImpl) Handle(params spoe.GetSpoeScopeParams, pri
 	if scope == nil {
 		return spoe.NewGetSpoeScopeNotFound()
 	}
-	return spoe.NewGetSpoeScopeOK().WithPayload(&spoe.GetSpoeScopeOKBody{Version: v, Data: scope})
+	return spoe.NewGetSpoeScopeOK().WithPayload(*scope)
 }

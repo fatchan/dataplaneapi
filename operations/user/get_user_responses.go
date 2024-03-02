@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetUserOKCode is the HTTP code returned for type GetUserOK
@@ -45,7 +45,7 @@ type GetUserOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetUserOKBody `json:"body,omitempty"`
+	Payload *models.User `json:"body,omitempty"`
 }
 
 // NewGetUserOK creates GetUserOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetUserOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get user o k response
-func (o *GetUserOK) WithPayload(payload *GetUserOKBody) *GetUserOK {
+func (o *GetUserOK) WithPayload(payload *models.User) *GetUserOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get user o k response
-func (o *GetUserOK) SetPayload(payload *GetUserOKBody) {
+func (o *GetUserOK) SetPayload(payload *models.User) {
 	o.Payload = payload
 }
 

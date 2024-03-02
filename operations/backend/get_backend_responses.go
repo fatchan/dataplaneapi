@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetBackendOKCode is the HTTP code returned for type GetBackendOK
@@ -45,7 +45,7 @@ type GetBackendOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetBackendOKBody `json:"body,omitempty"`
+	Payload *models.Backend `json:"body,omitempty"`
 }
 
 // NewGetBackendOK creates GetBackendOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetBackendOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get backend o k response
-func (o *GetBackendOK) WithPayload(payload *GetBackendOKBody) *GetBackendOK {
+func (o *GetBackendOK) WithPayload(payload *models.Backend) *GetBackendOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get backend o k response
-func (o *GetBackendOK) SetPayload(payload *GetBackendOKBody) {
+func (o *GetBackendOK) SetPayload(payload *models.Backend) {
 	o.Payload = payload
 }
 

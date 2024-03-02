@@ -25,7 +25,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/haproxytech/client-native/v5/models"
+	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetGlobalOKCode is the HTTP code returned for type GetGlobalOK
@@ -45,7 +45,7 @@ type GetGlobalOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetGlobalOKBody `json:"body,omitempty"`
+	Payload *models.Global `json:"body,omitempty"`
 }
 
 // NewGetGlobalOK creates GetGlobalOK with default headers values
@@ -66,13 +66,13 @@ func (o *GetGlobalOK) SetConfigurationVersion(configurationVersion string) {
 }
 
 // WithPayload adds the payload to the get global o k response
-func (o *GetGlobalOK) WithPayload(payload *GetGlobalOKBody) *GetGlobalOK {
+func (o *GetGlobalOK) WithPayload(payload *models.Global) *GetGlobalOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get global o k response
-func (o *GetGlobalOK) SetPayload(payload *GetGlobalOKBody) {
+func (o *GetGlobalOK) SetPayload(payload *models.Global) {
 	o.Payload = payload
 }
 

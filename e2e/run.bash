@@ -16,10 +16,10 @@
 #
 set -eo pipefail
 
-export BASE_PATH="/v2"
+export BASE_PATH="/v3"
 
-HAPROXY_VERSION=${HAPROXY_VERSION:-2.8}
-DOCKER_BASE_IMAGE="${DOCKER_BASE_IMAGE:-haproxytech/haproxy-alpine}:${HAPROXY_VERSION}"
+HAPROXY_VERSION=${HAPROXY_VERSION:-2.9}
+DOCKER_BASE_IMAGE="${DOCKER_BASE_IMAGE:-haproxytech/haproxy-debian}:${HAPROXY_VERSION}"
 DOCKER_CONTAINER_NAME="dataplaneapi-e2e"
 export DOCKER_CONTAINER_NAME
 
@@ -44,7 +44,11 @@ if [ ! -z $PREWIPE ] && [ "$PREWIPE" == "y" ]; then
 fi
 
 # Custom configuration to run tests with the master socket.
-if [ $HAPROXY_VERSION = 2.7 ]; then
+IFS='.' read -ra version_parts <<< "$HAPROXY_VERSION"
+major="${version_parts[0]}"
+minor="${version_parts[1]}"
+
+if [[ "$major" -eq "2"  &&  "$minor" -ge "7" || "$major" -gt "2" ]] ; then
   HAPROXY_FLAGS="-W -db -S /var/lib/haproxy/master -f /usr/local/etc/haproxy/haproxy.cfg"
   VARIANT="-master-socket"
 fi
@@ -58,6 +62,7 @@ else
       --detach \
       --name ${DOCKER_CONTAINER_NAME} \
       --publish "${E2E_PORT}":8080 \
+      --security-opt seccomp=unconfined \
       "${DOCKER_BASE_IMAGE}" $HAPROXY_FLAGS > /dev/null 2>&1
     docker cp "${ROOT_DIR}/build/dataplaneapi" ${DOCKER_CONTAINER_NAME}:/usr/local/bin/dataplaneapi
     docker cp "${E2E_DIR}/fixtures/dataplaneapi${VARIANT}.yaml" ${DOCKER_CONTAINER_NAME}:/etc/haproxy/dataplaneapi.yaml
