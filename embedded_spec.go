@@ -15489,14 +15489,14 @@ func init() {
         "adv_check": {
           "type": "string",
           "enum": [
-            "ssl-hello-chk",
-            "smtpchk",
+            "httpchk",
             "ldap-check",
             "mysql-check",
             "pgsql-check",
-            "tcp-check",
             "redis-check",
-            "httpchk"
+            "smtpchk",
+            "ssl-hello-chk",
+            "tcp-check"
           ],
           "x-display-name": "Advanced Check"
         },
@@ -15610,6 +15610,7 @@ func init() {
           "x-display-name": "External Check Path"
         },
         "force_persist": {
+          "description": "This field is deprecated in favor of force_persist_list, and will be removed in a future release",
           "type": "object",
           "required": [
             "cond",
@@ -15633,7 +15634,40 @@ func init() {
               },
               "x-display-name": "Condition Test"
             }
-          }
+          },
+          "x-deprecated": true
+        },
+        "force_persist_list": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "cond",
+              "cond_test"
+            ],
+            "properties": {
+              "cond": {
+                "type": "string",
+                "enum": [
+                  "if",
+                  "unless"
+                ],
+                "x-display-name": "Condition"
+              },
+              "cond_test": {
+                "type": "string",
+                "x-dependency": {
+                  "cond": {
+                    "required": true
+                  }
+                },
+                "x-display-name": "Condition Test"
+              }
+            },
+            "x-go-name": "ForcePersist"
+          },
+          "x-go-name": "ForcePersistList",
+          "x-omitempty": true
         },
         "forwardfor": {
           "x-dependency": {
@@ -15664,6 +15698,10 @@ func init() {
           },
           "x-display-name": "H1 Adjust Bogus Server"
         },
+        "hash_balance_factor": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "hash_type": {
           "$ref": "#/definitions/hash_type"
         },
@@ -15680,23 +15718,6 @@ func init() {
           },
           "x-display-name": "HTTP bufferrequest"
         },
-        "http-check": {
-          "$ref": "#/definitions/http_check"
-        },
-        "http-keep-alive": {
-          "type": "string",
-          "enum": [
-            "enabled",
-            "disabled"
-          ],
-          "x-dependency": {
-            "mode": {
-              "value": "http"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "HTTP keep-alive"
-        },
         "http-no-delay": {
           "type": "string",
           "enum": [
@@ -15709,20 +15730,6 @@ func init() {
             }
           },
           "x-display-name": "HTTP low interactive delays"
-        },
-        "http-server-close": {
-          "type": "string",
-          "enum": [
-            "enabled",
-            "disabled"
-          ],
-          "x-dependency": {
-            "mode": {
-              "value": "http"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "HTTP server close"
         },
         "http-use-htx": {
           "type": "string",
@@ -15832,25 +15839,12 @@ func init() {
           },
           "$ref": "#/definitions/httpchk_params"
         },
-        "httpclose": {
-          "type": "string",
-          "enum": [
-            "enabled",
-            "disabled"
-          ],
-          "x-dependency": {
-            "mode": {
-              "value": "http"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "HTTP connection closing"
-        },
         "id": {
           "type": "integer",
           "x-nullable": true
         },
         "ignore_persist": {
+          "description": "This field is deprecated in favor of ignore_persist_list, and will be removed in a future release",
           "type": "object",
           "required": [
             "cond",
@@ -15874,7 +15868,40 @@ func init() {
               },
               "x-display-name": "Condition Test"
             }
-          }
+          },
+          "x-deprecated": true
+        },
+        "ignore_persist_list": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "cond",
+              "cond_test"
+            ],
+            "properties": {
+              "cond": {
+                "type": "string",
+                "enum": [
+                  "if",
+                  "unless"
+                ],
+                "x-display-name": "Condition"
+              },
+              "cond_test": {
+                "type": "string",
+                "x-dependency": {
+                  "cond": {
+                    "required": true
+                  }
+                },
+                "x-display-name": "Condition Test"
+              }
+            },
+            "x-go-name": "IgnorePersist"
+          },
+          "x-go-name": "IgnorePersistList",
+          "x-omitempty": true
         },
         "independent_streams": {
           "type": "string",
@@ -16211,17 +16238,17 @@ func init() {
         "algorithm": {
           "type": "string",
           "enum": [
-            "roundrobin",
-            "static-rr",
-            "leastconn",
             "first",
-            "source",
-            "uri",
-            "url_param",
+            "hash",
             "hdr",
+            "leastconn",
             "random",
             "rdp-cookie",
-            "hash"
+            "roundrobin",
+            "source",
+            "static-rr",
+            "uri",
+            "url_param"
           ]
         },
         "hash_expression": {
@@ -16956,6 +16983,16 @@ func init() {
     "compression": {
       "type": "object",
       "properties": {
+        "algo-req": {
+          "type": "string",
+          "enum": [
+            "identity",
+            "gzip",
+            "deflate",
+            "raw-deflate"
+          ],
+          "x-omitempty": true
+        },
         "algorithms": {
           "type": "array",
           "items": {
@@ -16969,10 +17006,46 @@ func init() {
           },
           "x-omitempty": true
         },
+        "algos-res": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "identity",
+              "gzip",
+              "deflate",
+              "raw-deflate"
+            ]
+          },
+          "x-omitempty": true
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "request",
+            "response",
+            "both"
+          ],
+          "x-omitempty": true
+        },
         "offload": {
           "type": "boolean"
         },
         "types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-omitempty": true
+        },
+        "types-req": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-omitempty": true
+        },
+        "types-res": {
           "type": "array",
           "items": {
             "type": "string"
@@ -17122,24 +17195,6 @@ func init() {
             "linear",
             "exponential"
           ]
-        },
-        "service-blacklist": {
-          "description": "deprecated, use service_denylist",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "pattern": "^[^\\s]+$"
-          },
-          "x-omitempty": true
-        },
-        "service-whitelist": {
-          "description": "deprecated, use service_allowlist",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "pattern": "^[^\\s]+$"
-          },
-          "x-omitempty": true
         },
         "service_allowlist": {
           "type": "array",
@@ -17308,14 +17363,14 @@ func init() {
         "adv_check": {
           "type": "string",
           "enum": [
-            "ssl-hello-chk",
-            "smtpchk",
+            "httpchk",
             "ldap-check",
             "mysql-check",
             "pgsql-check",
-            "tcp-check",
             "redis-check",
-            "httpchk"
+            "smtpchk",
+            "ssl-hello-chk",
+            "tcp-check"
           ],
           "x-display-name": "Advanced Check"
         },
@@ -17520,6 +17575,10 @@ func init() {
             "disabled"
           ],
           "x-display-name": "H1 Adjust Bogus Server"
+        },
+        "hash_balance_factor": {
+          "type": "integer",
+          "x-nullable": true
         },
         "hash_type": {
           "$ref": "#/definitions/hash_type"
@@ -17904,11 +17963,6 @@ func init() {
         },
         "unique_id_header": {
           "type": "string",
-          "x-dependency": {
-            "unique_id_format": {
-              "required": true
-            }
-          },
           "x-display-name": "Unique ID header"
         }
       },
@@ -18560,13 +18614,13 @@ func init() {
         "type": {
           "type": "string",
           "enum": [
-            "trace",
-            "compression",
-            "spoe",
-            "cache",
-            "fcgi-app",
             "bwlim-in",
-            "bwlim-out"
+            "bwlim-out",
+            "cache",
+            "compression",
+            "fcgi-app",
+            "spoe",
+            "trace"
           ],
           "x-nullable": false
         }
@@ -19042,11 +19096,6 @@ func init() {
         },
         "unique_id_header": {
           "type": "string",
-          "x-dependency": {
-            "unique_id_format": {
-              "required": true
-            }
-          },
           "x-display-name": "Unique ID header"
         }
       },
@@ -20260,11 +20309,6 @@ func init() {
             }
           }
         },
-        "tune_ssl_default_dh_param": {
-          "type": "integer",
-          "x-deprecated": true,
-          "x-display-name": "SSL Default DH Parameter Size"
-        },
         "uid": {
           "type": "integer",
           "x-display-name": "UID"
@@ -20576,6 +20620,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             }
@@ -20588,7 +20633,8 @@ func init() {
               "required": true,
               "value": [
                 "sc-add-gpc",
-                "sc-inc-gpc"
+                "sc-inc-gpc",
+                "sc-set-gpt"
               ]
             }
           }
@@ -20654,6 +20700,7 @@ func init() {
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "set-header",
             "set-log-level",
@@ -21432,8 +21479,12 @@ func init() {
               "required": true,
               "value": [
                 "do-resolve",
+                "set-bc-mark",
+                "set-bc-tos",
                 "set-dst",
                 "set-dst-port",
+                "set-fc-mark",
+                "set-fc-tos",
                 "set-priority-class",
                 "set-priority-offset",
                 "set-src",
@@ -21643,7 +21694,7 @@ func init() {
             "path-strip-dot",
             "path-strip-dotdot",
             "percent-decode-unreserved",
-            "percent-to-upercase",
+            "percent-to-uppercase",
             "query-sort-by-name"
           ],
           "x-dependency": {
@@ -21670,7 +21721,7 @@ func init() {
             "normalizer": {
               "value": [
                 "percent-decode-unreserved",
-                "percent-to-upercase"
+                "percent-to-uppercase"
               ]
             },
             "type": {
@@ -21897,6 +21948,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             }
@@ -21909,7 +21961,8 @@ func init() {
               "required": true,
               "value": [
                 "sc-add-gpc",
-                "sc-inc-gpc"
+                "sc-inc-gpc",
+                "sc-set-gpt"
               ]
             }
           }
@@ -22006,75 +22059,6 @@ func init() {
           },
           "x-display-name": "Tos Value"
         },
-        "track-sc0-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc0"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc0 Key"
-        },
-        "track-sc0-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc0"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc0 Table"
-        },
-        "track-sc1-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc1"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc1 Key"
-        },
-        "track-sc1-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc1"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc1 Table"
-        },
-        "track-sc2-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc2"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc2 Key"
-        },
-        "track-sc2-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc2"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc2 Table"
-        },
         "track_sc_key": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -22136,10 +22120,15 @@ func init() {
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "send-spoe-group",
+            "set-bc-mark",
+            "set-bc-tos",
             "set-dst",
             "set-dst-port",
+            "set-fc-mark",
+            "set-fc-tos",
             "set-header",
             "set-log-level",
             "set-map",
@@ -22409,6 +22398,19 @@ func init() {
           },
           "x-nullable": true
         },
+        "expr": {
+          "type": "string",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": [
+                "set-fc-mark",
+                "set-fc-tos"
+              ]
+            }
+          },
+          "x-display-name": "Standard HAProxy expression"
+        },
         "hdr_format": {
           "type": "string",
           "x-dependency": {
@@ -22723,6 +22725,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             }
@@ -22735,7 +22738,8 @@ func init() {
               "required": true,
               "value": [
                 "sc-add-gpc",
-                "sc-inc-gpc"
+                "sc-inc-gpc",
+                "sc-set-gpt"
               ]
             }
           }
@@ -22841,75 +22845,6 @@ func init() {
           },
           "x-display-name": "Tos Value"
         },
-        "track-sc0-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc0"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc0 Key"
-        },
-        "track-sc0-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc0"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc0 Table"
-        },
-        "track-sc1-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc1"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc1 Key"
-        },
-        "track-sc1-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc1"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc1 Table"
-        },
-        "track-sc2-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc2"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc2 Key"
-        },
-        "track-sc2-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc2"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc2 Table"
-        },
         "track_sc_key": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -22962,8 +22897,11 @@ func init() {
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "send-spoe-group",
+            "set-fc-mark",
+            "set-fc-tos",
             "set-header",
             "set-log-level",
             "set-map",
@@ -25300,13 +25238,13 @@ func init() {
           "items": {
             "type": "string",
             "enum": [
-              "ssl",
-              "cert-cn",
-              "ssl-cipher",
-              "cert-sig",
-              "cert-key",
               "authority",
+              "cert-cn",
+              "cert-key",
+              "cert-sig",
               "crc32c",
+              "ssl",
+              "ssl-cipher",
               "unique-id"
             ]
           },
@@ -25919,13 +25857,13 @@ func init() {
           "items": {
             "type": "string",
             "enum": [
-              "ssl",
-              "cert-cn",
-              "ssl-cipher",
-              "cert-sig",
-              "cert-key",
               "authority",
+              "cert-cn",
+              "cert-key",
+              "cert-sig",
               "crc32c",
+              "ssl",
+              "ssl-cipher",
               "unique-id"
             ]
           },
@@ -26703,14 +26641,14 @@ func init() {
             "name": {
               "type": "string",
               "enum": [
-                "on-client-session",
-                "on-server-session",
-                "on-frontend-tcp-request",
-                "on-backend-tcp-request",
-                "on-tcp-response",
-                "on-frontend-http-request",
                 "on-backend-http-request",
-                "on-http-response"
+                "on-backend-tcp-request",
+                "on-client-session",
+                "on-frontend-http-request",
+                "on-frontend-tcp-request",
+                "on-http-response",
+                "on-server-session",
+                "on-tcp-response"
               ]
             }
           }
@@ -27147,25 +27085,25 @@ func init() {
               "field": {
                 "type": "string",
                 "enum": [
-                  "server_id",
+                  "bytes_in_cnt",
+                  "bytes_in_rate",
+                  "bytes_out_cnt",
+                  "bytes_out_rate",
+                  "conn_cnt",
+                  "conn_cur",
+                  "conn_rate",
                   "gpc0",
                   "gpc0_rate",
                   "gpc1",
                   "gpc1_rate",
                   "gpt0",
-                  "conn_cnt",
-                  "conn_cur",
-                  "conn_rate",
-                  "sess_cnt",
-                  "sess_rate",
                   "http_req_cnt",
                   "http_req_rate",
                   "http_err_cnt",
                   "http_err_rate",
-                  "bytes_in_cnt",
-                  "bytes_in_rate",
-                  "bytes_out_cnt",
-                  "bytes_out_rate"
+                  "server_id",
+                  "sess_cnt",
+                  "sess_rate"
                 ]
               },
               "period": {
@@ -27756,34 +27694,40 @@ func init() {
             "do-resolve",
             "expect-netscaler-cip",
             "expect-proxy",
+            "lua",
             "reject",
             "sc-add-gpc",
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "send-spoe-group",
+            "set-bandwidth-limit",
+            "set-bc-mark",
+            "set-bc-tos",
             "set-dst-port",
             "set-dst",
-            "set-priority",
+            "set-fc-mark",
+            "set-fc-tos",
+            "set-log-level",
+            "set-mark",
+            "set-nice",
+            "set-priority-class",
+            "set-priority-offset",
             "set-src",
+            "set-src-port",
+            "set-tos",
             "set-var",
+            "set-var-fmt",
             "silent-drop",
+            "switch-mode",
             "track-sc0",
             "track-sc1",
             "track-sc2",
             "track-sc",
             "unset-var",
-            "use-service",
-            "lua",
-            "set-bandwidth-limit",
-            "set-src-port",
-            "set-mark",
-            "set-tos",
-            "set-var-fmt",
-            "set-log-level",
-            "set-nice",
-            "switch-mode"
+            "use-service"
           ],
           "x-dependency": {
             "type": {
@@ -27914,12 +27858,17 @@ func init() {
               "required": true,
               "value": [
                 "do-resolve",
-                "set-var",
-                "set-src",
-                "set-priority",
+                "set-bc-mark",
+                "set-bc-tos",
                 "set-dst",
                 "set-dst-port",
-                "set-src-port"
+                "set-fc-mark",
+                "set-fc-tos",
+                "set-priority-class",
+                "set-priority-offset",
+                "set-src",
+                "set-src-port",
+                "set-var"
               ]
             },
             "type": {
@@ -28042,24 +27991,6 @@ func init() {
           "x-display-name": "Nice Value",
           "x-nullable": false
         },
-        "priority_type": {
-          "type": "string",
-          "enum": [
-            "class",
-            "offset"
-          ],
-          "x-dependency": {
-            "action": {
-              "required": true,
-              "value": "set-priority"
-            },
-            "type": {
-              "value": [
-                "content"
-              ]
-            }
-          }
-        },
         "resolve_protocol": {
           "type": "string",
           "enum": [
@@ -28117,7 +28048,9 @@ func init() {
           "x-dependency": {
             "action": {
               "required": true,
-              "value": null
+              "value": [
+                "sc-set-gpt"
+              ]
             },
             "type": {
               "required": true,
@@ -28140,6 +28073,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             },
@@ -28433,20 +28367,25 @@ func init() {
           "type": "string",
           "enum": [
             "accept",
-            "reject",
-            "lua",
-            "set-bandwidth-limit",
             "close",
+            "lua",
+            "reject",
             "sc-add-gpc",
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "send-spoe-group",
+            "set-bandwidth-limit",
+            "set-fc-mark",
+            "set-fc-tos",
             "set-log-level",
             "set-mark",
             "set-nice",
             "set-tos",
+            "set-var",
+            "set-var-fmt",
             "silent-drop",
             "unset-var"
           ],
@@ -28531,7 +28470,9 @@ func init() {
               "required": true,
               "value": [
                 "set-src-port",
-                "sc-set-gpt0"
+                "sc-set-gpt0",
+                "set-fc-mark",
+                "set-fc-tos"
               ]
             },
             "type": {
@@ -28649,6 +28590,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             },
@@ -28664,6 +28606,7 @@ func init() {
               "required": true,
               "value": [
                 "sc-add-gpc",
+                "sc-set-gpt",
                 "sc-inc-gpc"
               ]
             },
@@ -28748,6 +28691,19 @@ func init() {
             "inspect-delay"
           ],
           "x-nullable": false
+        },
+        "var_format": {
+          "type": "string",
+          "x-dependency": {
+            "action": {
+              "required": true,
+              "value": "set-var-fmt"
+            },
+            "type": {
+              "value": "content"
+            }
+          },
+          "x-display-name": "Var Format"
         },
         "var_name": {
           "type": "string",
@@ -52039,6 +51995,7 @@ func init() {
   },
   "definitions": {
     "BackendForcePersist": {
+      "description": "This field is deprecated in favor of force_persist_list, and will be removed in a future release",
       "type": "object",
       "required": [
         "cond",
@@ -52062,9 +52019,38 @@ func init() {
           },
           "x-display-name": "Condition Test"
         }
-      }
+      },
+      "x-deprecated": true
+    },
+    "BackendForcePersistListItems0": {
+      "type": "object",
+      "required": [
+        "cond",
+        "cond_test"
+      ],
+      "properties": {
+        "cond": {
+          "type": "string",
+          "enum": [
+            "if",
+            "unless"
+          ],
+          "x-display-name": "Condition"
+        },
+        "cond_test": {
+          "type": "string",
+          "x-dependency": {
+            "cond": {
+              "required": true
+            }
+          },
+          "x-display-name": "Condition Test"
+        }
+      },
+      "x-go-name": "ForcePersist"
     },
     "BackendIgnorePersist": {
+      "description": "This field is deprecated in favor of ignore_persist_list, and will be removed in a future release",
       "type": "object",
       "required": [
         "cond",
@@ -52088,7 +52074,35 @@ func init() {
           },
           "x-display-name": "Condition Test"
         }
-      }
+      },
+      "x-deprecated": true
+    },
+    "BackendIgnorePersistListItems0": {
+      "type": "object",
+      "required": [
+        "cond",
+        "cond_test"
+      ],
+      "properties": {
+        "cond": {
+          "type": "string",
+          "enum": [
+            "if",
+            "unless"
+          ],
+          "x-display-name": "Condition"
+        },
+        "cond_test": {
+          "type": "string",
+          "x-dependency": {
+            "cond": {
+              "required": true
+            }
+          },
+          "x-display-name": "Condition Test"
+        }
+      },
+      "x-go-name": "IgnorePersist"
     },
     "ClusterSettingsCluster": {
       "type": "object",
@@ -53168,14 +53182,14 @@ func init() {
         "name": {
           "type": "string",
           "enum": [
-            "on-client-session",
-            "on-server-session",
-            "on-frontend-tcp-request",
-            "on-backend-tcp-request",
-            "on-tcp-response",
-            "on-frontend-http-request",
             "on-backend-http-request",
-            "on-http-response"
+            "on-backend-tcp-request",
+            "on-client-session",
+            "on-frontend-http-request",
+            "on-frontend-tcp-request",
+            "on-http-response",
+            "on-server-session",
+            "on-tcp-response"
           ]
         }
       }
@@ -53186,25 +53200,25 @@ func init() {
         "field": {
           "type": "string",
           "enum": [
-            "server_id",
+            "bytes_in_cnt",
+            "bytes_in_rate",
+            "bytes_out_cnt",
+            "bytes_out_rate",
+            "conn_cnt",
+            "conn_cur",
+            "conn_rate",
             "gpc0",
             "gpc0_rate",
             "gpc1",
             "gpc1_rate",
             "gpt0",
-            "conn_cnt",
-            "conn_cur",
-            "conn_rate",
-            "sess_cnt",
-            "sess_rate",
             "http_req_cnt",
             "http_req_rate",
             "http_err_cnt",
             "http_err_rate",
-            "bytes_in_cnt",
-            "bytes_in_rate",
-            "bytes_out_cnt",
-            "bytes_out_rate"
+            "server_id",
+            "sess_cnt",
+            "sess_rate"
           ]
         },
         "period": {
@@ -53468,14 +53482,14 @@ func init() {
         "adv_check": {
           "type": "string",
           "enum": [
-            "ssl-hello-chk",
-            "smtpchk",
+            "httpchk",
             "ldap-check",
             "mysql-check",
             "pgsql-check",
-            "tcp-check",
             "redis-check",
-            "httpchk"
+            "smtpchk",
+            "ssl-hello-chk",
+            "tcp-check"
           ],
           "x-display-name": "Advanced Check"
         },
@@ -53589,6 +53603,7 @@ func init() {
           "x-display-name": "External Check Path"
         },
         "force_persist": {
+          "description": "This field is deprecated in favor of force_persist_list, and will be removed in a future release",
           "type": "object",
           "required": [
             "cond",
@@ -53612,7 +53627,16 @@ func init() {
               },
               "x-display-name": "Condition Test"
             }
-          }
+          },
+          "x-deprecated": true
+        },
+        "force_persist_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BackendForcePersistListItems0"
+          },
+          "x-go-name": "ForcePersistList",
+          "x-omitempty": true
         },
         "forwardfor": {
           "x-dependency": {
@@ -53643,6 +53667,10 @@ func init() {
           },
           "x-display-name": "H1 Adjust Bogus Server"
         },
+        "hash_balance_factor": {
+          "type": "integer",
+          "x-nullable": true
+        },
         "hash_type": {
           "$ref": "#/definitions/hash_type"
         },
@@ -53659,23 +53687,6 @@ func init() {
           },
           "x-display-name": "HTTP bufferrequest"
         },
-        "http-check": {
-          "$ref": "#/definitions/http_check"
-        },
-        "http-keep-alive": {
-          "type": "string",
-          "enum": [
-            "enabled",
-            "disabled"
-          ],
-          "x-dependency": {
-            "mode": {
-              "value": "http"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "HTTP keep-alive"
-        },
         "http-no-delay": {
           "type": "string",
           "enum": [
@@ -53688,20 +53699,6 @@ func init() {
             }
           },
           "x-display-name": "HTTP low interactive delays"
-        },
-        "http-server-close": {
-          "type": "string",
-          "enum": [
-            "enabled",
-            "disabled"
-          ],
-          "x-dependency": {
-            "mode": {
-              "value": "http"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "HTTP server close"
         },
         "http-use-htx": {
           "type": "string",
@@ -53811,25 +53808,12 @@ func init() {
           },
           "$ref": "#/definitions/httpchk_params"
         },
-        "httpclose": {
-          "type": "string",
-          "enum": [
-            "enabled",
-            "disabled"
-          ],
-          "x-dependency": {
-            "mode": {
-              "value": "http"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "HTTP connection closing"
-        },
         "id": {
           "type": "integer",
           "x-nullable": true
         },
         "ignore_persist": {
+          "description": "This field is deprecated in favor of ignore_persist_list, and will be removed in a future release",
           "type": "object",
           "required": [
             "cond",
@@ -53853,7 +53837,16 @@ func init() {
               },
               "x-display-name": "Condition Test"
             }
-          }
+          },
+          "x-deprecated": true
+        },
+        "ignore_persist_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BackendIgnorePersistListItems0"
+          },
+          "x-go-name": "IgnorePersistList",
+          "x-omitempty": true
         },
         "independent_streams": {
           "type": "string",
@@ -54190,17 +54183,17 @@ func init() {
         "algorithm": {
           "type": "string",
           "enum": [
-            "roundrobin",
-            "static-rr",
-            "leastconn",
             "first",
-            "source",
-            "uri",
-            "url_param",
+            "hash",
             "hdr",
+            "leastconn",
             "random",
             "rdp-cookie",
-            "hash"
+            "roundrobin",
+            "source",
+            "static-rr",
+            "uri",
+            "url_param"
           ]
         },
         "hash_expression": {
@@ -54909,6 +54902,16 @@ func init() {
     "compression": {
       "type": "object",
       "properties": {
+        "algo-req": {
+          "type": "string",
+          "enum": [
+            "identity",
+            "gzip",
+            "deflate",
+            "raw-deflate"
+          ],
+          "x-omitempty": true
+        },
         "algorithms": {
           "type": "array",
           "items": {
@@ -54922,10 +54925,46 @@ func init() {
           },
           "x-omitempty": true
         },
+        "algos-res": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "identity",
+              "gzip",
+              "deflate",
+              "raw-deflate"
+            ]
+          },
+          "x-omitempty": true
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "request",
+            "response",
+            "both"
+          ],
+          "x-omitempty": true
+        },
         "offload": {
           "type": "boolean"
         },
         "types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-omitempty": true
+        },
+        "types-req": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-omitempty": true
+        },
+        "types-res": {
           "type": "array",
           "items": {
             "type": "string"
@@ -55075,24 +55114,6 @@ func init() {
             "linear",
             "exponential"
           ]
-        },
-        "service-blacklist": {
-          "description": "deprecated, use service_denylist",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "pattern": "^[^\\s]+$"
-          },
-          "x-omitempty": true
-        },
-        "service-whitelist": {
-          "description": "deprecated, use service_allowlist",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "pattern": "^[^\\s]+$"
-          },
-          "x-omitempty": true
         },
         "service_allowlist": {
           "type": "array",
@@ -55247,14 +55268,14 @@ func init() {
         "adv_check": {
           "type": "string",
           "enum": [
-            "ssl-hello-chk",
-            "smtpchk",
+            "httpchk",
             "ldap-check",
             "mysql-check",
             "pgsql-check",
-            "tcp-check",
             "redis-check",
-            "httpchk"
+            "smtpchk",
+            "ssl-hello-chk",
+            "tcp-check"
           ],
           "x-display-name": "Advanced Check"
         },
@@ -55459,6 +55480,10 @@ func init() {
             "disabled"
           ],
           "x-display-name": "H1 Adjust Bogus Server"
+        },
+        "hash_balance_factor": {
+          "type": "integer",
+          "x-nullable": true
         },
         "hash_type": {
           "$ref": "#/definitions/hash_type"
@@ -55843,11 +55868,6 @@ func init() {
         },
         "unique_id_header": {
           "type": "string",
-          "x-dependency": {
-            "unique_id_format": {
-              "required": true
-            }
-          },
           "x-display-name": "Unique ID header"
         }
       },
@@ -56499,13 +56519,13 @@ func init() {
         "type": {
           "type": "string",
           "enum": [
-            "trace",
-            "compression",
-            "spoe",
-            "cache",
-            "fcgi-app",
             "bwlim-in",
-            "bwlim-out"
+            "bwlim-out",
+            "cache",
+            "compression",
+            "fcgi-app",
+            "spoe",
+            "trace"
           ],
           "x-nullable": false
         }
@@ -56981,11 +57001,6 @@ func init() {
         },
         "unique_id_header": {
           "type": "string",
-          "x-dependency": {
-            "unique_id_format": {
-              "required": true
-            }
-          },
           "x-display-name": "Unique ID header"
         }
       },
@@ -58040,11 +58055,6 @@ func init() {
             }
           }
         },
-        "tune_ssl_default_dh_param": {
-          "type": "integer",
-          "x-deprecated": true,
-          "x-display-name": "SSL Default DH Parameter Size"
-        },
         "uid": {
           "type": "integer",
           "x-display-name": "UID"
@@ -58356,6 +58366,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             }
@@ -58368,7 +58379,8 @@ func init() {
               "required": true,
               "value": [
                 "sc-add-gpc",
-                "sc-inc-gpc"
+                "sc-inc-gpc",
+                "sc-set-gpt"
               ]
             }
           }
@@ -58434,6 +58446,7 @@ func init() {
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "set-header",
             "set-log-level",
@@ -59212,8 +59225,12 @@ func init() {
               "required": true,
               "value": [
                 "do-resolve",
+                "set-bc-mark",
+                "set-bc-tos",
                 "set-dst",
                 "set-dst-port",
+                "set-fc-mark",
+                "set-fc-tos",
                 "set-priority-class",
                 "set-priority-offset",
                 "set-src",
@@ -59423,7 +59440,7 @@ func init() {
             "path-strip-dot",
             "path-strip-dotdot",
             "percent-decode-unreserved",
-            "percent-to-upercase",
+            "percent-to-uppercase",
             "query-sort-by-name"
           ],
           "x-dependency": {
@@ -59450,7 +59467,7 @@ func init() {
             "normalizer": {
               "value": [
                 "percent-decode-unreserved",
-                "percent-to-upercase"
+                "percent-to-uppercase"
               ]
             },
             "type": {
@@ -59677,6 +59694,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             }
@@ -59689,7 +59707,8 @@ func init() {
               "required": true,
               "value": [
                 "sc-add-gpc",
-                "sc-inc-gpc"
+                "sc-inc-gpc",
+                "sc-set-gpt"
               ]
             }
           }
@@ -59786,75 +59805,6 @@ func init() {
           },
           "x-display-name": "Tos Value"
         },
-        "track-sc0-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc0"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc0 Key"
-        },
-        "track-sc0-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc0"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc0 Table"
-        },
-        "track-sc1-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc1"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc1 Key"
-        },
-        "track-sc1-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc1"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc1 Table"
-        },
-        "track-sc2-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc2"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc2 Key"
-        },
-        "track-sc2-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc2"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc2 Table"
-        },
         "track_sc_key": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -59916,10 +59866,15 @@ func init() {
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "send-spoe-group",
+            "set-bc-mark",
+            "set-bc-tos",
             "set-dst",
             "set-dst-port",
+            "set-fc-mark",
+            "set-fc-tos",
             "set-header",
             "set-log-level",
             "set-map",
@@ -60189,6 +60144,19 @@ func init() {
           },
           "x-nullable": true
         },
+        "expr": {
+          "type": "string",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": [
+                "set-fc-mark",
+                "set-fc-tos"
+              ]
+            }
+          },
+          "x-display-name": "Standard HAProxy expression"
+        },
         "hdr_format": {
           "type": "string",
           "x-dependency": {
@@ -60503,6 +60471,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             }
@@ -60515,7 +60484,8 @@ func init() {
               "required": true,
               "value": [
                 "sc-add-gpc",
-                "sc-inc-gpc"
+                "sc-inc-gpc",
+                "sc-set-gpt"
               ]
             }
           }
@@ -60621,75 +60591,6 @@ func init() {
           },
           "x-display-name": "Tos Value"
         },
-        "track-sc0-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc0"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc0 Key"
-        },
-        "track-sc0-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc0"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc0 Table"
-        },
-        "track-sc1-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc1"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc1 Key"
-        },
-        "track-sc1-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc1"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc1 Table"
-        },
-        "track-sc2-key": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "required": true,
-              "value": "track-sc2"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc2 Key"
-        },
-        "track-sc2-table": {
-          "type": "string",
-          "pattern": "^[^\\s]+$",
-          "x-dependency": {
-            "type": {
-              "value": "track-sc2"
-            }
-          },
-          "x-deprecated": true,
-          "x-display-name": "track-sc2 Table"
-        },
         "track_sc_key": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -60742,8 +60643,11 @@ func init() {
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "send-spoe-group",
+            "set-fc-mark",
+            "set-fc-tos",
             "set-header",
             "set-log-level",
             "set-map",
@@ -63081,13 +62985,13 @@ func init() {
           "items": {
             "type": "string",
             "enum": [
-              "ssl",
-              "cert-cn",
-              "ssl-cipher",
-              "cert-sig",
-              "cert-key",
               "authority",
+              "cert-cn",
+              "cert-key",
+              "cert-sig",
               "crc32c",
+              "ssl",
+              "ssl-cipher",
               "unique-id"
             ]
           },
@@ -63700,13 +63604,13 @@ func init() {
           "items": {
             "type": "string",
             "enum": [
-              "ssl",
-              "cert-cn",
-              "ssl-cipher",
-              "cert-sig",
-              "cert-key",
               "authority",
+              "cert-cn",
+              "cert-key",
+              "cert-sig",
               "crc32c",
+              "ssl",
+              "ssl-cipher",
               "unique-id"
             ]
           },
@@ -64420,14 +64324,14 @@ func init() {
             "name": {
               "type": "string",
               "enum": [
-                "on-client-session",
-                "on-server-session",
-                "on-frontend-tcp-request",
-                "on-backend-tcp-request",
-                "on-tcp-response",
-                "on-frontend-http-request",
                 "on-backend-http-request",
-                "on-http-response"
+                "on-backend-tcp-request",
+                "on-client-session",
+                "on-frontend-http-request",
+                "on-frontend-tcp-request",
+                "on-http-response",
+                "on-server-session",
+                "on-tcp-response"
               ]
             }
           }
@@ -65431,34 +65335,40 @@ func init() {
             "do-resolve",
             "expect-netscaler-cip",
             "expect-proxy",
+            "lua",
             "reject",
             "sc-add-gpc",
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "send-spoe-group",
+            "set-bandwidth-limit",
+            "set-bc-mark",
+            "set-bc-tos",
             "set-dst-port",
             "set-dst",
-            "set-priority",
+            "set-fc-mark",
+            "set-fc-tos",
+            "set-log-level",
+            "set-mark",
+            "set-nice",
+            "set-priority-class",
+            "set-priority-offset",
             "set-src",
+            "set-src-port",
+            "set-tos",
             "set-var",
+            "set-var-fmt",
             "silent-drop",
+            "switch-mode",
             "track-sc0",
             "track-sc1",
             "track-sc2",
             "track-sc",
             "unset-var",
-            "use-service",
-            "lua",
-            "set-bandwidth-limit",
-            "set-src-port",
-            "set-mark",
-            "set-tos",
-            "set-var-fmt",
-            "set-log-level",
-            "set-nice",
-            "switch-mode"
+            "use-service"
           ],
           "x-dependency": {
             "type": {
@@ -65589,12 +65499,17 @@ func init() {
               "required": true,
               "value": [
                 "do-resolve",
-                "set-var",
-                "set-src",
-                "set-priority",
+                "set-bc-mark",
+                "set-bc-tos",
                 "set-dst",
                 "set-dst-port",
-                "set-src-port"
+                "set-fc-mark",
+                "set-fc-tos",
+                "set-priority-class",
+                "set-priority-offset",
+                "set-src",
+                "set-src-port",
+                "set-var"
               ]
             },
             "type": {
@@ -65717,24 +65632,6 @@ func init() {
           "x-display-name": "Nice Value",
           "x-nullable": false
         },
-        "priority_type": {
-          "type": "string",
-          "enum": [
-            "class",
-            "offset"
-          ],
-          "x-dependency": {
-            "action": {
-              "required": true,
-              "value": "set-priority"
-            },
-            "type": {
-              "value": [
-                "content"
-              ]
-            }
-          }
-        },
         "resolve_protocol": {
           "type": "string",
           "enum": [
@@ -65792,7 +65689,9 @@ func init() {
           "x-dependency": {
             "action": {
               "required": true,
-              "value": []
+              "value": [
+                "sc-set-gpt"
+              ]
             },
             "type": {
               "required": true,
@@ -65815,6 +65714,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             },
@@ -66108,20 +66008,25 @@ func init() {
           "type": "string",
           "enum": [
             "accept",
-            "reject",
-            "lua",
-            "set-bandwidth-limit",
             "close",
+            "lua",
+            "reject",
             "sc-add-gpc",
             "sc-inc-gpc",
             "sc-inc-gpc0",
             "sc-inc-gpc1",
+            "sc-set-gpt",
             "sc-set-gpt0",
             "send-spoe-group",
+            "set-bandwidth-limit",
+            "set-fc-mark",
+            "set-fc-tos",
             "set-log-level",
             "set-mark",
             "set-nice",
             "set-tos",
+            "set-var",
+            "set-var-fmt",
             "silent-drop",
             "unset-var"
           ],
@@ -66206,7 +66111,9 @@ func init() {
               "required": true,
               "value": [
                 "set-src-port",
-                "sc-set-gpt0"
+                "sc-set-gpt0",
+                "set-fc-mark",
+                "set-fc-tos"
               ]
             },
             "type": {
@@ -66324,6 +66231,7 @@ func init() {
                 "sc-inc-gpc",
                 "sc-inc-gpc0",
                 "sc-inc-gpc1",
+                "sc-set-gpt",
                 "sc-set-gpt0"
               ]
             },
@@ -66339,6 +66247,7 @@ func init() {
               "required": true,
               "value": [
                 "sc-add-gpc",
+                "sc-set-gpt",
                 "sc-inc-gpc"
               ]
             },
@@ -66423,6 +66332,19 @@ func init() {
             "inspect-delay"
           ],
           "x-nullable": false
+        },
+        "var_format": {
+          "type": "string",
+          "x-dependency": {
+            "action": {
+              "required": true,
+              "value": "set-var-fmt"
+            },
+            "type": {
+              "value": "content"
+            }
+          },
+          "x-display-name": "Var Format"
         },
         "var_name": {
           "type": "string",
