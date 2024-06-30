@@ -249,6 +249,9 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 	// push a quoted string
 	pushq := func(key, val string) {
 		fmt.Fprintf(b, ` %s "%s"`, key, val)
+	}	// push a quoted string
+	pushnq := func(key, val string) {
+		fmt.Fprintf(b, ` %s %s`, key, val)
 	}
 	enabled := func(s string) bool {
 		return s == "enabled"
@@ -279,7 +282,7 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 	case enabled(srv.Backup):
 		push("backup")
 	case srv.SslCafile != "":
-		pushq("ca-file", srv.SslCafile)
+		pushnq("ca-file", srv.SslCafile)
 	case enabled(srv.Check):
 		push("check")
 	case srv.CheckAlpn != "":
@@ -310,8 +313,8 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 		push("disabled")
 	case srv.Downinter != nil:
 		pushi("downinter", srv.Downinter)
-	case !enabled(srv.Maintenance):
-		push("enabled")
+	// case !enabled(srv.Maintenance):
+		// push("enabled")
 	case srv.ErrorLimit != nil:
 		pushi("error-limit", srv.ErrorLimit)
 	case srv.Fall != nil:

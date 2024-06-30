@@ -742,13 +742,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new ACL line of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of ACLs with the list given in parameter",
         "tags": [
           "ACL"
         ],
-        "summary": "Add a new ACL line",
-        "operationId": "createAcl",
+        "summary": "Replace an ACL list",
+        "operationId": "replaceAcls",
         "parameters": [
           {
             "type": "string",
@@ -773,7 +773,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/acl"
+              "$ref": "#/definitions/acls"
             }
           },
           {
@@ -787,16 +787,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "ACL line created",
+          "200": {
+            "description": "All ACL lines replaced",
             "schema": {
-              "$ref": "#/definitions/acl"
+              "$ref": "#/definitions/acls"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/acl"
+              "$ref": "#/definitions/acls"
             },
             "headers": {
               "Reload-ID": {
@@ -807,9 +807,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -957,6 +954,87 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new ACL line of the specified type in the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Add a new ACL line",
+        "operationId": "createAcl",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "ACL line created",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a ACL line configuration by it's index from the specified parent.",
         "tags": [
@@ -1060,13 +1138,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Backend Switching Rule of the specified type in the specified frontend.",
+      "put": {
+        "description": "Replaces a whole list of Backend Switching Rules with the list given in parameter",
         "tags": [
           "BackendSwitchingRule"
         ],
-        "summary": "Add a new Backend Switching Rule",
-        "operationId": "createBackendSwitchingRule",
+        "summary": "Replace an Backend Switching Rule list",
+        "operationId": "replaceBackendSwitchingRules",
         "parameters": [
           {
             "type": "string",
@@ -1080,7 +1158,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/backend_switching_rule"
+              "$ref": "#/definitions/backend_switching_rules"
             }
           },
           {
@@ -1094,16 +1172,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Backend Switching Rule created",
+          "200": {
+            "description": "All Backend Switching Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/backend_switching_rule"
+              "$ref": "#/definitions/backend_switching_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/backend_switching_rule"
+              "$ref": "#/definitions/backend_switching_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -1114,9 +1192,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -1236,6 +1311,76 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Backend Switching Rule of the specified type in the specified frontend.",
+        "tags": [
+          "BackendSwitchingRule"
+        ],
+        "summary": "Add a new Backend Switching Rule",
+        "operationId": "createBackendSwitchingRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Switching Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Frontend name",
+            "name": "frontend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/backend_switching_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Backend Switching Rule created",
+            "schema": {
+              "$ref": "#/definitions/backend_switching_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/backend_switching_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -2166,13 +2311,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new declare capture in the specified frontend in the configuration file.",
+      "put": {
+        "description": "Replaces a whole list of declare capture with the list given in parameter",
         "tags": [
           "DeclareCapture"
         ],
-        "summary": "Add a new declare capture",
-        "operationId": "createDeclareCapture",
+        "summary": "Replace a declare capture list",
+        "operationId": "replaceDeclareCaptures",
         "parameters": [
           {
             "type": "string",
@@ -2186,7 +2331,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/capture"
+              "$ref": "#/definitions/captures"
             }
           },
           {
@@ -2200,16 +2345,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Declare capture created",
+          "200": {
+            "description": "All Declare capture lines replaced",
             "schema": {
-              "$ref": "#/definitions/capture"
+              "$ref": "#/definitions/captures"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/capture"
+              "$ref": "#/definitions/captures"
             },
             "headers": {
               "Reload-ID": {
@@ -2220,9 +2365,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -2342,6 +2484,76 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new declare capture in the specified frontend in the configuration file.",
+        "tags": [
+          "DeclareCapture"
+        ],
+        "summary": "Add a new declare capture",
+        "operationId": "createDeclareCapture",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Declare Capture Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent frontend name",
+            "name": "frontend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/capture"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Declare capture created",
+            "schema": {
+              "$ref": "#/definitions/capture"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/capture"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -3203,13 +3415,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Filter of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of Filters with the list given in parameter",
         "tags": [
           "Filter"
         ],
-        "summary": "Add a new Filter",
-        "operationId": "createFilter",
+        "summary": "Replace a Filter list",
+        "operationId": "replaceFilters",
         "parameters": [
           {
             "type": "string",
@@ -3234,7 +3446,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/filter"
+              "$ref": "#/definitions/filters"
             }
           },
           {
@@ -3248,16 +3460,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Filter created",
+          "200": {
+            "description": "All Filter lines replaced",
             "schema": {
-              "$ref": "#/definitions/filter"
+              "$ref": "#/definitions/filters"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/filter"
+              "$ref": "#/definitions/filters"
             },
             "headers": {
               "Reload-ID": {
@@ -3268,9 +3480,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -3412,6 +3621,87 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Filter of the specified type in the specified parent.",
+        "tags": [
+          "Filter"
+        ],
+        "summary": "Add a new Filter",
+        "operationId": "createFilter",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Filter Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/filter"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Filter created",
+            "schema": {
+              "$ref": "#/definitions/filter"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/filter"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -4125,13 +4415,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP After Response Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP After Response Rules with the list given in parameter",
         "tags": [
           "HTTPAfterResponseRule"
         ],
-        "summary": "Add a new HTTP After Response Rule",
-        "operationId": "createHTTPAfterResponseRule",
+        "summary": "Replace an HTTP After Response Rules list",
+        "operationId": "replaceHTTPAfterResponseRules",
         "parameters": [
           {
             "type": "string",
@@ -4156,7 +4446,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_after_response_rule"
+              "$ref": "#/definitions/http_after_response_rules"
             }
           },
           {
@@ -4170,16 +4460,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP Response Rule created",
+          "200": {
+            "description": "All TTP After Response Rules lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_after_response_rule"
+              "$ref": "#/definitions/http_after_response_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_after_response_rule"
+              "$ref": "#/definitions/http_after_response_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -4190,9 +4480,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -4340,6 +4627,87 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new HTTP After Response Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Add a new HTTP After Response Rule",
+        "operationId": "createHTTPAfterResponseRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a HTTP After Response Rule configuration by it's index from the specified parent.",
         "tags": [
@@ -4418,7 +4786,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -4453,19 +4822,20 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP check of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP checks with the list given in parameter",
         "tags": [
           "HTTPCheck"
         ],
-        "summary": "Add a new HTTP check",
-        "operationId": "createHTTPCheck",
+        "summary": "Replace an HTTP checks list",
+        "operationId": "replaceHTTPChecks",
         "parameters": [
           {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -4483,7 +4853,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_check"
+              "$ref": "#/definitions/http_checks"
             }
           },
           {
@@ -4497,16 +4867,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP check created",
+          "200": {
+            "description": "All HTTP checks lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_check"
+              "$ref": "#/definitions/http_checks"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_check"
+              "$ref": "#/definitions/http_checks"
             },
             "headers": {
               "Reload-ID": {
@@ -4517,9 +4887,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -4547,7 +4914,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -4665,6 +5033,86 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new HTTP check of the specified type in the specified parent.",
+        "tags": [
+          "HTTPCheck"
+        ],
+        "summary": "Add a new HTTP check",
+        "operationId": "createHTTPCheck",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP check Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "backend",
+              "defaults"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_check"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP check created",
+            "schema": {
+              "$ref": "#/definitions/http_check"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_check"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a HTTP check configuration by it's index from the specified parent.",
         "tags": [
@@ -4742,7 +5190,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -4778,19 +5227,20 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP Error Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP Error Rules with the list given in parameter",
         "tags": [
           "HTTPErrorRule"
         ],
-        "summary": "Add a new HTTP Error Rule",
-        "operationId": "createHTTPErrorRule",
+        "summary": "Replace an HTTP Error Rules list",
+        "operationId": "replaceHTTPErrorRules",
         "parameters": [
           {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -4809,7 +5259,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_error_rule"
+              "$ref": "#/definitions/http_error_rules"
             }
           },
           {
@@ -4823,16 +5273,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP Error Rule created",
+          "200": {
+            "description": "All HTTP Error Rules lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_error_rule"
+              "$ref": "#/definitions/http_error_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_error_rule"
+              "$ref": "#/definitions/http_error_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -4843,9 +5293,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -4873,7 +5320,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -4931,7 +5379,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -4993,6 +5442,88 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new HTTP Error Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPErrorRule"
+        ],
+        "summary": "Add a new HTTP Error Rule",
+        "operationId": "createHTTPErrorRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Error Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend",
+              "defaults"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_error_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Error Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_error_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_error_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a HTTP Error Rule configuration by its index from the specified parent.",
         "tags": [
@@ -5012,7 +5543,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -5346,13 +5878,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP Request Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP Request Rules with the list given in parameter",
         "tags": [
           "HTTPRequestRule"
         ],
-        "summary": "Add a new HTTP Request Rule",
-        "operationId": "createHTTPRequestRule",
+        "summary": "Replace an HTTP Request Rule list",
+        "operationId": "replaceHTTPRequestRules",
         "parameters": [
           {
             "type": "string",
@@ -5377,7 +5909,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_request_rule"
+              "$ref": "#/definitions/http_request_rules"
             }
           },
           {
@@ -5391,16 +5923,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP Request Rule created",
+          "200": {
+            "description": "All HTTP Request Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_request_rule"
+              "$ref": "#/definitions/http_request_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_request_rule"
+              "$ref": "#/definitions/http_request_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -5411,9 +5943,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -5561,6 +6090,87 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new HTTP Request Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Add a new HTTP Request Rule",
+        "operationId": "createHTTPRequestRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Request Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a HTTP Request Rule configuration by it's index from the specified parent.",
         "tags": [
@@ -5675,13 +6285,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP Response Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP Response Rules with the list given in parameter",
         "tags": [
           "HTTPResponseRule"
         ],
-        "summary": "Add a new HTTP Response Rule",
-        "operationId": "createHTTPResponseRule",
+        "summary": "Replace an HTTP Response Rule list",
+        "operationId": "replaceHTTPResponseRules",
         "parameters": [
           {
             "type": "string",
@@ -5706,7 +6316,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_response_rule"
+              "$ref": "#/definitions/http_response_rules"
             }
           },
           {
@@ -5720,16 +6330,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP Response Rule created",
+          "200": {
+            "description": "All HTTP Response Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_response_rule"
+              "$ref": "#/definitions/http_response_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_response_rule"
+              "$ref": "#/definitions/http_response_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -5740,9 +6350,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -5884,6 +6491,87 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new HTTP Response Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Add a new HTTP Response Rule",
+        "operationId": "createHTTPResponseRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -6246,13 +6934,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Log Target of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of Log Targets with the list given in parameter",
         "tags": [
           "LogTarget"
         ],
-        "summary": "Add a new Log Target",
-        "operationId": "createLogTarget",
+        "summary": "Replace a Log Target list",
+        "operationId": "replaceLogTargets",
         "parameters": [
           {
             "type": "string",
@@ -6280,7 +6968,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/log_target"
+              "$ref": "#/definitions/log_targets"
             }
           },
           {
@@ -6294,16 +6982,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Log Target created",
+          "200": {
+            "description": "All Log Target lines replaced",
             "schema": {
-              "$ref": "#/definitions/log_target"
+              "$ref": "#/definitions/log_targets"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/log_target"
+              "$ref": "#/definitions/log_targets"
             },
             "headers": {
               "Reload-ID": {
@@ -6314,9 +7002,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -6464,6 +7149,90 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Log Target of the specified type in the specified parent.",
+        "tags": [
+          "LogTarget"
+        ],
+        "summary": "Add a new Log Target",
+        "operationId": "createLogTarget",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Log Target Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend",
+              "defaults",
+              "global",
+              "log_forward",
+              "peers"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/log_target"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Log Target created",
+            "schema": {
+              "$ref": "#/definitions/log_target"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/log_target"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -8693,13 +9462,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Server Switching Rule of the specified type in the specified backend.",
+      "put": {
+        "description": "Replaces a whole list of Server Switching Rules with the list given in parameter",
         "tags": [
           "ServerSwitchingRule"
         ],
-        "summary": "Add a new Server Switching Rule",
-        "operationId": "createServerSwitchingRule",
+        "summary": "Replace an Server Switching Rule list",
+        "operationId": "replaceServerSwitchingRules",
         "parameters": [
           {
             "type": "string",
@@ -8713,7 +9482,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/server_switching_rule"
+              "$ref": "#/definitions/server_switching_rules"
             }
           },
           {
@@ -8727,16 +9496,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Server Switching Rule created",
+          "200": {
+            "description": "All Server Switching Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/server_switching_rule"
+              "$ref": "#/definitions/server_switching_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/server_switching_rule"
+              "$ref": "#/definitions/server_switching_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -8747,9 +9516,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -8869,6 +9635,76 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Server Switching Rule of the specified type in the specified backend.",
+        "tags": [
+          "ServerSwitchingRule"
+        ],
+        "summary": "Add a new Server Switching Rule",
+        "operationId": "createServerSwitchingRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Switching Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Backend name",
+            "name": "backend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/server_switching_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Server Switching Rule created",
+            "schema": {
+              "$ref": "#/definitions/server_switching_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/server_switching_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -9595,13 +10431,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Stick Rule of the specified type in the specified backend.",
+      "put": {
+        "description": "Replaces a whole list of Stick Rules with the list given in parameter",
         "tags": [
           "StickRule"
         ],
-        "summary": "Add a new Stick Rule",
-        "operationId": "createStickRule",
+        "summary": "Replace a Stick Rule list",
+        "operationId": "replaceStickRules",
         "parameters": [
           {
             "type": "string",
@@ -9615,7 +10451,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/stick_rule"
+              "$ref": "#/definitions/stick_rules"
             }
           },
           {
@@ -9629,16 +10465,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Stick Rule created",
+          "200": {
+            "description": "All Stick Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/stick_rule"
+              "$ref": "#/definitions/stick_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/stick_rule"
+              "$ref": "#/definitions/stick_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -9649,9 +10485,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -9771,6 +10604,76 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Stick Rule of the specified type in the specified backend.",
+        "tags": [
+          "StickRule"
+        ],
+        "summary": "Add a new Stick Rule",
+        "operationId": "createStickRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Stick Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Backend name",
+            "name": "backend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/stick_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Stick Rule created",
+            "schema": {
+              "$ref": "#/definitions/stick_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/stick_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -10118,7 +11021,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -10153,19 +11057,20 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new TCP check of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of TCP Checks with the list given in parameter",
         "tags": [
           "TCPCheck"
         ],
-        "summary": "Add a new TCP check",
-        "operationId": "createTCPCheck",
+        "summary": "Replace an TCP Check list",
+        "operationId": "replaceTCPChecks",
         "parameters": [
           {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -10183,7 +11088,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/tcp_check"
+              "$ref": "#/definitions/tcp_checks"
             }
           },
           {
@@ -10197,16 +11102,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "TCP check created",
+          "200": {
+            "description": "All TCP Check lines replaced",
             "schema": {
-              "$ref": "#/definitions/tcp_check"
+              "$ref": "#/definitions/tcp_checks"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/tcp_check"
+              "$ref": "#/definitions/tcp_checks"
             },
             "headers": {
               "Reload-ID": {
@@ -10217,9 +11122,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -10247,7 +11149,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -10304,7 +11207,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -10365,6 +11269,87 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new TCP check of the specified type in the specified parent.",
+        "tags": [
+          "TCPCheck"
+        ],
+        "summary": "Add a new TCP check",
+        "operationId": "createTCPCheck",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP check Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "backend",
+              "defaults"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_check"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP check created",
+            "schema": {
+              "$ref": "#/definitions/tcp_check"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_check"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a TCP check configuration by it's index from the specified parent.",
         "tags": [
@@ -10384,7 +11369,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -10478,13 +11464,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new TCP Request Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of TCP Request Rules with the list given in parameter",
         "tags": [
           "TCPRequestRule"
         ],
-        "summary": "Add a new TCP Request Rule",
-        "operationId": "createTCPRequestRule",
+        "summary": "Replace an TCP Request Rule list",
+        "operationId": "replaceTCPRequestRules",
         "parameters": [
           {
             "type": "string",
@@ -10509,7 +11495,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/tcp_request_rule"
+              "$ref": "#/definitions/tcp_request_rules"
             }
           },
           {
@@ -10523,16 +11509,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "TCP Request Rule created",
+          "200": {
+            "description": "All TCP Request Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/tcp_request_rule"
+              "$ref": "#/definitions/tcp_request_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/tcp_request_rule"
+              "$ref": "#/definitions/tcp_request_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -10543,9 +11529,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -10693,6 +11676,87 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new TCP Request Rule of the specified type in the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Add a new TCP Request Rule",
+        "operationId": "createTCPRequestRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP Request Rule created",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a TCP Request Rule configuration by it's index from the specified parent.",
         "tags": [
@@ -10796,13 +11860,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new TCP Response Rule of the specified type in the specified backend.",
+      "put": {
+        "description": "Replaces a whole list of TCP Response Rules with the list given in parameter",
         "tags": [
           "TCPResponseRule"
         ],
-        "summary": "Add a new TCP Response Rule",
-        "operationId": "createTCPResponseRule",
+        "summary": "Replace a TCP Response Rule list",
+        "operationId": "replaceTCPResponseRules",
         "parameters": [
           {
             "type": "string",
@@ -10816,7 +11880,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/tcp_response_rule"
+              "$ref": "#/definitions/tcp_response_rules"
             }
           },
           {
@@ -10830,16 +11894,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "TCP Response Rule created",
+          "200": {
+            "description": "All TCP Response Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/tcp_response_rule"
+              "$ref": "#/definitions/tcp_response_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/tcp_response_rule"
+              "$ref": "#/definitions/tcp_response_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -10850,9 +11914,6 @@ func init() {
           },
           "400": {
             "$ref": "#/responses/BadRequest"
-          },
-          "409": {
-            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -10972,6 +12033,76 @@ func init() {
           },
           "404": {
             "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new TCP Response Rule of the specified type in the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Add a new TCP Response Rule",
+        "operationId": "createTCPResponseRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent backend name",
+            "name": "backend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -11867,7 +12998,7 @@ func init() {
           "200": {
             "description": "Success",
             "schema": {
-              "$ref": "#/definitions/process_infos"
+              "$ref": "#/definitions/process_info"
             }
           },
           "default": {
@@ -12477,13 +13608,6 @@ func init() {
             "required": true
           },
           {
-            "type": "integer",
-            "description": "Process number if master-worker mode, if not only first process is returned",
-            "name": "process",
-            "in": "query",
-            "required": true
-          },
-          {
             "type": "string",
             "description": "A list of filters in format data.\u003ctype\u003e \u003coperator\u003e \u003cvalue\u003e separated by comma",
             "name": "filter",
@@ -12536,13 +13660,6 @@ func init() {
             "required": true
           },
           {
-            "type": "integer",
-            "description": "Process number if master-worker mode, if not only first process is returned",
-            "name": "process",
-            "in": "query",
-            "required": true
-          },
-          {
             "description": "Stick table entry",
             "name": "stick_table_entry",
             "in": "body",
@@ -12581,14 +13698,6 @@ func init() {
         ],
         "summary": "Return Stick Tables",
         "operationId": "getStickTables",
-        "parameters": [
-          {
-            "type": "integer",
-            "description": "Process number if master-worker mode, if not all processes are returned",
-            "name": "process",
-            "in": "query"
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -12616,13 +13725,6 @@ func init() {
             "description": "Stick table name",
             "name": "name",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "integer",
-            "description": "Process number if master-worker mode, if not only first process is returned",
-            "name": "process",
-            "in": "query",
             "required": true
           }
         ],
@@ -15251,7 +16353,6 @@ func init() {
       "type": "object",
       "title": "ACL Lines",
       "required": [
-        "index",
         "acl_name",
         "criterion"
       ],
@@ -15265,10 +16366,6 @@ func init() {
           "type": "string",
           "pattern": "^[^\\s]+$",
           "x-nullable": false
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "value": {
           "type": "string",
@@ -15510,10 +16607,6 @@ func init() {
         },
         "balance": {
           "$ref": "#/definitions/balance"
-        },
-        "bind_process": {
-          "type": "string",
-          "pattern": "^[^\\s]+$"
         },
         "check_timeout": {
           "type": "integer",
@@ -16164,7 +17257,6 @@ func init() {
       "type": "object",
       "title": "Backend Switching Rule",
       "required": [
-        "index",
         "name"
       ],
       "properties": {
@@ -16189,10 +17281,6 @@ func init() {
             "operation": "getACLs",
             "property": "acl_name"
           }
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "name": {
           "type": "string",
@@ -16667,10 +17755,6 @@ func init() {
         "prefer_client_ciphers": {
           "type": "boolean"
         },
-        "process": {
-          "type": "string",
-          "pattern": "^[^\\s]+$"
-        },
         "proto": {
           "type": "string",
           "x-display-name": "Protocol name"
@@ -16857,15 +17941,10 @@ func init() {
       "type": "object",
       "title": "Declare Capture",
       "required": [
-        "index",
         "type",
         "length"
       ],
       "properties": {
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "length": {
           "type": "integer",
           "x-nullable": false
@@ -17389,10 +18468,6 @@ func init() {
         },
         "balance": {
           "$ref": "#/definitions/balance"
-        },
-        "bind_process": {
-          "type": "string",
-          "pattern": "^[^\\s]+$"
         },
         "check_timeout": {
           "type": "integer",
@@ -18427,7 +19502,6 @@ func init() {
       "type": "object",
       "title": "Filter",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -18494,10 +19568,6 @@ func init() {
               ]
             }
           }
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "key": {
           "description": "A sample expression rule.\nIt describes what elements will be analyzed, extracted, combined, and used to select which table entry to update the counters.\nIt must be specified for shared bandwidth limitation filters only.",
@@ -18627,7 +19697,6 @@ func init() {
       },
       "additionalProperties": false,
       "example": {
-        "index": 0,
         "trace_name": "name",
         "trace_rnd_parsing": true,
         "type": "trace"
@@ -18687,10 +19756,6 @@ func init() {
           "type": "integer",
           "x-display-name": "Backlog",
           "x-nullable": true
-        },
-        "bind_process": {
-          "type": "string",
-          "pattern": "^[^\\s]+$"
         },
         "clflog": {
           "type": "boolean",
@@ -19512,10 +20577,6 @@ func init() {
           "x-display-name": "The number of times a worker can survive a reload",
           "x-nullable": true
         },
-        "nbproc": {
-          "type": "integer",
-          "x-display-name": "Number of Processes"
-        },
         "nbthread": {
           "type": "integer",
           "x-display-name": "Number of Threads"
@@ -19888,6 +20949,14 @@ func init() {
         "tune_options": {
           "type": "object",
           "properties": {
+            "applet_zero_copy_forwarding": {
+              "type": "string",
+              "enum": [
+                "enabled",
+                "disabled"
+              ],
+              "x-display-name": "Enables of disabled the zero-copy forwarding of data for the applets"
+            },
             "buffers_limit": {
               "type": "integer",
               "x-display-name": "Buffers Limit",
@@ -19943,6 +21012,11 @@ func init() {
               ],
               "x-display-name": "enable or disable the zero-copy sends of data for the HTTP/1 multiplexer"
             },
+            "h2_be_glitches_threshold": {
+              "type": "integer",
+              "x-display-name": "Automatically kill a backend connection past a number of glitches",
+              "x-nullable": true
+            },
             "h2_be_initial_window_size": {
               "type": "integer",
               "x-display-name": "Initial window size for outgoing connections"
@@ -19951,6 +21025,11 @@ func init() {
               "type": "integer",
               "x-display-name": "Maximum number of concurrent streams per outgoing connection"
             },
+            "h2_fe_glitches_threshold": {
+              "type": "integer",
+              "x-display-name": "Automatically kill a frontend connection past a number of glitches",
+              "x-nullable": true
+            },
             "h2_fe_initial_window_size": {
               "type": "integer",
               "x-display-name": "Initial window size for incoming connections"
@@ -19958,6 +21037,11 @@ func init() {
             "h2_fe_max_concurrent_streams": {
               "type": "integer",
               "x-display-name": "Maximum number of concurrent streams per incoming connection"
+            },
+            "h2_fe_max_total_streams": {
+              "type": "integer",
+              "x-display-name": "Maximum number of total streams processed per incoming HTTP/2 connection",
+              "x-nullable": true
             },
             "h2_header_table_size": {
               "type": "integer",
@@ -20057,8 +21141,9 @@ func init() {
               "x-display-name": "Send Lua Logs to stderr"
             },
             "lua_maxmem": {
-              "type": "boolean",
-              "x-display-name": "Lua Maximum Memory Usage"
+              "type": "integer",
+              "x-display-name": "Lua Maximum Memory Usage",
+              "x-nullable": true
             },
             "lua_service_timeout": {
               "type": "integer",
@@ -20146,6 +21231,12 @@ func init() {
               "x-display-name": "QUIC Max Limit for Frame Loss",
               "x-nullable": true
             },
+            "quic_reorder_ratio": {
+              "type": "integer",
+              "maximum": 100,
+              "x-display-name": "Ratio applied to the packet reordering threshold",
+              "x-nullable": true
+            },
             "quic_retry_threshold": {
               "type": "integer",
               "x-display-name": "QUIC Retry Threshold",
@@ -20158,6 +21249,14 @@ func init() {
                 "connection"
               ],
               "x-display-name": "QUIC Socket Owner"
+            },
+            "quic_zero_copy_fwd_send": {
+              "type": "string",
+              "enum": [
+                "enabled",
+                "disabled"
+              ],
+              "x-display-name": "Enables or disables the zero-copy sends for the QUIC multiplexer"
             },
             "rcvbuf_backend": {
               "type": "integer",
@@ -20182,6 +21281,11 @@ func init() {
             "recv_enough": {
               "type": "integer",
               "x-display-name": "Receive Enough Socket Buffer Size"
+            },
+            "ring_queues": {
+              "type": "integer",
+              "x-display-name": "Number of write queues in front of ring buffers",
+              "x-nullable": true
             },
             "runqueue_depth": {
               "type": "integer",
@@ -20429,7 +21533,6 @@ func init() {
       "type": "object",
       "title": "HTTP after Response Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -20457,6 +21560,36 @@ func init() {
             }
           },
           "x-display-name": "ACK Key Format"
+        },
+        "capture_id": {
+          "type": "integer",
+          "x-dependency": {
+            "type": {
+              "value": "capture"
+            }
+          },
+          "x-display-name": "Capture SlotID",
+          "x-nullable": true
+        },
+        "capture_len": {
+          "type": "integer",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": "capture"
+            }
+          },
+          "x-display-name": "Capture Len"
+        },
+        "capture_sample": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "value": "capture"
+            }
+          },
+          "x-display-name": "Capture Sample"
         },
         "cond": {
           "type": "string",
@@ -20534,10 +21667,6 @@ func init() {
             }
           },
           "x-display-name": "Header Name"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
@@ -20691,6 +21820,7 @@ func init() {
           "enum": [
             "add-header",
             "allow",
+            "capture",
             "del-acl",
             "del-header",
             "del-map",
@@ -20707,6 +21837,7 @@ func init() {
             "set-map",
             "set-status",
             "set-var",
+            "set-var-fmt",
             "strict-mode",
             "unset-var"
           ],
@@ -20722,6 +21853,16 @@ func init() {
           },
           "x-display-name": "Var Expression"
         },
+        "var_format": {
+          "type": "string",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": "set-var-fmt"
+            }
+          },
+          "x-display-name": "Var Format"
+        },
         "var_name": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -20730,6 +21871,7 @@ func init() {
               "required": true,
               "value": [
                 "set-var",
+                "set-var-fmt",
                 "unset-var"
               ]
             }
@@ -20743,6 +21885,7 @@ func init() {
               "required": true,
               "value": [
                 "set-var",
+                "set-var-fmt",
                 "unset-var"
               ]
             }
@@ -20755,7 +21898,6 @@ func init() {
         "cond_test": "{ src 192.168.0.0/16 }",
         "hdr_format": "max-age=31536000",
         "hdr_name": "Strict-Transport-Security",
-        "index": 0,
         "type": "set-header"
       }
     },
@@ -20771,7 +21913,6 @@ func init() {
       "type": "object",
       "title": "HTTP Check",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -20869,10 +22010,6 @@ func init() {
           },
           "x-go-name": "CheckHeaders",
           "x-omitempty": true
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "linger": {
           "type": "boolean",
@@ -21154,15 +22291,10 @@ func init() {
       "type": "object",
       "title": "HTTP Error Rule",
       "required": [
-        "index",
         "type",
         "status"
       ],
       "properties": {
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "return_content": {
           "type": "string",
           "x-dependency": {
@@ -21326,7 +22458,6 @@ func init() {
       "type": "object",
       "title": "HTTP Request Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -21570,10 +22701,6 @@ func init() {
             }
           },
           "x-display-name": "Hint Name"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
@@ -22274,7 +23401,6 @@ func init() {
       "type": "object",
       "title": "HTTP Response Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -22465,10 +23591,6 @@ func init() {
             }
           },
           "x-display-name": "Header Name"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
@@ -23167,9 +24289,6 @@ func init() {
       "description": "Per-instance logging of events and traffic.",
       "type": "object",
       "title": "Log Target",
-      "required": [
-        "index"
-      ],
       "properties": {
         "address": {
           "type": "string",
@@ -23247,10 +24366,6 @@ func init() {
         },
         "global": {
           "type": "boolean"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "length": {
           "type": "integer",
@@ -24232,17 +25347,8 @@ func init() {
     },
     "native_stats": {
       "description": "HAProxy stats array",
-      "type": "array",
-      "title": "Stats Array",
-      "items": {
-        "$ref": "#/definitions/native_stats_collection"
-      },
-      "x-omitempty": true
-    },
-    "native_stats_collection": {
-      "description": "Stats from one runtime API",
       "type": "object",
-      "title": "Stats collection",
+      "title": "Stats Array",
       "properties": {
         "error": {
           "type": "string"
@@ -24257,7 +25363,8 @@ func init() {
           },
           "x-omitempty": true
         }
-      }
+      },
+      "x-omitempty": true
     },
     "originalto": {
       "type": "object",
@@ -24393,7 +25500,9 @@ func init() {
       }
     },
     "process_info": {
+      "description": "General HAProxy process information",
       "type": "object",
+      "title": "HAProxy Information",
       "properties": {
         "error": {
           "type": "string"
@@ -24404,7 +25513,8 @@ func init() {
         "runtimeAPI": {
           "type": "string"
         }
-      }
+      },
+      "x-omitempty": true
     },
     "process_info_item": {
       "type": "object",
@@ -24659,15 +25769,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "process_infos": {
-      "description": "General HAProxy process information",
-      "type": "array",
-      "title": "HAProxy Information",
-      "items": {
-        "$ref": "#/definitions/process_info"
-      },
-      "x-omitempty": true
     },
     "program": {
       "description": "HAProxy program configuration",
@@ -26103,7 +27204,6 @@ func init() {
       "type": "object",
       "title": "Server Switching Rule",
       "required": [
-        "index",
         "target_server"
       ],
       "properties": {
@@ -26129,10 +27229,6 @@ func init() {
             "property": "acl_name"
           }
         },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "target_server": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -26147,7 +27243,6 @@ func init() {
       "example": {
         "cond": "if",
         "cond_test": "{ req_ssl_sni -i www.example.com }",
-        "index": 0,
         "target_server": "www"
       }
     },
@@ -27006,7 +28101,6 @@ func init() {
       "type": "object",
       "title": "Stick Rule",
       "required": [
-        "index",
         "type",
         "pattern"
       ],
@@ -27033,10 +28127,6 @@ func init() {
             "property": "acl_name"
           }
         },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "pattern": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -27059,7 +28149,6 @@ func init() {
       },
       "additionalProperties": false,
       "example": {
-        "index": 0,
         "pattern": "src",
         "type": "match"
       }
@@ -27128,11 +28217,6 @@ func init() {
         },
         "name": {
           "type": "string"
-        },
-        "process": {
-          "description": "Process number if master-worker mode",
-          "type": "integer",
-          "x-nullable": true
         },
         "size": {
           "type": "integer",
@@ -27321,7 +28405,6 @@ func init() {
       "type": "object",
       "title": "TCP Check",
       "required": [
-        "index",
         "action"
       ],
       "properties": {
@@ -27446,24 +28529,11 @@ func init() {
             }
           }
         },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "linger": {
           "type": "boolean",
           "x-dependency": {
             "action": {
               "value": "connect"
-            }
-          }
-        },
-        "log_message": {
-          "type": "string",
-          "x-dependency": {
-            "action": {
-              "required": true,
-              "value": "comment"
             }
           }
         },
@@ -27681,7 +28751,6 @@ func init() {
       "type": "object",
       "title": "TCP Request Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -27898,10 +28967,6 @@ func init() {
             }
           },
           "x-display-name": "Sticky counter value"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
@@ -28286,6 +29351,7 @@ func init() {
             },
             "type": {
               "value": [
+                "session",
                 "connection",
                 "content"
               ]
@@ -28359,7 +29425,6 @@ func init() {
       "type": "object",
       "title": "TCP Response Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -28480,10 +29545,6 @@ func init() {
             }
           },
           "x-display-name": "Standard HAProxy expression"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
@@ -30171,13 +31232,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new ACL line of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of ACLs with the list given in parameter",
         "tags": [
           "ACL"
         ],
-        "summary": "Add a new ACL line",
-        "operationId": "createAcl",
+        "summary": "Replace an ACL list",
+        "operationId": "replaceAcls",
         "parameters": [
           {
             "type": "string",
@@ -30202,7 +31263,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/acl"
+              "$ref": "#/definitions/acls"
             }
           },
           {
@@ -30228,16 +31289,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "ACL line created",
+          "200": {
+            "description": "All ACL lines replaced",
             "schema": {
-              "$ref": "#/definitions/acl"
+              "$ref": "#/definitions/acls"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/acl"
+              "$ref": "#/definitions/acls"
             },
             "headers": {
               "Reload-ID": {
@@ -30248,18 +31309,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -30486,6 +31535,126 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new ACL line of the specified type in the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Add a new ACL line",
+        "operationId": "createAcl",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "ACL line created",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a ACL line configuration by it's index from the specified parent.",
         "tags": [
@@ -30632,13 +31801,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Backend Switching Rule of the specified type in the specified frontend.",
+      "put": {
+        "description": "Replaces a whole list of Backend Switching Rules with the list given in parameter",
         "tags": [
           "BackendSwitchingRule"
         ],
-        "summary": "Add a new Backend Switching Rule",
-        "operationId": "createBackendSwitchingRule",
+        "summary": "Replace an Backend Switching Rule list",
+        "operationId": "replaceBackendSwitchingRules",
         "parameters": [
           {
             "type": "string",
@@ -30652,7 +31821,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/backend_switching_rule"
+              "$ref": "#/definitions/backend_switching_rules"
             }
           },
           {
@@ -30678,16 +31847,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Backend Switching Rule created",
+          "200": {
+            "description": "All Backend Switching Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/backend_switching_rule"
+              "$ref": "#/definitions/backend_switching_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/backend_switching_rule"
+              "$ref": "#/definitions/backend_switching_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -30698,18 +31867,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -30890,6 +32047,115 @@ func init() {
           },
           "404": {
             "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Backend Switching Rule of the specified type in the specified frontend.",
+        "tags": [
+          "BackendSwitchingRule"
+        ],
+        "summary": "Add a new Backend Switching Rule",
+        "operationId": "createBackendSwitchingRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Switching Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Frontend name",
+            "name": "frontend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/backend_switching_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Backend Switching Rule created",
+            "schema": {
+              "$ref": "#/definitions/backend_switching_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/backend_switching_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -32310,13 +33576,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new declare capture in the specified frontend in the configuration file.",
+      "put": {
+        "description": "Replaces a whole list of declare capture with the list given in parameter",
         "tags": [
           "DeclareCapture"
         ],
-        "summary": "Add a new declare capture",
-        "operationId": "createDeclareCapture",
+        "summary": "Replace a declare capture list",
+        "operationId": "replaceDeclareCaptures",
         "parameters": [
           {
             "type": "string",
@@ -32330,7 +33596,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/capture"
+              "$ref": "#/definitions/captures"
             }
           },
           {
@@ -32356,16 +33622,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Declare capture created",
+          "200": {
+            "description": "All Declare capture lines replaced",
             "schema": {
-              "$ref": "#/definitions/capture"
+              "$ref": "#/definitions/captures"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/capture"
+              "$ref": "#/definitions/captures"
             },
             "headers": {
               "Reload-ID": {
@@ -32376,18 +33642,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -32568,6 +33822,115 @@ func init() {
           },
           "404": {
             "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new declare capture in the specified frontend in the configuration file.",
+        "tags": [
+          "DeclareCapture"
+        ],
+        "summary": "Add a new declare capture",
+        "operationId": "createDeclareCapture",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Declare Capture Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent frontend name",
+            "name": "frontend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/capture"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Declare capture created",
+            "schema": {
+              "$ref": "#/definitions/capture"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/capture"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -33919,13 +35282,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Filter of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of Filters with the list given in parameter",
         "tags": [
           "Filter"
         ],
-        "summary": "Add a new Filter",
-        "operationId": "createFilter",
+        "summary": "Replace a Filter list",
+        "operationId": "replaceFilters",
         "parameters": [
           {
             "type": "string",
@@ -33950,7 +35313,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/filter"
+              "$ref": "#/definitions/filters"
             }
           },
           {
@@ -33976,16 +35339,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Filter created",
+          "200": {
+            "description": "All Filter lines replaced",
             "schema": {
-              "$ref": "#/definitions/filter"
+              "$ref": "#/definitions/filters"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/filter"
+              "$ref": "#/definitions/filters"
             },
             "headers": {
               "Reload-ID": {
@@ -33996,18 +35359,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -34210,6 +35561,126 @@ func init() {
           },
           "404": {
             "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Filter of the specified type in the specified parent.",
+        "tags": [
+          "Filter"
+        ],
+        "summary": "Add a new Filter",
+        "operationId": "createFilter",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Filter Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/filter"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Filter created",
+            "schema": {
+              "$ref": "#/definitions/filter"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/filter"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -35313,13 +36784,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP After Response Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP After Response Rules with the list given in parameter",
         "tags": [
           "HTTPAfterResponseRule"
         ],
-        "summary": "Add a new HTTP After Response Rule",
-        "operationId": "createHTTPAfterResponseRule",
+        "summary": "Replace an HTTP After Response Rules list",
+        "operationId": "replaceHTTPAfterResponseRules",
         "parameters": [
           {
             "type": "string",
@@ -35344,7 +36815,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_after_response_rule"
+              "$ref": "#/definitions/http_after_response_rules"
             }
           },
           {
@@ -35370,16 +36841,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP Response Rule created",
+          "200": {
+            "description": "All TTP After Response Rules lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_after_response_rule"
+              "$ref": "#/definitions/http_after_response_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_after_response_rule"
+              "$ref": "#/definitions/http_after_response_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -35390,18 +36861,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -35628,6 +37087,126 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new HTTP After Response Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Add a new HTTP After Response Rule",
+        "operationId": "createHTTPAfterResponseRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a HTTP After Response Rule configuration by it's index from the specified parent.",
         "tags": [
@@ -35736,7 +37315,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -35784,19 +37364,20 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP check of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP checks with the list given in parameter",
         "tags": [
           "HTTPCheck"
         ],
-        "summary": "Add a new HTTP check",
-        "operationId": "createHTTPCheck",
+        "summary": "Replace an HTTP checks list",
+        "operationId": "replaceHTTPChecks",
         "parameters": [
           {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -35814,7 +37395,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_check"
+              "$ref": "#/definitions/http_checks"
             }
           },
           {
@@ -35840,16 +37421,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP check created",
+          "200": {
+            "description": "All HTTP checks lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_check"
+              "$ref": "#/definitions/http_checks"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_check"
+              "$ref": "#/definitions/http_checks"
             },
             "headers": {
               "Reload-ID": {
@@ -35860,18 +37441,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -35917,7 +37486,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -36096,6 +37666,125 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new HTTP check of the specified type in the specified parent.",
+        "tags": [
+          "HTTPCheck"
+        ],
+        "summary": "Add a new HTTP check",
+        "operationId": "createHTTPCheck",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP check Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "backend",
+              "defaults"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_check"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP check created",
+            "schema": {
+              "$ref": "#/definitions/http_check"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_check"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a HTTP check configuration by it's index from the specified parent.",
         "tags": [
@@ -36203,7 +37892,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -36252,19 +37942,20 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP Error Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP Error Rules with the list given in parameter",
         "tags": [
           "HTTPErrorRule"
         ],
-        "summary": "Add a new HTTP Error Rule",
-        "operationId": "createHTTPErrorRule",
+        "summary": "Replace an HTTP Error Rules list",
+        "operationId": "replaceHTTPErrorRules",
         "parameters": [
           {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -36283,7 +37974,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_error_rule"
+              "$ref": "#/definitions/http_error_rules"
             }
           },
           {
@@ -36309,16 +38000,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP Error Rule created",
+          "200": {
+            "description": "All HTTP Error Rules lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_error_rule"
+              "$ref": "#/definitions/http_error_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_error_rule"
+              "$ref": "#/definitions/http_error_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -36329,18 +38020,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -36386,7 +38065,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -36466,7 +38146,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -36567,6 +38248,127 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new HTTP Error Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPErrorRule"
+        ],
+        "summary": "Add a new HTTP Error Rule",
+        "operationId": "createHTTPErrorRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Error Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend",
+              "defaults"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_error_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Error Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_error_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_error_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a HTTP Error Rule configuration by its index from the specified parent.",
         "tags": [
@@ -36586,7 +38388,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -37106,13 +38909,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP Request Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP Request Rules with the list given in parameter",
         "tags": [
           "HTTPRequestRule"
         ],
-        "summary": "Add a new HTTP Request Rule",
-        "operationId": "createHTTPRequestRule",
+        "summary": "Replace an HTTP Request Rule list",
+        "operationId": "replaceHTTPRequestRules",
         "parameters": [
           {
             "type": "string",
@@ -37137,7 +38940,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_request_rule"
+              "$ref": "#/definitions/http_request_rules"
             }
           },
           {
@@ -37163,16 +38966,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP Request Rule created",
+          "200": {
+            "description": "All HTTP Request Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_request_rule"
+              "$ref": "#/definitions/http_request_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_request_rule"
+              "$ref": "#/definitions/http_request_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -37183,18 +38986,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -37421,6 +39212,126 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new HTTP Request Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Add a new HTTP Request Rule",
+        "operationId": "createHTTPRequestRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Request Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a HTTP Request Rule configuration by it's index from the specified parent.",
         "tags": [
@@ -37578,13 +39489,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new HTTP Response Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of HTTP Response Rules with the list given in parameter",
         "tags": [
           "HTTPResponseRule"
         ],
-        "summary": "Add a new HTTP Response Rule",
-        "operationId": "createHTTPResponseRule",
+        "summary": "Replace an HTTP Response Rule list",
+        "operationId": "replaceHTTPResponseRules",
         "parameters": [
           {
             "type": "string",
@@ -37609,7 +39520,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/http_response_rule"
+              "$ref": "#/definitions/http_response_rules"
             }
           },
           {
@@ -37635,16 +39546,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "HTTP Response Rule created",
+          "200": {
+            "description": "All HTTP Response Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/http_response_rule"
+              "$ref": "#/definitions/http_response_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/http_response_rule"
+              "$ref": "#/definitions/http_response_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -37655,18 +39566,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -37869,6 +39768,126 @@ func init() {
           },
           "404": {
             "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new HTTP Response Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Add a new HTTP Response Rule",
+        "operationId": "createHTTPResponseRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -38435,13 +40454,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Log Target of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of Log Targets with the list given in parameter",
         "tags": [
           "LogTarget"
         ],
-        "summary": "Add a new Log Target",
-        "operationId": "createLogTarget",
+        "summary": "Replace a Log Target list",
+        "operationId": "replaceLogTargets",
         "parameters": [
           {
             "type": "string",
@@ -38469,7 +40488,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/log_target"
+              "$ref": "#/definitions/log_targets"
             }
           },
           {
@@ -38495,16 +40514,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Log Target created",
+          "200": {
+            "description": "All Log Target lines replaced",
             "schema": {
-              "$ref": "#/definitions/log_target"
+              "$ref": "#/definitions/log_targets"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/log_target"
+              "$ref": "#/definitions/log_targets"
             },
             "headers": {
               "Reload-ID": {
@@ -38515,18 +40534,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -38735,6 +40742,129 @@ func init() {
           },
           "404": {
             "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Log Target of the specified type in the specified parent.",
+        "tags": [
+          "LogTarget"
+        ],
+        "summary": "Add a new Log Target",
+        "operationId": "createLogTarget",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Log Target Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend",
+              "defaults",
+              "global",
+              "log_forward",
+              "peers"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/log_target"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Log Target created",
+            "schema": {
+              "$ref": "#/definitions/log_target"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/log_target"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -42173,13 +44303,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Server Switching Rule of the specified type in the specified backend.",
+      "put": {
+        "description": "Replaces a whole list of Server Switching Rules with the list given in parameter",
         "tags": [
           "ServerSwitchingRule"
         ],
-        "summary": "Add a new Server Switching Rule",
-        "operationId": "createServerSwitchingRule",
+        "summary": "Replace an Server Switching Rule list",
+        "operationId": "replaceServerSwitchingRules",
         "parameters": [
           {
             "type": "string",
@@ -42193,7 +44323,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/server_switching_rule"
+              "$ref": "#/definitions/server_switching_rules"
             }
           },
           {
@@ -42219,16 +44349,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Server Switching Rule created",
+          "200": {
+            "description": "All Server Switching Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/server_switching_rule"
+              "$ref": "#/definitions/server_switching_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/server_switching_rule"
+              "$ref": "#/definitions/server_switching_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -42239,18 +44369,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -42431,6 +44549,115 @@ func init() {
           },
           "404": {
             "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Server Switching Rule of the specified type in the specified backend.",
+        "tags": [
+          "ServerSwitchingRule"
+        ],
+        "summary": "Add a new Server Switching Rule",
+        "operationId": "createServerSwitchingRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Switching Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Backend name",
+            "name": "backend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/server_switching_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Server Switching Rule created",
+            "schema": {
+              "$ref": "#/definitions/server_switching_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/server_switching_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -43504,13 +45731,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new Stick Rule of the specified type in the specified backend.",
+      "put": {
+        "description": "Replaces a whole list of Stick Rules with the list given in parameter",
         "tags": [
           "StickRule"
         ],
-        "summary": "Add a new Stick Rule",
-        "operationId": "createStickRule",
+        "summary": "Replace a Stick Rule list",
+        "operationId": "replaceStickRules",
         "parameters": [
           {
             "type": "string",
@@ -43524,7 +45751,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/stick_rule"
+              "$ref": "#/definitions/stick_rules"
             }
           },
           {
@@ -43550,16 +45777,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "Stick Rule created",
+          "200": {
+            "description": "All Stick Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/stick_rule"
+              "$ref": "#/definitions/stick_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/stick_rule"
+              "$ref": "#/definitions/stick_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -43570,18 +45797,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -43762,6 +45977,115 @@ func init() {
           },
           "404": {
             "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new Stick Rule of the specified type in the specified backend.",
+        "tags": [
+          "StickRule"
+        ],
+        "summary": "Add a new Stick Rule",
+        "operationId": "createStickRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "Stick Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Backend name",
+            "name": "backend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/stick_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Stick Rule created",
+            "schema": {
+              "$ref": "#/definitions/stick_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/stick_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -44300,7 +46624,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -44348,19 +46673,20 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new TCP check of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of TCP Checks with the list given in parameter",
         "tags": [
           "TCPCheck"
         ],
-        "summary": "Add a new TCP check",
-        "operationId": "createTCPCheck",
+        "summary": "Replace an TCP Check list",
+        "operationId": "replaceTCPChecks",
         "parameters": [
           {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -44378,7 +46704,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/tcp_check"
+              "$ref": "#/definitions/tcp_checks"
             }
           },
           {
@@ -44404,16 +46730,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "TCP check created",
+          "200": {
+            "description": "All TCP Check lines replaced",
             "schema": {
-              "$ref": "#/definitions/tcp_check"
+              "$ref": "#/definitions/tcp_checks"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/tcp_check"
+              "$ref": "#/definitions/tcp_checks"
             },
             "headers": {
               "Reload-ID": {
@@ -44424,18 +46750,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -44481,7 +46795,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -44560,7 +46875,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -44660,6 +46976,126 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new TCP check of the specified type in the specified parent.",
+        "tags": [
+          "TCPCheck"
+        ],
+        "summary": "Add a new TCP check",
+        "operationId": "createTCPCheck",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP check Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "backend",
+              "defaults"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_check"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP check created",
+            "schema": {
+              "$ref": "#/definitions/tcp_check"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_check"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a TCP check configuration by it's index from the specified parent.",
         "tags": [
@@ -44679,7 +47115,8 @@ func init() {
             "type": "string",
             "description": "Parent name",
             "name": "parent_name",
-            "in": "query"
+            "in": "query",
+            "required": true
           },
           {
             "enum": [
@@ -44816,13 +47253,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new TCP Request Rule of the specified type in the specified parent.",
+      "put": {
+        "description": "Replaces a whole list of TCP Request Rules with the list given in parameter",
         "tags": [
           "TCPRequestRule"
         ],
-        "summary": "Add a new TCP Request Rule",
-        "operationId": "createTCPRequestRule",
+        "summary": "Replace an TCP Request Rule list",
+        "operationId": "replaceTCPRequestRules",
         "parameters": [
           {
             "type": "string",
@@ -44847,7 +47284,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/tcp_request_rule"
+              "$ref": "#/definitions/tcp_request_rules"
             }
           },
           {
@@ -44873,16 +47310,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "TCP Request Rule created",
+          "200": {
+            "description": "All TCP Request Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/tcp_request_rule"
+              "$ref": "#/definitions/tcp_request_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/tcp_request_rule"
+              "$ref": "#/definitions/tcp_request_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -44893,18 +47330,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -45131,6 +47556,126 @@ func init() {
           }
         }
       },
+      "post": {
+        "description": "Adds a new TCP Request Rule of the specified type in the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Add a new TCP Request Rule",
+        "operationId": "createTCPRequestRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "enum": [
+              "frontend",
+              "backend"
+            ],
+            "type": "string",
+            "description": "Parent type",
+            "name": "parent_type",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP Request Rule created",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "description": "Deletes a TCP Request Rule configuration by it's index from the specified parent.",
         "tags": [
@@ -45277,13 +47822,13 @@ func init() {
           }
         }
       },
-      "post": {
-        "description": "Adds a new TCP Response Rule of the specified type in the specified backend.",
+      "put": {
+        "description": "Replaces a whole list of TCP Response Rules with the list given in parameter",
         "tags": [
           "TCPResponseRule"
         ],
-        "summary": "Add a new TCP Response Rule",
-        "operationId": "createTCPResponseRule",
+        "summary": "Replace a TCP Response Rule list",
+        "operationId": "replaceTCPResponseRules",
         "parameters": [
           {
             "type": "string",
@@ -45297,7 +47842,7 @@ func init() {
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/tcp_response_rule"
+              "$ref": "#/definitions/tcp_response_rules"
             }
           },
           {
@@ -45323,16 +47868,16 @@ func init() {
           }
         ],
         "responses": {
-          "201": {
-            "description": "TCP Response Rule created",
+          "200": {
+            "description": "All TCP Response Rule lines replaced",
             "schema": {
-              "$ref": "#/definitions/tcp_response_rule"
+              "$ref": "#/definitions/tcp_response_rules"
             }
           },
           "202": {
             "description": "Configuration change accepted and reload requested",
             "schema": {
-              "$ref": "#/definitions/tcp_response_rule"
+              "$ref": "#/definitions/tcp_response_rules"
             },
             "headers": {
               "Reload-ID": {
@@ -45343,18 +47888,6 @@ func init() {
           },
           "400": {
             "description": "Bad request",
-            "schema": {
-              "$ref": "#/definitions/error"
-            },
-            "headers": {
-              "Configuration-Version": {
-                "type": "string",
-                "description": "Configuration file version"
-              }
-            }
-          },
-          "409": {
-            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -45535,6 +48068,115 @@ func init() {
           },
           "404": {
             "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new TCP Response Rule of the specified type in the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Add a new TCP Response Rule",
+        "operationId": "createTCPResponseRule",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent backend name",
+            "name": "backend",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
             "schema": {
               "$ref": "#/definitions/error"
             },
@@ -46936,7 +49578,7 @@ func init() {
           "200": {
             "description": "Success",
             "schema": {
-              "$ref": "#/definitions/process_infos"
+              "$ref": "#/definitions/process_info"
             }
           },
           "default": {
@@ -47852,13 +50494,6 @@ func init() {
             "required": true
           },
           {
-            "type": "integer",
-            "description": "Process number if master-worker mode, if not only first process is returned",
-            "name": "process",
-            "in": "query",
-            "required": true
-          },
-          {
             "type": "string",
             "description": "A list of filters in format data.\u003ctype\u003e \u003coperator\u003e \u003cvalue\u003e separated by comma",
             "name": "filter",
@@ -47920,13 +50555,6 @@ func init() {
             "required": true
           },
           {
-            "type": "integer",
-            "description": "Process number if master-worker mode, if not only first process is returned",
-            "name": "process",
-            "in": "query",
-            "required": true
-          },
-          {
             "description": "Stick table entry",
             "name": "stick_table_entry",
             "in": "body",
@@ -47974,14 +50602,6 @@ func init() {
         ],
         "summary": "Return Stick Tables",
         "operationId": "getStickTables",
-        "parameters": [
-          {
-            "type": "integer",
-            "description": "Process number if master-worker mode, if not all processes are returned",
-            "name": "process",
-            "in": "query"
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -48018,13 +50638,6 @@ func init() {
             "description": "Stick table name",
             "name": "name",
             "in": "path",
-            "required": true
-          },
-          {
-            "type": "integer",
-            "description": "Process number if master-worker mode, if not only first process is returned",
-            "name": "process",
-            "in": "query",
             "required": true
           }
         ],
@@ -52499,6 +55112,14 @@ func init() {
     "GlobalTuneOptions": {
       "type": "object",
       "properties": {
+        "applet_zero_copy_forwarding": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Enables of disabled the zero-copy forwarding of data for the applets"
+        },
         "buffers_limit": {
           "type": "integer",
           "x-display-name": "Buffers Limit",
@@ -52554,6 +55175,11 @@ func init() {
           ],
           "x-display-name": "enable or disable the zero-copy sends of data for the HTTP/1 multiplexer"
         },
+        "h2_be_glitches_threshold": {
+          "type": "integer",
+          "x-display-name": "Automatically kill a backend connection past a number of glitches",
+          "x-nullable": true
+        },
         "h2_be_initial_window_size": {
           "type": "integer",
           "x-display-name": "Initial window size for outgoing connections"
@@ -52562,6 +55188,11 @@ func init() {
           "type": "integer",
           "x-display-name": "Maximum number of concurrent streams per outgoing connection"
         },
+        "h2_fe_glitches_threshold": {
+          "type": "integer",
+          "x-display-name": "Automatically kill a frontend connection past a number of glitches",
+          "x-nullable": true
+        },
         "h2_fe_initial_window_size": {
           "type": "integer",
           "x-display-name": "Initial window size for incoming connections"
@@ -52569,6 +55200,11 @@ func init() {
         "h2_fe_max_concurrent_streams": {
           "type": "integer",
           "x-display-name": "Maximum number of concurrent streams per incoming connection"
+        },
+        "h2_fe_max_total_streams": {
+          "type": "integer",
+          "x-display-name": "Maximum number of total streams processed per incoming HTTP/2 connection",
+          "x-nullable": true
         },
         "h2_header_table_size": {
           "type": "integer",
@@ -52669,8 +55305,9 @@ func init() {
           "x-display-name": "Send Lua Logs to stderr"
         },
         "lua_maxmem": {
-          "type": "boolean",
-          "x-display-name": "Lua Maximum Memory Usage"
+          "type": "integer",
+          "x-display-name": "Lua Maximum Memory Usage",
+          "x-nullable": true
         },
         "lua_service_timeout": {
           "type": "integer",
@@ -52758,6 +55395,13 @@ func init() {
           "x-display-name": "QUIC Max Limit for Frame Loss",
           "x-nullable": true
         },
+        "quic_reorder_ratio": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 0,
+          "x-display-name": "Ratio applied to the packet reordering threshold",
+          "x-nullable": true
+        },
         "quic_retry_threshold": {
           "type": "integer",
           "x-display-name": "QUIC Retry Threshold",
@@ -52770,6 +55414,14 @@ func init() {
             "connection"
           ],
           "x-display-name": "QUIC Socket Owner"
+        },
+        "quic_zero_copy_fwd_send": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Enables or disables the zero-copy sends for the QUIC multiplexer"
         },
         "rcvbuf_backend": {
           "type": "integer",
@@ -52794,6 +55446,11 @@ func init() {
         "recv_enough": {
           "type": "integer",
           "x-display-name": "Receive Enough Socket Buffer Size"
+        },
+        "ring_queues": {
+          "type": "integer",
+          "x-display-name": "Number of write queues in front of ring buffers",
+          "x-nullable": true
         },
         "runqueue_depth": {
           "type": "integer",
@@ -53244,7 +55901,6 @@ func init() {
       "type": "object",
       "title": "ACL Lines",
       "required": [
-        "index",
         "acl_name",
         "criterion"
       ],
@@ -53258,10 +55914,6 @@ func init() {
           "type": "string",
           "pattern": "^[^\\s]+$",
           "x-nullable": false
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "value": {
           "type": "string",
@@ -53503,10 +56155,6 @@ func init() {
         },
         "balance": {
           "$ref": "#/definitions/balance"
-        },
-        "bind_process": {
-          "type": "string",
-          "pattern": "^[^\\s]+$"
         },
         "check_timeout": {
           "type": "integer",
@@ -54109,7 +56757,6 @@ func init() {
       "type": "object",
       "title": "Backend Switching Rule",
       "required": [
-        "index",
         "name"
       ],
       "properties": {
@@ -54134,10 +56781,6 @@ func init() {
             "operation": "getACLs",
             "property": "acl_name"
           }
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "name": {
           "type": "string",
@@ -54612,10 +57255,6 @@ func init() {
         "prefer_client_ciphers": {
           "type": "boolean"
         },
-        "process": {
-          "type": "string",
-          "pattern": "^[^\\s]+$"
-        },
         "proto": {
           "type": "string",
           "x-display-name": "Protocol name"
@@ -54802,15 +57441,10 @@ func init() {
       "type": "object",
       "title": "Declare Capture",
       "required": [
-        "index",
         "type",
         "length"
       ],
       "properties": {
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "length": {
           "type": "integer",
           "x-nullable": false
@@ -55294,10 +57928,6 @@ func init() {
         },
         "balance": {
           "$ref": "#/definitions/balance"
-        },
-        "bind_process": {
-          "type": "string",
-          "pattern": "^[^\\s]+$"
         },
         "check_timeout": {
           "type": "integer",
@@ -56332,7 +58962,6 @@ func init() {
       "type": "object",
       "title": "Filter",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -56399,10 +59028,6 @@ func init() {
               ]
             }
           }
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "key": {
           "description": "A sample expression rule.\nIt describes what elements will be analyzed, extracted, combined, and used to select which table entry to update the counters.\nIt must be specified for shared bandwidth limitation filters only.",
@@ -56532,7 +59157,6 @@ func init() {
       },
       "additionalProperties": false,
       "example": {
-        "index": 0,
         "trace_name": "name",
         "trace_rnd_parsing": true,
         "type": "trace"
@@ -56592,10 +59216,6 @@ func init() {
           "type": "integer",
           "x-display-name": "Backlog",
           "x-nullable": true
-        },
-        "bind_process": {
-          "type": "string",
-          "pattern": "^[^\\s]+$"
         },
         "clflog": {
           "type": "boolean",
@@ -57364,10 +59984,6 @@ func init() {
           "x-display-name": "The number of times a worker can survive a reload",
           "x-nullable": true
         },
-        "nbproc": {
-          "type": "integer",
-          "x-display-name": "Number of Processes"
-        },
         "nbthread": {
           "type": "integer",
           "x-display-name": "Number of Threads"
@@ -57633,6 +60249,14 @@ func init() {
         "tune_options": {
           "type": "object",
           "properties": {
+            "applet_zero_copy_forwarding": {
+              "type": "string",
+              "enum": [
+                "enabled",
+                "disabled"
+              ],
+              "x-display-name": "Enables of disabled the zero-copy forwarding of data for the applets"
+            },
             "buffers_limit": {
               "type": "integer",
               "x-display-name": "Buffers Limit",
@@ -57688,6 +60312,11 @@ func init() {
               ],
               "x-display-name": "enable or disable the zero-copy sends of data for the HTTP/1 multiplexer"
             },
+            "h2_be_glitches_threshold": {
+              "type": "integer",
+              "x-display-name": "Automatically kill a backend connection past a number of glitches",
+              "x-nullable": true
+            },
             "h2_be_initial_window_size": {
               "type": "integer",
               "x-display-name": "Initial window size for outgoing connections"
@@ -57696,6 +60325,11 @@ func init() {
               "type": "integer",
               "x-display-name": "Maximum number of concurrent streams per outgoing connection"
             },
+            "h2_fe_glitches_threshold": {
+              "type": "integer",
+              "x-display-name": "Automatically kill a frontend connection past a number of glitches",
+              "x-nullable": true
+            },
             "h2_fe_initial_window_size": {
               "type": "integer",
               "x-display-name": "Initial window size for incoming connections"
@@ -57703,6 +60337,11 @@ func init() {
             "h2_fe_max_concurrent_streams": {
               "type": "integer",
               "x-display-name": "Maximum number of concurrent streams per incoming connection"
+            },
+            "h2_fe_max_total_streams": {
+              "type": "integer",
+              "x-display-name": "Maximum number of total streams processed per incoming HTTP/2 connection",
+              "x-nullable": true
             },
             "h2_header_table_size": {
               "type": "integer",
@@ -57803,8 +60442,9 @@ func init() {
               "x-display-name": "Send Lua Logs to stderr"
             },
             "lua_maxmem": {
-              "type": "boolean",
-              "x-display-name": "Lua Maximum Memory Usage"
+              "type": "integer",
+              "x-display-name": "Lua Maximum Memory Usage",
+              "x-nullable": true
             },
             "lua_service_timeout": {
               "type": "integer",
@@ -57892,6 +60532,13 @@ func init() {
               "x-display-name": "QUIC Max Limit for Frame Loss",
               "x-nullable": true
             },
+            "quic_reorder_ratio": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 0,
+              "x-display-name": "Ratio applied to the packet reordering threshold",
+              "x-nullable": true
+            },
             "quic_retry_threshold": {
               "type": "integer",
               "x-display-name": "QUIC Retry Threshold",
@@ -57904,6 +60551,14 @@ func init() {
                 "connection"
               ],
               "x-display-name": "QUIC Socket Owner"
+            },
+            "quic_zero_copy_fwd_send": {
+              "type": "string",
+              "enum": [
+                "enabled",
+                "disabled"
+              ],
+              "x-display-name": "Enables or disables the zero-copy sends for the QUIC multiplexer"
             },
             "rcvbuf_backend": {
               "type": "integer",
@@ -57928,6 +60583,11 @@ func init() {
             "recv_enough": {
               "type": "integer",
               "x-display-name": "Receive Enough Socket Buffer Size"
+            },
+            "ring_queues": {
+              "type": "integer",
+              "x-display-name": "Number of write queues in front of ring buffers",
+              "x-nullable": true
             },
             "runqueue_depth": {
               "type": "integer",
@@ -58175,7 +60835,6 @@ func init() {
       "type": "object",
       "title": "HTTP after Response Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -58203,6 +60862,36 @@ func init() {
             }
           },
           "x-display-name": "ACK Key Format"
+        },
+        "capture_id": {
+          "type": "integer",
+          "x-dependency": {
+            "type": {
+              "value": "capture"
+            }
+          },
+          "x-display-name": "Capture SlotID",
+          "x-nullable": true
+        },
+        "capture_len": {
+          "type": "integer",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": "capture"
+            }
+          },
+          "x-display-name": "Capture Len"
+        },
+        "capture_sample": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-dependency": {
+            "type": {
+              "value": "capture"
+            }
+          },
+          "x-display-name": "Capture Sample"
         },
         "cond": {
           "type": "string",
@@ -58280,10 +60969,6 @@ func init() {
             }
           },
           "x-display-name": "Header Name"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
@@ -58437,6 +61122,7 @@ func init() {
           "enum": [
             "add-header",
             "allow",
+            "capture",
             "del-acl",
             "del-header",
             "del-map",
@@ -58453,6 +61139,7 @@ func init() {
             "set-map",
             "set-status",
             "set-var",
+            "set-var-fmt",
             "strict-mode",
             "unset-var"
           ],
@@ -58468,6 +61155,16 @@ func init() {
           },
           "x-display-name": "Var Expression"
         },
+        "var_format": {
+          "type": "string",
+          "x-dependency": {
+            "type": {
+              "required": true,
+              "value": "set-var-fmt"
+            }
+          },
+          "x-display-name": "Var Format"
+        },
         "var_name": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -58476,6 +61173,7 @@ func init() {
               "required": true,
               "value": [
                 "set-var",
+                "set-var-fmt",
                 "unset-var"
               ]
             }
@@ -58489,6 +61187,7 @@ func init() {
               "required": true,
               "value": [
                 "set-var",
+                "set-var-fmt",
                 "unset-var"
               ]
             }
@@ -58501,7 +61200,6 @@ func init() {
         "cond_test": "{ src 192.168.0.0/16 }",
         "hdr_format": "max-age=31536000",
         "hdr_name": "Strict-Transport-Security",
-        "index": 0,
         "type": "set-header"
       }
     },
@@ -58517,7 +61215,6 @@ func init() {
       "type": "object",
       "title": "HTTP Check",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -58615,10 +61312,6 @@ func init() {
           },
           "x-go-name": "CheckHeaders",
           "x-omitempty": true
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "linger": {
           "type": "boolean",
@@ -58900,15 +61593,10 @@ func init() {
       "type": "object",
       "title": "HTTP Error Rule",
       "required": [
-        "index",
         "type",
         "status"
       ],
       "properties": {
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "return_content": {
           "type": "string",
           "x-dependency": {
@@ -59072,7 +61760,6 @@ func init() {
       "type": "object",
       "title": "HTTP Request Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -59316,10 +62003,6 @@ func init() {
             }
           },
           "x-display-name": "Hint Name"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
@@ -60020,7 +62703,6 @@ func init() {
       "type": "object",
       "title": "HTTP Response Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -60211,10 +62893,6 @@ func init() {
             }
           },
           "x-display-name": "Header Name"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
@@ -60913,9 +63591,6 @@ func init() {
       "description": "Per-instance logging of events and traffic.",
       "type": "object",
       "title": "Log Target",
-      "required": [
-        "index"
-      ],
       "properties": {
         "address": {
           "type": "string",
@@ -60993,10 +63668,6 @@ func init() {
         },
         "global": {
           "type": "boolean"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "length": {
           "type": "integer",
@@ -61979,17 +64650,8 @@ func init() {
     },
     "native_stats": {
       "description": "HAProxy stats array",
-      "type": "array",
-      "title": "Stats Array",
-      "items": {
-        "$ref": "#/definitions/native_stats_collection"
-      },
-      "x-omitempty": true
-    },
-    "native_stats_collection": {
-      "description": "Stats from one runtime API",
       "type": "object",
-      "title": "Stats collection",
+      "title": "Stats Array",
       "properties": {
         "error": {
           "type": "string"
@@ -62004,7 +64666,8 @@ func init() {
           },
           "x-omitempty": true
         }
-      }
+      },
+      "x-omitempty": true
     },
     "originalto": {
       "type": "object",
@@ -62140,7 +64803,9 @@ func init() {
       }
     },
     "process_info": {
+      "description": "General HAProxy process information",
       "type": "object",
+      "title": "HAProxy Information",
       "properties": {
         "error": {
           "type": "string"
@@ -62151,7 +64816,8 @@ func init() {
         "runtimeAPI": {
           "type": "string"
         }
-      }
+      },
+      "x-omitempty": true
     },
     "process_info_item": {
       "type": "object",
@@ -62406,15 +65072,6 @@ func init() {
           "x-nullable": true
         }
       }
-    },
-    "process_infos": {
-      "description": "General HAProxy process information",
-      "type": "array",
-      "title": "HAProxy Information",
-      "items": {
-        "$ref": "#/definitions/process_info"
-      },
-      "x-omitempty": true
     },
     "program": {
       "description": "HAProxy program configuration",
@@ -63850,7 +66507,6 @@ func init() {
       "type": "object",
       "title": "Server Switching Rule",
       "required": [
-        "index",
         "target_server"
       ],
       "properties": {
@@ -63876,10 +66532,6 @@ func init() {
             "property": "acl_name"
           }
         },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "target_server": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -63894,7 +66546,6 @@ func init() {
       "example": {
         "cond": "if",
         "cond_test": "{ req_ssl_sni -i www.example.com }",
-        "index": 0,
         "target_server": "www"
       }
     },
@@ -64689,7 +67340,6 @@ func init() {
       "type": "object",
       "title": "Stick Rule",
       "required": [
-        "index",
         "type",
         "pattern"
       ],
@@ -64716,10 +67366,6 @@ func init() {
             "property": "acl_name"
           }
         },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "pattern": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -64742,7 +67388,6 @@ func init() {
       },
       "additionalProperties": false,
       "example": {
-        "index": 0,
         "pattern": "src",
         "type": "match"
       }
@@ -64769,11 +67414,6 @@ func init() {
         },
         "name": {
           "type": "string"
-        },
-        "process": {
-          "description": "Process number if master-worker mode",
-          "type": "integer",
-          "x-nullable": true
         },
         "size": {
           "type": "integer",
@@ -64962,7 +67602,6 @@ func init() {
       "type": "object",
       "title": "TCP Check",
       "required": [
-        "index",
         "action"
       ],
       "properties": {
@@ -65087,24 +67726,11 @@ func init() {
             }
           }
         },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
-        },
         "linger": {
           "type": "boolean",
           "x-dependency": {
             "action": {
               "value": "connect"
-            }
-          }
-        },
-        "log_message": {
-          "type": "string",
-          "x-dependency": {
-            "action": {
-              "required": true,
-              "value": "comment"
             }
           }
         },
@@ -65322,7 +67948,6 @@ func init() {
       "type": "object",
       "title": "TCP Request Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -65539,10 +68164,6 @@ func init() {
             }
           },
           "x-display-name": "Sticky counter value"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
@@ -65927,6 +68548,7 @@ func init() {
             },
             "type": {
               "value": [
+                "session",
                 "connection",
                 "content"
               ]
@@ -66000,7 +68622,6 @@ func init() {
       "type": "object",
       "title": "TCP Response Rule",
       "required": [
-        "index",
         "type"
       ],
       "properties": {
@@ -66121,10 +68742,6 @@ func init() {
             }
           },
           "x-display-name": "Standard HAProxy expression"
-        },
-        "index": {
-          "type": "integer",
-          "x-nullable": true
         },
         "log_level": {
           "type": "string",
