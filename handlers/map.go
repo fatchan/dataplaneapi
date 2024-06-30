@@ -160,26 +160,13 @@ func (h *AddMapEntryHandlerImpl) Handle(params maps.AddMapEntryParams, principal
 		e := misc.HandleError(err)
 		return maps.NewAddMapEntryDefault(int(*e.Code)).WithPayload(e)
 	}
-
-	err = runtime.AddMapEntry(params.Map, params.Data.Key, params.Data.Value)
-	if err != nil {
-		status := misc.GetHTTPStatusFromErr(err)
-		return maps.NewAddMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
-	}
-	if *params.ForceSync {
-		m, err := runtime.GetMap(params.Map)
-		if err != nil {
-			status := misc.GetHTTPStatusFromErr(err)
-			return maps.NewAddMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
-		}
-		ms := config.NewMapSync()
-		_, err = ms.Sync(m, h.Client)
-		if err != nil {
-			status := misc.GetHTTPStatusFromErr(err)
-			return maps.NewAddMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
-		}
-	}
-	return maps.NewAddMapEntryCreated().WithPayload(params.Data)
+	/*
+	TODO:
+	- version := PrepareMap 
+	- AddMapMaploadVersioned(version)
+	 */
+	err = runtime.AddMapPayloadVersioned(params.Map, params.Data)
+	return maps.NewClearRuntimeMapNoContent()
 }
 
 type MapsAddPayloadRuntimeMapHandlerImpl struct {

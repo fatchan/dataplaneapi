@@ -62,7 +62,7 @@ type AddMapEntryParams struct {
 	  Required: true
 	  In: body
 	*/
-	Data *models.MapEntry
+	Data models.MapEntries
 	/*If true, immediately syncs changes to disk
 	  In: query
 	  Default: false
@@ -88,7 +88,7 @@ func (o *AddMapEntryParams) BindRequest(r *http.Request, route *middleware.Match
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body models.MapEntry
+		var body models.MapEntries
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
 				res = append(res, errors.Required("data", "body", ""))
@@ -102,7 +102,7 @@ func (o *AddMapEntryParams) BindRequest(r *http.Request, route *middleware.Match
 			}
 
 			if len(res) == 0 {
-				o.Data = &body
+				o.Data = body
 			}
 		}
 	} else {
