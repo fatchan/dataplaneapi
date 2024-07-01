@@ -16,6 +16,7 @@
 package handlers
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -155,17 +156,19 @@ type AddMapEntryHandlerImpl struct {
 }
 
 func (h *AddMapEntryHandlerImpl) Handle(params maps.AddMapEntryParams, principal interface{}) middleware.Responder {
+	fmt.Println("AddMapEntryHandlerImpl")
 	runtime, err := h.Client.Runtime()
 	if err != nil {
 		e := misc.HandleError(err)
 		return maps.NewAddMapEntryDefault(int(*e.Code)).WithPayload(e)
 	}
-	/*
-	TODO:
-	- version := PrepareMap 
-	- AddMapMaploadVersioned(version)
-	 */
+	//TODO: prepare map, get the version, add the payload, then commit map
+	//TODO: change this to use the underlying socket methods and ClearMap right after PrepareMap to "overwrite" (see addsetcommitssl in client-native_
 	err = runtime.AddMapPayloadVersioned(params.Map, params.Data)
+	if err != nil {
+		status := misc.GetHTTPStatusFromErr(err)
+		return maps.NewAddPayloadRuntimeMapDefault(status).WithPayload(misc.SetError(status, err.Error()))
+	}
 	return maps.NewClearRuntimeMapNoContent()
 }
 
