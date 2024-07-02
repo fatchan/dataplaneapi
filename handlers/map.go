@@ -164,7 +164,7 @@ func (h *AddMapEntryHandlerImpl) Handle(params maps.AddMapEntryParams, principal
 	}
 	//TODO: prepare map, get the version, add the payload, then commit map
 	//TODO: change this to use the underlying socket methods and ClearMap right after PrepareMap to "overwrite" (see addsetcommitssl in client-native_
-	err = runtime.AddMapPayloadVersioned(params.Map, params.Data)
+	err = runtime.OverwriteMapPayloadVersioned(params.Map, params.Data)
 	if err != nil {
 		status := misc.GetHTTPStatusFromErr(err)
 		return maps.NewAddPayloadRuntimeMapDefault(status).WithPayload(misc.SetError(status, err.Error()))
