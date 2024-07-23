@@ -16,6 +16,7 @@
 package handlers
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -155,31 +156,20 @@ type AddMapEntryHandlerImpl struct {
 }
 
 func (h *AddMapEntryHandlerImpl) Handle(params maps.AddMapEntryParams, principal interface{}) middleware.Responder {
+	fmt.Println("AddMapEntryHandlerImpl")
 	runtime, err := h.Client.Runtime()
 	if err != nil {
 		e := misc.HandleError(err)
 		return maps.NewAddMapEntryDefault(int(*e.Code)).WithPayload(e)
 	}
-
-	err = runtime.AddMapEntry(params.Map, params.Data.Key, params.Data.Value)
+	//TODO: prepare map, get the version, add the payload, then commit map
+	//TODO: change this to use the underlying socket methods and ClearMap right after PrepareMap to "overwrite" (see addsetcommitssl in client-native_
+	err = runtime.OverwriteMapPayloadVersioned(params.Map, params.Data)
 	if err != nil {
 		status := misc.GetHTTPStatusFromErr(err)
-		return maps.NewAddMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
+		return maps.NewAddPayloadRuntimeMapDefault(status).WithPayload(misc.SetError(status, err.Error()))
 	}
-	if *params.ForceSync {
-		m, err := runtime.GetMap(params.Map)
-		if err != nil {
-			status := misc.GetHTTPStatusFromErr(err)
-			return maps.NewAddMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
-		}
-		ms := config.NewMapSync()
-		_, err = ms.Sync(m, h.Client)
-		if err != nil {
-			status := misc.GetHTTPStatusFromErr(err)
-			return maps.NewAddMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
-		}
-	}
-	return maps.NewAddMapEntryCreated().WithPayload(params.Data)
+	return maps.NewClearRuntimeMapNoContent()
 }
 
 type MapsAddPayloadRuntimeMapHandlerImpl struct {

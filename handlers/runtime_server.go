@@ -313,8 +313,8 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 		push("disabled")
 	case srv.Downinter != nil:
 		pushi("downinter", srv.Downinter)
-	// case !enabled(srv.Maintenance):
-		// push("enabled")
+//	case !enabled(srv.Maintenance):
+//		push("enabled")
 	case srv.ErrorLimit != nil:
 		pushi("error-limit", srv.ErrorLimit)
 	case srv.Fall != nil:
