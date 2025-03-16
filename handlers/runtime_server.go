@@ -287,7 +287,7 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 		push("backup")
 	}
 	if srv.SslCafile != "" {
-		pushq("ca-file", srv.SslCafile)
+		push(fmt.Sprintf("ca-file %s", srv.SslCafile))
 	}
 	if enabled(srv.Check) {
 		push("check")
@@ -443,7 +443,7 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 		pushi("slowstart", srv.Slowstart)
 	}
 	if srv.Sni != "" {
-		pushq("sni", fmt.Sprintf("sni %s", srv.Sni))
+		push(fmt.Sprintf("sni %s", srv.Sni))
 	}
 	if srv.Source != "" {
 		pushq("source", srv.Source)
