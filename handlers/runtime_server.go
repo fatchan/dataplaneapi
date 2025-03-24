@@ -398,7 +398,7 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 		pushq("npm", srv.Npn)
 	}
 	if srv.Observe != "" {
-		pushq("observe", srv.Observe)
+		push(fmt.Sprintf("observe %s", srv.Observe))
 	}
 	if srv.OnError != "" {
 		pushq("on-error", srv.OnError)
