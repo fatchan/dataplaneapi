@@ -45,13 +45,16 @@ func (ms *MapSync) Stop() {
 }
 
 const t = true
+
 var skipSyncMaps = map[string]bool{
-	"/etc/haproxy/map/backends.map": t,
-	"/etc/haproxy/map/iptoasn.map": t,
-	"/etc/haproxy/map/geoip.map": t,
+	"/etc/haproxy/map/backends.map":          t,
+	"/etc/haproxy/map/iptoasn.map":           t,
+	"/etc/haproxy/map/geoip.map":             t,
 	"/etc/haproxy/map/crawler-whitelist.map": t,
-	"/etc/haproxy/map/cctocn.map": t,
-	"/etc/haproxy/map/alt-svc.map": t,
+	"/etc/haproxy/map/cctocn.map":            t,
+	"/etc/haproxy/map/alt-svc.map":           t,
+	"/etc/haproxy/map/lfp.map":               t,
+	"/etc/haproxy/map/bfp.map":               t,
 }
 
 // SyncAll sync maps file entries with runtime maps entries for all configured files.
@@ -83,7 +86,7 @@ func (ms *MapSync) SyncAll(client client_native.HAProxyClient) {
 							log.Warning(err.Error())
 						}
 					}(mp)
-			    }
+				}
 			}
 		case <-ms.mapQuitChan:
 			return
