@@ -33,8 +33,8 @@ type GetRuntimeServerHandlerImpl struct {
 	Client client_native.HAProxyClient
 }
 
-// GetRuntimeServersHandlerImpl implementation of the GetRuntimeServersHandler interface using client-native client
-type GetRuntimeServersHandlerImpl struct {
+// GetAllRuntimeServerHandlerImpl implementation of the GetRuntimeServersHandler interface using client-native client
+type GetAllRuntimeServerHandlerImpl struct {
 	Client client_native.HAProxyClient
 }
 
@@ -61,7 +61,7 @@ func (h *GetRuntimeServerHandlerImpl) Handle(params server.GetRuntimeServerParam
 		return server.NewGetRuntimeServerDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	rs, err := rn.GetServerState(params.Backend, params.Name)
+	rs, err := rn.GetServerState(params.ParentName, params.Name)
 	if err != nil {
 		if isNotFoundError(err) {
 			code := int64(404)
@@ -74,7 +74,7 @@ func (h *GetRuntimeServerHandlerImpl) Handle(params server.GetRuntimeServerParam
 
 	if rs == nil {
 		code := int64(404)
-		msg := fmt.Sprintf("Runtime server %s not found in backend %s", params.Name, params.Backend)
+		msg := fmt.Sprintf("Runtime server %s not found in backend %s", params.Name, params.ParentName)
 		return server.NewGetRuntimeServerNotFound().WithPayload(&models.Error{Code: &code, Message: &msg})
 	}
 
@@ -82,23 +82,23 @@ func (h *GetRuntimeServerHandlerImpl) Handle(params server.GetRuntimeServerParam
 }
 
 // Handle executing the request and returning a response
-func (h *GetRuntimeServersHandlerImpl) Handle(params server.GetRuntimeServersParams, principal interface{}) middleware.Responder {
+func (h *GetAllRuntimeServerHandlerImpl) Handle(params server.GetAllRuntimeServerParams, principal interface{}) middleware.Responder {
 	runtime, err := h.Client.Runtime()
 	if err != nil {
 		e := misc.HandleError(err)
-		return server.NewGetRuntimeServersDefault(int(*e.Code)).WithPayload(e)
+		return server.NewGetAllRuntimeServerDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	rs, err := runtime.GetServersState(params.Backend)
+	rs, err := runtime.GetServersState(params.ParentName)
 	if err != nil {
 		e := misc.HandleContainerGetError(err)
 		if *e.Code == misc.ErrHTTPOk {
-			return server.NewGetRuntimeServersOK().WithPayload(models.RuntimeServers{})
+			return server.NewGetAllRuntimeServerOK().WithPayload(models.RuntimeServers{})
 		}
-		return server.NewGetRuntimeServersDefault(int(*e.Code)).WithPayload(e)
+		return server.NewGetAllRuntimeServerDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	return server.NewGetRuntimeServersOK().WithPayload(rs)
+	return server.NewGetAllRuntimeServerOK().WithPayload(rs)
 }
 
 // Handle executing the request and returning a response
@@ -109,7 +109,7 @@ func (h *ReplaceRuntimeServerHandlerImpl) Handle(params server.ReplaceRuntimeSer
 		return server.NewReplaceRuntimeServerDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	rs, err := runtime.GetServerState(params.Backend, params.Name)
+	rs, err := runtime.GetServerState(params.ParentName, params.Name)
 	if err != nil {
 		e := misc.HandleError(err)
 		return server.NewReplaceRuntimeServerDefault(int(*e.Code)).WithPayload(e)
@@ -117,13 +117,13 @@ func (h *ReplaceRuntimeServerHandlerImpl) Handle(params server.ReplaceRuntimeSer
 
 	if rs == nil {
 		code := int64(404)
-		msg := fmt.Sprintf("Runtime server %s not found in backend %s", params.Name, params.Backend)
+		msg := fmt.Sprintf("Runtime server %s not found in backend %s", params.Name, params.ParentName)
 		return server.NewReplaceRuntimeServerNotFound().WithPayload(&models.Error{Code: &code, Message: &msg})
 	}
 
 	// change operational state
 	if params.Data.OperationalState != "" && rs.OperationalState != params.Data.OperationalState {
-		err = runtime.SetServerHealth(params.Backend, params.Name, params.Data.OperationalState)
+		err = runtime.SetServerHealth(params.ParentName, params.Name, params.Data.OperationalState)
 		if err != nil {
 			e := misc.HandleError(err)
 			return server.NewReplaceRuntimeServerDefault(int(*e.Code)).WithPayload(e)
@@ -132,18 +132,18 @@ func (h *ReplaceRuntimeServerHandlerImpl) Handle(params server.ReplaceRuntimeSer
 
 	// change admin state
 	if params.Data.AdminState != "" && rs.AdminState != params.Data.AdminState {
-		err = runtime.SetServerState(params.Backend, params.Name, params.Data.AdminState)
+		err = runtime.SetServerState(params.ParentName, params.Name, params.Data.AdminState)
 		if err != nil {
 			e := misc.HandleError(err)
 
 			// try to revert operational state and fall silently
 			//nolint:errcheck
-			runtime.SetServerHealth(params.Backend, params.Name, rs.OperationalState)
+			runtime.SetServerHealth(params.ParentName, params.Name, rs.OperationalState)
 			return server.NewReplaceRuntimeServerDefault(int(*e.Code)).WithPayload(e)
 		}
 	}
 
-	rs, err = runtime.GetServerState(params.Backend, params.Name)
+	rs, err = runtime.GetServerState(params.ParentName, params.Name)
 	if err != nil {
 		e := misc.HandleError(err)
 		return server.NewReplaceRuntimeServerDefault(int(*e.Code)).WithPayload(e)
@@ -168,7 +168,7 @@ func (h *AddRuntimeServerHandlerImpl) Handle(params server.AddRuntimeServerParam
 		return server.NewAddRuntimeServerBadRequest().WithPayload(&models.Error{Code: &code, Message: &msg})
 	}
 
-	err = runtime.AddServer(params.Backend, params.Data.Name, SerializeRuntimeAddServer(params.Data))
+	err = runtime.AddServer(params.ParentName, params.Data.Name, SerializeRuntimeAddServer(params.Data))
 	if err != nil {
 		msg := err.Error()
 		switch {
@@ -202,7 +202,7 @@ func (h *DeleteRuntimeServerHandlerImpl) Handle(params server.DeleteRuntimeServe
 	}
 
 	// Check if this server exists.
-	rs, err := runtime.GetServerState(params.Backend, params.Name)
+	rs, err := runtime.GetServerState(params.ParentName, params.Name)
 	if err != nil {
 		if isNotFoundError(err) {
 			code := int64(404)
@@ -215,7 +215,7 @@ func (h *DeleteRuntimeServerHandlerImpl) Handle(params server.DeleteRuntimeServe
 
 	// Put the server in maintenance state before deleting it.
 	if rs.AdminState != "maint" {
-		err = runtime.DisableServer(params.Backend, params.Name)
+		err = runtime.DisableServer(params.ParentName, params.Name)
 		if err != nil {
 			e := misc.HandleError(err)
 			return server.NewDeleteRuntimeServerDefault(int(*e.Code)).WithPayload(e)
@@ -224,7 +224,7 @@ func (h *DeleteRuntimeServerHandlerImpl) Handle(params server.DeleteRuntimeServe
 
 	// TODO: wait for connections to drain. This is not yet possible with HAProxy 2.6.
 
-	err = runtime.DeleteServer(params.Backend, params.Name)
+	err = runtime.DeleteServer(params.ParentName, params.Name)
 	if err != nil {
 		e := misc.HandleError(err)
 		return server.NewDeleteRuntimeServerDefault(int(*e.Code)).WithPayload(e)
@@ -249,7 +249,7 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 	// push a quoted string
 	pushq := func(key, val string) {
 		fmt.Fprintf(b, ` %s "%s"`, key, val)
-	}	// push a quoted string
+	} // push a quoted string
 	pushnq := func(key, val string) {
 		fmt.Fprintf(b, ` %s %s`, key, val)
 	}
@@ -264,153 +264,221 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 	}
 	push(addr)
 
-	switch {
-	case enabled(srv.AgentCheck):
+	// Check conditions using if statements instead of switch
+	if enabled(srv.AgentCheck) {
 		push("agent-check")
-	case srv.AgentAddr != "":
+	}
+	if srv.AgentAddr != "" {
 		pushq("agent-addr", srv.AgentAddr)
-	case srv.AgentPort != nil:
+	}
+	if srv.AgentPort != nil {
 		pushi("agent-port", srv.AgentPort)
-	case srv.AgentInter != nil:
+	}
+	if srv.AgentInter != nil {
 		pushi("agent-inter", srv.AgentInter)
-	case srv.AgentSend != "":
+	}
+	if srv.AgentSend != "" {
 		pushq("agent-send", srv.AgentSend)
-	case srv.Allow0rtt:
+	}
+	if srv.Allow0rtt {
 		push("allow-0rtt")
-	case srv.Alpn != "":
+	}
+	if srv.Alpn != "" {
 		pushq("alpn", srv.Alpn)
-	case enabled(srv.Backup):
+	}
+	if enabled(srv.Backup) {
 		push("backup")
-	case srv.SslCafile != "":
-		pushnq("ca-file", srv.SslCafile)
-	case enabled(srv.Check):
+	}
+	if srv.SslCafile != "" {
+		push(fmt.Sprintf("ca-file %s", srv.SslCafile))
+	}
+	if enabled(srv.Check) {
 		push("check")
-	case srv.CheckAlpn != "":
+	}
+	if srv.CheckAlpn != "" {
 		pushq("check-alpn", srv.CheckAlpn)
-	case srv.HealthCheckAddress != "":
+	}
+	if srv.HealthCheckAddress != "" {
 		pushq("addr", srv.HealthCheckAddress)
-	case srv.HealthCheckPort != nil:
+	}
+	if srv.HealthCheckPort != nil {
 		pushi("port", srv.HealthCheckPort)
-	case srv.CheckProto != "":
+	}
+	if srv.CheckProto != "" {
 		pushq("check-proto", srv.CheckProto)
-	case enabled(srv.CheckSendProxy):
+	}
+	if enabled(srv.CheckSendProxy) {
 		push("check-send-proxy")
-	case srv.CheckSni != "":
+	}
+	if srv.CheckSni != "" {
 		pushq("check-sni", srv.CheckSni)
-	case enabled(srv.CheckSsl):
+	}
+	if enabled(srv.CheckSsl) {
 		push("check-ssl")
-	case enabled(srv.CheckViaSocks4):
+	}
+	if enabled(srv.CheckViaSocks4) {
 		push("check-via-socks4")
-	case srv.Ciphers != "":
+	}
+	if srv.Ciphers != "" {
 		pushq("ciphers", srv.Ciphers)
-	case srv.Ciphersuites != "":
+	}
+	if srv.Ciphersuites != "" {
 		pushq("ciphersuites", srv.Ciphersuites)
-	case srv.CrlFile != "":
+	}
+	if srv.CrlFile != "" {
 		pushq("crl-file", srv.CrlFile)
-	case srv.SslCertificate != "":
+	}
+	if srv.SslCertificate != "" {
 		pushq("crt", srv.SslCertificate)
-	case enabled(srv.Maintenance):
+	}
+	if enabled(srv.Maintenance) {
 		push("disabled")
-	case srv.Downinter != nil:
+	}
+	if srv.Downinter != nil {
 		pushi("downinter", srv.Downinter)
-//	case !enabled(srv.Maintenance):
-//		push("enabled")
-	case srv.ErrorLimit != nil:
+	}
+	if srv.ErrorLimit != nil {
 		pushi("error-limit", srv.ErrorLimit)
-	case srv.Fall != nil:
+	}
+	if srv.Fall != nil {
 		pushi("fall", srv.Fall)
-	case srv.Fastinter != nil:
+	}
+	if srv.Fastinter != nil {
 		pushi("fastinter", srv.Fastinter)
-	case enabled(srv.ForceSslv3):
+	}
+	if enabled(srv.ForceSslv3) {
 		push("force-sslv3")
-	case enabled(srv.ForceTlsv10):
+	}
+	if enabled(srv.ForceTlsv10) {
 		push("force-tlsv10")
-	case enabled(srv.ForceTlsv11):
+	}
+	if enabled(srv.ForceTlsv11) {
 		push("force-tlsv11")
-	case enabled(srv.ForceTlsv12):
+	}
+	if enabled(srv.ForceTlsv12) {
 		push("force-tlsv12")
-	case enabled(srv.ForceTlsv13):
+	}
+	if enabled(srv.ForceTlsv13) {
 		push("force-tlsv13")
-	case srv.ID != "":
+	}
+	if srv.ID != "" {
 		pushq("id", srv.ID)
-	case srv.Inter != nil:
+	}
+	if srv.Inter != nil {
 		pushi("inter", srv.Inter)
-	case srv.Maxconn != nil:
+	}
+	if srv.Maxconn != nil {
 		pushi("maxconn", srv.Maxconn)
-	case srv.Maxqueue != nil:
+	}
+	if srv.Maxqueue != nil {
 		pushi("maxqueue", srv.Maxqueue)
-	case srv.Minconn != nil:
+	}
+	if srv.Minconn != nil {
 		pushi("minconn", srv.Minconn)
-	case !enabled(srv.SslReuse):
+	}
+	if !enabled(srv.SslReuse) {
 		push("no-ssl-reuse")
-	case enabled(srv.NoSslv3):
+	}
+	if enabled(srv.NoSslv3) {
 		push("no-sslv3")
-	case enabled(srv.NoTlsv10):
+	}
+	if enabled(srv.NoTlsv10) {
 		push("no-tlsv10")
-	case enabled(srv.NoTlsv11):
+	}
+	if enabled(srv.NoTlsv11) {
 		push("no-tlsv11")
-	case enabled(srv.NoTlsv12):
+	}
+	if enabled(srv.NoTlsv12) {
 		push("no-tlsv12")
-	case enabled(srv.NoTlsv13):
+	}
+	if enabled(srv.NoTlsv13) {
 		push("no-tlsv13")
-	case !enabled(srv.TLSTickets):
+	}
+	if !enabled(srv.TLSTickets) {
 		push("no-tls-tickets")
-	case srv.Npn != "":
+	}
+	if srv.Npn != "" {
 		pushq("npm", srv.Npn)
-	case srv.Observe != "":
-		pushq("observe", srv.Observe)
-	case srv.OnError != "":
+	}
+	if srv.Observe != "" {
+		push(fmt.Sprintf("observe %s", srv.Observe))
+	}
+	if srv.OnError != "" {
 		pushq("on-error", srv.OnError)
-	case srv.OnMarkedDown != "":
+	}
+	if srv.OnMarkedDown != "" {
 		pushq("on-marked-down", srv.OnMarkedDown)
-	case srv.OnMarkedUp != "":
+	}
+	if srv.OnMarkedUp != "" {
 		pushq("on-marked-up", srv.OnMarkedUp)
-	case srv.PoolLowConn != nil:
+	}
+	if srv.PoolLowConn != nil {
 		pushi("pool-low-conn", srv.PoolLowConn)
-	case srv.PoolMaxConn != nil:
+	}
+	if srv.PoolMaxConn != nil {
 		pushi("pool-max-conn", srv.PoolMaxConn)
-	case srv.PoolPurgeDelay != nil:
+	}
+	if srv.PoolPurgeDelay != nil {
 		pushi("pool-purge-delay", srv.PoolPurgeDelay)
-	case srv.Proto != "":
+	}
+	if srv.Proto != "" {
 		pushq("proto", srv.Proto)
-	case len(srv.ProxyV2Options) > 0:
+	}
+	if len(srv.ProxyV2Options) > 0 {
 		pushq("proxy-v2-options", strings.Join(srv.ProxyV2Options, ","))
-	case srv.Rise != nil:
+	}
+	if srv.Rise != nil {
 		pushi("rise", srv.Rise)
-	case enabled(srv.SendProxy):
+	}
+	if enabled(srv.SendProxy) {
 		push("send-proxy")
-	case enabled(srv.SendProxyV2):
+	}
+	if enabled(srv.SendProxyV2) {
 		push("send-proxy-v2")
-	case enabled(srv.SendProxyV2Ssl):
+	}
+	if enabled(srv.SendProxyV2Ssl) {
 		push("send-proxy-v2-ssl")
-	case enabled(srv.SendProxyV2SslCn):
+	}
+	if enabled(srv.SendProxyV2SslCn) {
 		push("send-proxy-v2-ssl-cn")
-	case srv.Slowstart != nil:
+	}
+	if srv.Slowstart != nil {
 		pushi("slowstart", srv.Slowstart)
-	case srv.Sni != "":
-		pushq("sni", srv.Sni)
-	case srv.Source != "":
+	}
+	if srv.Sni != "" {
+		push(fmt.Sprintf("sni %s", srv.Sni))
+	}
+	if srv.Source != "" {
 		pushq("source", srv.Source)
-	case enabled(srv.Ssl):
+	}
+	if enabled(srv.Ssl) {
 		push("ssl")
-	case srv.SslMaxVer != "":
+	}
+	if srv.SslMaxVer != "" {
 		pushq("ssl-max-ver", srv.SslMaxVer)
-	case srv.SslMinVer != "":
+	}
+	if srv.SslMinVer != "" {
 		pushq("ssl-min-ver", srv.SslMinVer)
-	case enabled(srv.Tfo):
+	}
+	if enabled(srv.Tfo) {
 		push("tfo")
-	case enabled(srv.TLSTickets):
+	}
+	if enabled(srv.TLSTickets) {
 		push("tls-tickets")
-	case srv.Track != "":
+	}
+	if srv.Track != "" {
 		pushq("track", srv.Track)
-	/* XXX usesrc is not supported */
-	case srv.Verify != "":
-		pushq("verify", srv.Verify)
-	case srv.Verifyhost != "":
+	}
+	if srv.Verify != "" {
+		push(fmt.Sprintf("verify %s", srv.Verify))
+	}
+	if srv.Verifyhost != "" {
 		pushq("verifyhost", srv.Verifyhost)
-	case srv.Weight != nil:
+	}
+	if srv.Weight != nil {
 		pushi("weight", srv.Weight)
-	case srv.Ws != "":
+	}
+	if srv.Ws != "" {
 		pushq("ws", srv.Ws)
 	}
 

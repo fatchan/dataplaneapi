@@ -18,6 +18,7 @@ package handlers
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -38,6 +39,14 @@ type StorageCreateStorageGeneralFileHandlerImpl struct {
 }
 
 func (h *StorageCreateStorageGeneralFileHandlerImpl) Handle(params storage.CreateStorageGeneralFileParams, principal interface{}) middleware.Responder {
+	if params.FileUpload == nil {
+		e := &models.Error{
+			Code:    misc.Int64P(400),
+			Message: misc.StringP("No file_upload form param specified"),
+		}
+		return storage.NewReplaceStorageGeneralFileBadRequest().WithPayload(e)
+	}
+
 	file, ok := params.FileUpload.(*runtime.File)
 	if !ok {
 		return storage.NewCreateStorageGeneralFileBadRequest()
@@ -188,7 +197,19 @@ func (h *StorageReplaceStorageGeneralFileHandlerImpl) Handle(params storage.Repl
 		return storage.NewReplaceStorageGeneralFileDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	_, err = gs.Replace(params.Name, params.Data)
+	if params.FileUpload == nil {
+		e := &models.Error{
+			Code:    misc.Int64P(400),
+			Message: misc.StringP("No file_upload form param specified"),
+		}
+		return storage.NewReplaceStorageGeneralFileBadRequest().WithPayload(e)
+	}
+
+	data, err := io.ReadAll(params.FileUpload)
+	if err != nil {
+		return storage.NewReplaceStorageGeneralFileBadRequest()
+	}
+	_, err = gs.Replace(params.Name, string(data))
 	if err != nil {
 		e := misc.HandleError(err)
 		return storage.NewReplaceStorageGeneralFileDefault(int(*e.Code)).WithPayload(e)

@@ -52,7 +52,7 @@ func NewSetStickTableEntries(ctx *middleware.Context, handler SetStickTableEntri
 }
 
 /*
-	SetStickTableEntries swagger:route POST /services/haproxy/runtime/stick_table_entries StickTable setStickTableEntries
+	SetStickTableEntries swagger:route POST /services/haproxy/runtime/stick_tables/{parent_name}/entries StickTable setStickTableEntries
 
 # Set Entry to Stick Table
 
@@ -170,6 +170,7 @@ func (o *SetStickTableEntriesBody) ContextValidate(ctx context.Context, formats 
 func (o *SetStickTableEntriesBody) contextValidateDataType(ctx context.Context, formats strfmt.Registry) error {
 
 	if o.DataType != nil {
+
 		if err := o.DataType.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("stick_table_entry" + "." + "data_type")

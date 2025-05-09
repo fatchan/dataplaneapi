@@ -1,12 +1,14 @@
 stages:
   - lint
+  - checks
   - build
+  - test
   - e2e
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_BASE_IMAGE: $CI_REGISTRY_GO/haproxy-debian
   BATS_VERSION: v1.4.1
-  GO_VERSION: "1.22"
+  GO_VERSION: "1.24"
   DOCKER_VERSION: "26.0"
 
 diff:
@@ -29,6 +31,20 @@ diff:
     - make generate-native
     - test -z "$(git diff 2> /dev/null)" || exit "Specification is not generated, issue \`make generate\` and commit the result"
     - test -z "$(git ls-files --others --exclude-standard 2> /dev/null)" || exit "Specification generation created untracked files, cannot proceed"
+diff-spec-parent:
+  stage: lint
+  image:
+    name: $CI_REGISTRY_GO/golang:$GO_VERSION
+    entrypoint: [""]
+  tags:
+    - go
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_PIPELINE_SOURCE == 'push'
+  script:
+    - make generate-parent-aliases
+    - test -z "$(git diff 2> /dev/null)" || exit "Parent aliases are not generated, issue \`make generate-parent-aliases\` and commit the result"
+    - test -z "$(git ls-files --others --exclude-standard 2> /dev/null)" || exit "Parent aliases created untracked files, cannot proceed"
 golangci-lint:
   stage: lint
   artifacts:
@@ -57,10 +73,10 @@ gofumpt:
   script:
     - make gofumpt
     - test -z "$(git diff 2> /dev/null)" || exit 'Go code not formatted, issue \`make gofumpt\` and commit the result'
-lint-commit-msg:
+commit-policy:
   stage: lint
   image:
-    name: $CI_REGISTRY_GO/check-commit:v2.1.0
+    name: $CI_REGISTRY_GO/commit-check:5.0.4
     entrypoint: [""]
   tags:
     - go
@@ -87,11 +103,28 @@ build:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_PIPELINE_SOURCE == 'push'
 
+test:
+  stage: test
+  image:
+    name: $CI_REGISTRY_GO/golang:$GO_VERSION
+    entrypoint: [ "" ]
+  tags:
+    - go
+  before_script:
+    - go env -w "GONOSUMDB=gitlab.int.haproxy.com/*" "GOPROXY=http://goproxy.int.haproxy.com"
+  script:
+    - go test ./...
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: "$CI_PROJECT_NAMESPACE == 'haproxy-controller' && $CI_PIPELINE_SOURCE == 'push'"
+
 .e2e:
   stage: e2e
   artifacts:
     paths:
       - build
+      - e2e/logs/*
+    when: on_failure
   image:
     name: $CI_REGISTRY_GO/docker:$DOCKER_VERSION
     entrypoint: [""]
@@ -112,48 +145,46 @@ build:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
     - if: $CI_PIPELINE_SOURCE == 'push'
 
-HAProxy_2_1:
-  extends: .e2e
-  parallel:
-    matrix:
-      - TESTPART: ["1/2", "2/2"]
-        HAPROXY_VERSION: "2.1"
+govulncheck:
+  stage: checks
+  needs: []
+  image:
+    name: $CI_REGISTRY_GO/docker:$DOCKER_VERSION-go$GO_VERSION
+    entrypoint: [ "" ]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'schedule' && $SCHEDULE_TYPE == 'daily'
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - go.mod
+    - if: "$CI_PROJECT_NAMESPACE == 'haproxy-controller' && $CI_PIPELINE_SOURCE == 'push'"
+      changes:
+        - go.mod
+  tags:
+    - go
+  script:
+    - go install golang.org/x/vuln/cmd/govulncheck@latest
+    - govulncheck -version
+    - go mod tidy
+    - go run cmd/govulncheck-report/main.go
+
 HAProxy_2_2:
   extends: .e2e
   parallel:
     matrix:
       - TESTPART: ["1/2", "2/2"]
         HAPROXY_VERSION: "2.2"
-HAProxy_2_3:
-  extends: .e2e
-  parallel:
-    matrix:
-      - TESTPART: ["1/2", "2/2"]
-        HAPROXY_VERSION: "2.3"
 HAProxy_2_4:
   extends: .e2e
   parallel:
     matrix:
       - TESTPART: ["1/2", "2/2"]
         HAPROXY_VERSION: "2.4"
-HAProxy_2_5:
-  extends: .e2e
-  parallel:
-    matrix:
-      - TESTPART: ["1/2", "2/2"]
-        HAPROXY_VERSION: "2.5"
 HAProxy_2_6:
   extends: .e2e
   parallel:
     matrix:
       - TESTPART: ["1/2", "2/2"]
         HAPROXY_VERSION: "2.6"
-HAProxy_2_7:
-  extends: .e2e
-  parallel:
-    matrix:
-      - TESTPART: ["1/2", "2/2"]
-        HAPROXY_VERSION: "2.7"
 HAProxy_2_8:
   extends: .e2e
   parallel:
@@ -167,6 +198,12 @@ HAProxy_2_9:
       - TESTPART: ["1/2", "2/2"]
         HAPROXY_VERSION: "2.9"
 HAProxy_3_0:
+  extends: .e2e
+  parallel:
+    matrix:
+      - TESTPART: ["1/2", "2/2"]
+        HAPROXY_VERSION: "3.0"
+HAProxy_3_1:
   extends: .e2e
   parallel:
     matrix:

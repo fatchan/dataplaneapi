@@ -45,13 +45,16 @@ func (ms *MapSync) Stop() {
 }
 
 const t = true
+
 var skipSyncMaps = map[string]bool{
-	"/etc/haproxy/map/backends.map": t,
-	"/etc/haproxy/map/iptoasn.map": t,
-	"/etc/haproxy/map/geoip.map": t,
+	"/etc/haproxy/map/backends.map":          t,
+	"/etc/haproxy/map/iptoasn.map":           t,
+	"/etc/haproxy/map/geoip.map":             t,
 	"/etc/haproxy/map/crawler-whitelist.map": t,
-	"/etc/haproxy/map/cctocn.map": t,
-	"/etc/haproxy/map/alt-svc.map": t,
+	"/etc/haproxy/map/cctocn.map":            t,
+	"/etc/haproxy/map/alt-svc.map":           t,
+	"/etc/haproxy/map/lfp.map":               t,
+	"/etc/haproxy/map/bfp.map":               t,
 }
 
 // SyncAll sync maps file entries with runtime maps entries for all configured files.
@@ -83,7 +86,7 @@ func (ms *MapSync) SyncAll(client client_native.HAProxyClient) {
 							log.Warning(err.Error())
 						}
 					}(mp)
-			    }
+				}
 			}
 		case <-ms.mapQuitChan:
 			return
@@ -140,7 +143,7 @@ func equalSomeEntries(fEntries, rEntries models.MapEntries, index ...int) bool {
 		return false
 	}
 
-	max := 0
+	var maximum int
 	switch l := len(rEntries); {
 	case l > 19:
 		for i := l - 20; i < l; i++ {
@@ -148,21 +151,21 @@ func equalSomeEntries(fEntries, rEntries models.MapEntries, index ...int) bool {
 				return false
 			}
 		}
-		max = l - 19
+		maximum = l - 19
 	case l == 0:
 		return true
 	default:
-		max = l
+		maximum = l
 	}
 
 	maxRandom := 10
-	if max < 10 {
-		maxRandom = max
+	if maximum < 10 {
+		maxRandom = maximum
 	}
 
 	for range maxRandom {
 		// There's no need for strong number generation, here, just need for performance
-		r := rand.Intn(max)
+		r := rand.Intn(maximum)
 		if len(index) > 0 {
 			r = index[0]
 		}

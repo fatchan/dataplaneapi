@@ -139,7 +139,7 @@ func (h *ShowMapHandlerImpl) Handle(params maps.ShowRuntimeMapParams, principal 
 		e := misc.HandleError(err)
 		return maps.NewShowRuntimeMapDefault(int(*e.Code)).WithPayload(e)
 	}
-	m, err := runtime.ShowMapEntries(params.Map)
+	m, err := runtime.ShowMapEntries(params.ParentName)
 	if err != nil {
 		status := misc.GetHTTPStatusFromErr(err)
 		return maps.NewShowRuntimeMapDefault(status).WithPayload(misc.SetError(status, err.Error()))
@@ -162,13 +162,16 @@ func (h *AddMapEntryHandlerImpl) Handle(params maps.AddMapEntryParams, principal
 		e := misc.HandleError(err)
 		return maps.NewAddMapEntryDefault(int(*e.Code)).WithPayload(e)
 	}
+
 	//TODO: prepare map, get the version, add the payload, then commit map
-	//TODO: change this to use the underlying socket methods and ClearMap right after PrepareMap to "overwrite" (see addsetcommitssl in client-native_
+	//TODO: change this to use the underlying socket methods and ClearMap right after PrepareMap to "overwrite" (see addsetcommitssl in client-native)
 	err = runtime.OverwriteMapPayloadVersioned(params.Map, params.Data)
+
 	if err != nil {
 		status := misc.GetHTTPStatusFromErr(err)
 		return maps.NewAddPayloadRuntimeMapDefault(status).WithPayload(misc.SetError(status, err.Error()))
 	}
+
 	return maps.NewClearRuntimeMapNoContent()
 }
 
@@ -214,7 +217,7 @@ func (h *GetRuntimeMapEntryHandlerImpl) Handle(params maps.GetRuntimeMapEntryPar
 		e := misc.HandleError(err)
 		return maps.NewReplaceRuntimeMapEntryDefault(int(*e.Code)).WithPayload(e)
 	}
-	m, err := runtime.GetMapEntry(params.Map, params.ID)
+	m, err := runtime.GetMapEntry(params.ParentName, params.ID)
 	if err != nil {
 		status := misc.GetHTTPStatusFromErr(err)
 		return maps.NewGetRuntimeMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
@@ -237,17 +240,17 @@ func (h *ReplaceRuntimeMapEntryHandlerImpl) Handle(params maps.ReplaceRuntimeMap
 		return maps.NewReplaceRuntimeMapEntryDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	err = runtime.SetMapEntry(params.Map, params.ID, *params.Data.Value)
+	err = runtime.SetMapEntry(params.ParentName, params.ID, *params.Data.Value)
 	if err != nil {
 		status := misc.GetHTTPStatusFromErr(err)
 		return maps.NewGetRuntimeMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
 	}
-	e, err := runtime.GetMapEntry(params.Map, params.ID)
+	e, err := runtime.GetMapEntry(params.ParentName, params.ID)
 	if err != nil {
 		return maps.NewReplaceRuntimeMapEntryNotFound()
 	}
 	if *params.ForceSync {
-		m, err := runtime.GetMap(params.Map)
+		m, err := runtime.GetMap(params.ParentName)
 		if err != nil {
 			status := misc.GetHTTPStatusFromErr(err)
 			return maps.NewGetRuntimeMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
@@ -274,13 +277,13 @@ func (h *DeleteRuntimeMapEntryHandlerImpl) Handle(params maps.DeleteRuntimeMapEn
 		return maps.NewDeleteRuntimeMapEntryDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	err = runtime.DeleteMapEntry(params.Map, params.ID)
+	err = runtime.DeleteMapEntry(params.ParentName, params.ID)
 	if err != nil {
 		status := misc.GetHTTPStatusFromErr(err)
 		return maps.NewDeleteRuntimeMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))
 	}
 	if *params.ForceSync {
-		m, err := runtime.GetMap(params.Map)
+		m, err := runtime.GetMap(params.ParentName)
 		if err != nil {
 			status := misc.GetHTTPStatusFromErr(err)
 			return maps.NewDeleteRuntimeMapEntryDefault(status).WithPayload(misc.SetError(status, err.Error()))

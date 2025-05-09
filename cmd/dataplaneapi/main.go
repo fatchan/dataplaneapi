@@ -20,14 +20,13 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"syscall"
 
+	_ "github.com/KimMachineGun/automemlimit"
 	loads "github.com/go-openapi/loads"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/security"
-	flags "github.com/jessevdk/go-flags"
-
-	_ "github.com/KimMachineGun/automemlimit"
 	"github.com/haproxytech/client-native/v6/models"
 	"github.com/haproxytech/client-native/v6/storage"
 	"github.com/haproxytech/dataplaneapi"
@@ -35,6 +34,8 @@ import (
 	"github.com/haproxytech/dataplaneapi/log"
 	"github.com/haproxytech/dataplaneapi/operations"
 	socket_runtime "github.com/haproxytech/dataplaneapi/runtime"
+	flags "github.com/jessevdk/go-flags"
+	"github.com/joho/godotenv"
 	_ "go.uber.org/automaxprocs"
 )
 
@@ -58,6 +59,7 @@ var cliOptions struct {
 }
 
 func main() {
+	_ = godotenv.Load()
 	cancelDebugServer := startRuntimeDebugServer()
 
 	cfg := configuration.Get()
@@ -78,7 +80,7 @@ func startRuntimeDebugServer() context.CancelFunc {
 	return cancelDebugServer
 }
 
-func startServer(cfg *configuration.Configuration, cancelDebugServer context.CancelFunc) (reload configuration.AtomicBool) {
+func startServer(cfg *configuration.Configuration, cancelDebugServer context.CancelFunc) (reload configuration.AtomicBool) { //nolint: maintidx
 	swaggerSpec, err := loads.Embedded(dataplaneapi.SwaggerJSON, dataplaneapi.FlatSwaggerJSON)
 	if err != nil {
 		fmt.Println(err)
@@ -128,7 +130,8 @@ func startServer(cfg *configuration.Configuration, cancelDebugServer context.Can
 		return
 	}
 
-	err = cfg.Load()
+	var loadMsg []string
+	_, err = cfg.Load()
 	if err != nil {
 		fmt.Println("configuration error:", err)
 		os.Exit(1)
@@ -147,6 +150,13 @@ func startServer(cfg *configuration.Configuration, cancelDebugServer context.Can
 			os.Exit(1)
 		}
 	}
+
+	loadMsg, err = cfg.LoadDataplaneStorageConfig()
+	if err != nil {
+		fmt.Println("configuration error:", err)
+		os.Exit(1)
+	}
+	cfg.FlagLoadDapiStorageData = true
 
 	// incorporate changes from file to global settings
 	dataplaneapi.SyncWithFileSettings(server, cfg)
@@ -173,6 +183,7 @@ func startServer(cfg *configuration.Configuration, cancelDebugServer context.Can
 				cfg.HAProxy.MapsDir = path.Join(storageDir, string(storage.MapsType))
 				cfg.HAProxy.SSLCertsDir = path.Join(storageDir, string(storage.SSLType))
 				cfg.HAProxy.GeneralStorageDir = path.Join(storageDir, string(storage.GeneralType))
+				cfg.HAProxy.DataplaneStorageDir = filepath.Clean(path.Join(storageDir, "dataplane"))
 				cfg.HAProxy.SpoeDir = path.Join(storageDir, string(storage.SpoeType))
 				cfg.HAProxy.SpoeTransactionDir = path.Join(storageDir, string(storage.SpoeTransactionsType))
 				cfg.HAProxy.BackupsDir = path.Join(storageDir, string(storage.BackupsType))
@@ -198,6 +209,13 @@ func startServer(cfg *configuration.Configuration, cancelDebugServer context.Can
 	log.Infof("Build from: %s", GitRepo)
 	log.Infof("Build date: %s", BuildTime)
 	log.Infof("Reload strategy: %s", cfg.HAProxy.ReloadStrategy)
+
+	// log deprecation message
+	if len(loadMsg) > 0 {
+		for _, msg := range loadMsg {
+			log.Warning(msg)
+		}
+	}
 
 	err = cfg.Save()
 	if err != nil {
@@ -247,6 +265,7 @@ func startServer(cfg *configuration.Configuration, cancelDebugServer context.Can
 
 	server.ConfigureAPI()
 	dataplaneapi.SetServerStartedCallback(cfg.Notify.ServerStarted.Notify)
+
 	if err := server.Serve(); err != nil {
 		log.Fatalf("Error running HAProxy Data Plane API: %s", err.Error())
 	}

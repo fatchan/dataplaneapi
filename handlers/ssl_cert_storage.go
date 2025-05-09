@@ -99,6 +99,8 @@ func (h *StorageGetOneStorageSSLCertificateHandlerImpl) Handle(params storage.Ge
 		Issuers:     info.Issuers,
 		Domains:     info.DNS,
 		IPAddresses: info.IPs,
+		Subject:     info.Subject,
+		Serial:      info.Serial,
 	}
 	return storage.NewGetOneStorageSSLCertificateOK().WithPayload(retf)
 }
@@ -226,6 +228,8 @@ func (h *StorageReplaceStorageSSLCertificateHandlerImpl) Handle(params storage.R
 		Issuers:     info.Issuers,
 		Domains:     info.DNS,
 		IPAddresses: info.IPs,
+		Subject:     info.Subject,
+		Serial:      info.Serial,
 	}
 
 	skipReload := false
@@ -300,11 +304,22 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 		Issuers:     info.Issuers,
 		Domains:     info.DNS,
 		IPAddresses: info.IPs,
+		Subject:     info.Subject,
+		Serial:      info.Serial,
+	}
+
+	skipReload := false
+	if params.SkipReload != nil {
+		skipReload = *params.SkipReload
 	}
 
 	forceReload := false
 	if params.ForceReload != nil {
 		forceReload = *params.ForceReload
+	}
+
+	if skipReload {
+		return storage.NewCreateStorageSSLCertificateCreated().WithPayload(retf)
 	}
 
 	if forceReload {
