@@ -19,19 +19,24 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"net/http"
 	"os"
+	"slices"
 	"strings"
 	"sync"
 
 	"github.com/GehirnInc/crypt"
 	api_errors "github.com/go-openapi/errors"
-	parser "github.com/haproxytech/config-parser/v5"
-	"github.com/haproxytech/config-parser/v5/common"
-	"github.com/haproxytech/config-parser/v5/options"
-	"github.com/haproxytech/config-parser/v5/types"
+	parser "github.com/haproxytech/client-native/v6/config-parser"
+	"github.com/haproxytech/client-native/v6/config-parser/common"
+	"github.com/haproxytech/client-native/v6/config-parser/options"
+	"github.com/haproxytech/client-native/v6/config-parser/types"
 
 	"github.com/haproxytech/dataplaneapi/misc"
+	"github.com/haproxytech/dataplaneapi/storagetype"
 )
+
+const mockPass = "$2a$10$e.I1x5KPNu7xy9u0zSzJaOcr5it8kR1Awnaf3boOtYno9y4DolER."
 
 var usersStore *Users
 
@@ -76,14 +81,20 @@ func (u *Users) Init() error {
 	configuration := Get()
 	u.users = []types.User{}
 	mode := configuration.Mode.Load()
-	if len(configuration.Users) > 0 {
-		for _, user := range configuration.Users {
-			if mode != ModeCluster || strings.HasPrefix(user.Name, "dpapi-c-") {
-				u.users = append(u.users, types.User{
-					Name:       user.Name,
-					IsInsecure: user.Insecure,
-					Password:   user.Password,
-				})
+	allUsers := configuration.GetUsers() // single + cluster mode
+	if len(allUsers) > 0 {
+		for _, storageUser := range allUsers {
+			if mode != ModeCluster || strings.HasPrefix(storageUser.Name, storagetype.DapiClusterUserPrefix) {
+				user := types.User{
+					Name: storageUser.Name,
+				}
+				if storageUser.Password != nil {
+					user.Password = *storageUser.Password
+				}
+				if storageUser.Insecure != nil {
+					user.IsInsecure = *storageUser.Insecure
+				}
+				u.users = append(u.users, user)
 			}
 		}
 		return nil
@@ -102,36 +113,33 @@ func (u *Users) Init() error {
 }
 
 func (u *Users) AddUser(user types.User) error {
-	storage := Get().GetStorageData()
+	clusterModeStorage := Get().GetClusterModeStorage()
+
 	u.users = append(u.users, user)
-	if storage.Dataplaneapi == nil {
-		storage.Dataplaneapi = &configTypeDataplaneapi{}
-	}
-	// no need to check if storage.Dataplaneapi.User is nil (slice)
-	storage.Dataplaneapi.User = append(storage.Dataplaneapi.User, configTypeUser{
+
+	err := clusterModeStorage.AddUserAndStore(storagetype.User{
 		Name:     user.Name,
 		Insecure: &user.IsInsecure,
 		Password: &user.Password,
 	})
-	return Get().Save()
+	return err
 }
 
 func (u *Users) RemoveUser(user types.User) error {
-	storage := Get().GetStorageData()
+	clusterModeStorage := Get().GetClusterModeStorage()
+
 	for i, v := range u.users {
 		if v.Name == user.Name {
-			u.users = removeFromSlice(u.users, i)
+			u.users = slices.Delete(u.users, i, i+1)
 			break
 		}
 	}
-	if storage.Dataplaneapi != nil {
-		for i, u := range storage.Dataplaneapi.User {
-			if u.Name == user.Name {
-				storage.Dataplaneapi.User = removeFromSlice(storage.Dataplaneapi.User, i)
-			}
-		}
-	}
-	return Get().Save()
+	err := clusterModeStorage.RemoveUserAndStore(storagetype.User{
+		Name:     user.Name,
+		Insecure: &user.IsInsecure,
+		Password: &user.Password,
+	})
+	return err
 }
 
 func (u *Users) getUsersFromUsersListSection(filename, userlistSection string) error {
@@ -164,32 +172,41 @@ func findUser(userName string, users []types.User) (*types.User, error) {
 func AuthenticateUser(user string, pass string) (interface{}, error) {
 	users := GetUsersStore().GetUsers()
 	if len(users) == 0 {
-		return nil, api_errors.New(401, "no configured users")
+		return nil, api_errors.New(http.StatusUnauthorized, "no configured users")
 	}
 
+	unatuhorized := false
 	u, err := findUser(user, users)
 	if err != nil {
-		return nil, err
+		unatuhorized = true
 	}
 
-	userPass := u.Password
-	if strings.HasPrefix(u.Password, "\"${") && strings.HasSuffix(u.Password, "}\"") {
+	userPass := mockPass
+	if u != nil {
+		userPass = u.Password
+	}
+
+	if strings.HasPrefix(userPass, "\"${") && strings.HasSuffix(userPass, "}\"") {
 		userPass = os.Getenv(misc.ExtractEnvVar(userPass))
 		if userPass == "" {
-			return nil, api_errors.New(401, fmt.Sprintf("%s %s", "can not read password from env variable:", u.Password))
+			unatuhorized = true
+			userPass = mockPass
 		}
 	}
 
-	if u.IsInsecure {
-		if pass == userPass {
-			return user, nil
+	if u != nil && u.IsInsecure {
+		if pass != userPass {
+			unatuhorized = true
 		}
-		return nil, api_errors.New(401, fmt.Sprintf("%s %s", "invalid password:", pass))
+	} else {
+		if !checkPassword(pass, userPass) {
+			unatuhorized = true
+		}
 	}
-	if checkPassword(pass, userPass) {
-		return user, nil
+	if unatuhorized {
+		return nil, api_errors.New(http.StatusUnauthorized, "unauthorized")
 	}
-	return nil, api_errors.New(401, fmt.Sprintf("%s %s", "invalid password:", pass))
+	return user, nil
 }
 
 func checkPassword(pass, storedPass string) bool {

@@ -18,6 +18,7 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	client_native "github.com/haproxytech/client-native/v6"
+	cnconstants "github.com/haproxytech/client-native/v6/configuration/parents"
 	"github.com/haproxytech/client-native/v6/models"
 
 	"github.com/haproxytech/dataplaneapi/haproxy"
@@ -42,8 +43,8 @@ type GetFilterHandlerImpl struct {
 	Client client_native.HAProxyClient
 }
 
-// GetFiltersHandlerImpl implementation of the GetFiltersHandler interface using client-native client
-type GetFiltersHandlerImpl struct {
+// GetAllFilterHandlerImpl implementation of the GetAllFilterHandler interface using client-native client
+type GetAllFilterHandlerImpl struct {
 	Client client_native.HAProxyClient
 }
 
@@ -53,8 +54,14 @@ type ReplaceFilterHandlerImpl struct {
 	ReloadAgent haproxy.IReloadAgent
 }
 
+// ReplaceAllFilterHandlerImpl implementation of the ReplaceAllFilterHandler interface using client-native client
+type ReplaceAllFilterHandlerImpl struct {
+	Client      client_native.HAProxyClient
+	ReloadAgent haproxy.IReloadAgent
+}
+
 // Handle executing the request and returning a response
-func (h *CreateFilterHandlerImpl) Handle(params filter.CreateFilterParams, principal interface{}) middleware.Responder {
+func (h *CreateFilterHandlerImpl) Handle(parentType cnconstants.CnParentType, params filter.CreateFilterBackendParams, principal interface{}) middleware.Responder {
 	t := ""
 	v := int64(0)
 	if params.TransactionID != nil {
@@ -71,37 +78,37 @@ func (h *CreateFilterHandlerImpl) Handle(params filter.CreateFilterParams, princ
 			Message: &msg,
 			Code:    &c,
 		}
-		return filter.NewCreateFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewCreateFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return filter.NewCreateFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewCreateFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	err = configuration.CreateFilter(params.ParentType, params.ParentName, params.Data, t, v)
+	err = configuration.CreateFilter(params.Index, string(parentType), params.ParentName, params.Data, t, v)
 	if err != nil {
 		e := misc.HandleError(err)
-		return filter.NewCreateFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewCreateFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 	if params.TransactionID == nil {
 		if *params.ForceReload {
 			err := h.ReloadAgent.ForceReload()
 			if err != nil {
 				e := misc.HandleError(err)
-				return filter.NewCreateFilterDefault(int(*e.Code)).WithPayload(e)
+				return filter.NewCreateFilterBackendDefault(int(*e.Code)).WithPayload(e)
 			}
-			return filter.NewCreateFilterCreated().WithPayload(params.Data)
+			return filter.NewCreateFilterBackendCreated().WithPayload(params.Data)
 		}
 		rID := h.ReloadAgent.Reload()
-		return filter.NewCreateFilterAccepted().WithReloadID(rID).WithPayload(params.Data)
+		return filter.NewCreateFilterBackendAccepted().WithReloadID(rID).WithPayload(params.Data)
 	}
-	return filter.NewCreateFilterAccepted().WithPayload(params.Data)
+	return filter.NewCreateFilterBackendAccepted().WithPayload(params.Data)
 }
 
 // Handle executing the request and returning a response
-func (h *DeleteFilterHandlerImpl) Handle(params filter.DeleteFilterParams, principal interface{}) middleware.Responder {
+func (h *DeleteFilterHandlerImpl) Handle(parentType cnconstants.CnParentType, params filter.DeleteFilterBackendParams, principal interface{}) middleware.Responder {
 	t := ""
 	v := int64(0)
 	if params.TransactionID != nil {
@@ -118,37 +125,37 @@ func (h *DeleteFilterHandlerImpl) Handle(params filter.DeleteFilterParams, princ
 			Message: &msg,
 			Code:    &c,
 		}
-		return filter.NewDeleteFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewDeleteFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return filter.NewDeleteFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewDeleteFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	err = configuration.DeleteFilter(params.Index, params.ParentType, params.ParentName, t, v)
+	err = configuration.DeleteFilter(params.Index, string(parentType), params.ParentName, t, v)
 	if err != nil {
 		e := misc.HandleError(err)
-		return filter.NewDeleteFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewDeleteFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 	if params.TransactionID == nil {
 		if *params.ForceReload {
 			err := h.ReloadAgent.ForceReload()
 			if err != nil {
 				e := misc.HandleError(err)
-				return filter.NewDeleteFilterDefault(int(*e.Code)).WithPayload(e)
+				return filter.NewDeleteFilterBackendDefault(int(*e.Code)).WithPayload(e)
 			}
-			return filter.NewDeleteFilterNoContent()
+			return filter.NewDeleteFilterBackendNoContent()
 		}
 		rID := h.ReloadAgent.Reload()
-		return filter.NewDeleteFilterAccepted().WithReloadID(rID)
+		return filter.NewDeleteFilterBackendAccepted().WithReloadID(rID)
 	}
-	return filter.NewDeleteFilterAccepted()
+	return filter.NewDeleteFilterBackendAccepted()
 }
 
 // Handle executing the request and returning a response
-func (h *GetFilterHandlerImpl) Handle(params filter.GetFilterParams, principal interface{}) middleware.Responder {
+func (h *GetFilterHandlerImpl) Handle(parentType cnconstants.CnParentType, params filter.GetFilterBackendParams, principal interface{}) middleware.Responder {
 	t := ""
 	if params.TransactionID != nil {
 		t = *params.TransactionID
@@ -157,19 +164,19 @@ func (h *GetFilterHandlerImpl) Handle(params filter.GetFilterParams, principal i
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return filter.NewGetFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewGetFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	_, f, err := configuration.GetFilter(params.Index, params.ParentType, params.ParentName, t)
+	_, f, err := configuration.GetFilter(params.Index, string(parentType), params.ParentName, t)
 	if err != nil {
 		e := misc.HandleError(err)
-		return filter.NewGetFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewGetFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
-	return filter.NewGetFilterOK().WithPayload(f)
+	return filter.NewGetFilterBackendOK().WithPayload(f)
 }
 
 // Handle executing the request and returning a response
-func (h *GetFiltersHandlerImpl) Handle(params filter.GetFiltersParams, principal interface{}) middleware.Responder {
+func (h *GetAllFilterHandlerImpl) Handle(parentType cnconstants.CnParentType, params filter.GetAllFilterBackendParams, principal interface{}) middleware.Responder {
 	t := ""
 	if params.TransactionID != nil {
 		t = *params.TransactionID
@@ -178,22 +185,22 @@ func (h *GetFiltersHandlerImpl) Handle(params filter.GetFiltersParams, principal
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return filter.NewGetFiltersDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewGetAllFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	_, fs, err := configuration.GetFilters(params.ParentType, params.ParentName, t)
+	_, fs, err := configuration.GetFilters(string(parentType), params.ParentName, t)
 	if err != nil {
 		e := misc.HandleContainerGetError(err)
 		if *e.Code == misc.ErrHTTPOk {
-			return filter.NewGetFiltersOK().WithPayload(models.Filters{})
+			return filter.NewGetAllFilterBackendOK().WithPayload(models.Filters{})
 		}
-		return filter.NewGetFiltersDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewGetAllFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
-	return filter.NewGetFiltersOK().WithPayload(fs)
+	return filter.NewGetAllFilterBackendOK().WithPayload(fs)
 }
 
 // Handle executing the request and returning a response
-func (h *ReplaceFilterHandlerImpl) Handle(params filter.ReplaceFilterParams, principal interface{}) middleware.Responder {
+func (h *ReplaceFilterHandlerImpl) Handle(parentType cnconstants.CnParentType, params filter.ReplaceFilterBackendParams, principal interface{}) middleware.Responder {
 	t := ""
 	v := int64(0)
 	if params.TransactionID != nil {
@@ -210,31 +217,78 @@ func (h *ReplaceFilterHandlerImpl) Handle(params filter.ReplaceFilterParams, pri
 			Message: &msg,
 			Code:    &c,
 		}
-		return filter.NewReplaceFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewReplaceFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return filter.NewGetFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewGetFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	err = configuration.EditFilter(params.Index, params.ParentType, params.ParentName, params.Data, t, v)
+	err = configuration.EditFilter(params.Index, string(parentType), params.ParentName, params.Data, t, v)
 	if err != nil {
 		e := misc.HandleError(err)
-		return filter.NewReplaceFilterDefault(int(*e.Code)).WithPayload(e)
+		return filter.NewReplaceFilterBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 	if params.TransactionID == nil {
 		if *params.ForceReload {
 			err := h.ReloadAgent.ForceReload()
 			if err != nil {
 				e := misc.HandleError(err)
-				return filter.NewReplaceFilterDefault(int(*e.Code)).WithPayload(e)
+				return filter.NewReplaceFilterBackendDefault(int(*e.Code)).WithPayload(e)
 			}
-			return filter.NewReplaceFilterOK().WithPayload(params.Data)
+			return filter.NewReplaceFilterBackendOK().WithPayload(params.Data)
 		}
 		rID := h.ReloadAgent.Reload()
-		return filter.NewReplaceFilterAccepted().WithReloadID(rID).WithPayload(params.Data)
+		return filter.NewReplaceFilterBackendAccepted().WithReloadID(rID).WithPayload(params.Data)
 	}
-	return filter.NewReplaceFilterAccepted().WithPayload(params.Data)
+	return filter.NewReplaceFilterBackendAccepted().WithPayload(params.Data)
+}
+
+// Handle executing the request and returning a response
+func (h *ReplaceAllFilterHandlerImpl) Handle(parentType cnconstants.CnParentType, params filter.ReplaceAllFilterBackendParams, principal interface{}) middleware.Responder {
+	t := ""
+	v := int64(0)
+	if params.TransactionID != nil {
+		t = *params.TransactionID
+	}
+	if params.Version != nil {
+		v = *params.Version
+	}
+
+	if t != "" && *params.ForceReload {
+		msg := "Both force_reload and transaction specified, specify only one"
+		c := misc.ErrHTTPBadRequest
+		e := &models.Error{
+			Message: &msg,
+			Code:    &c,
+		}
+		return filter.NewReplaceAllFilterBackendDefault(int(*e.Code)).WithPayload(e)
+	}
+
+	configuration, err := h.Client.Configuration()
+	if err != nil {
+		e := misc.HandleError(err)
+		return filter.NewReplaceAllFilterBackendDefault(int(*e.Code)).WithPayload(e)
+	}
+	err = configuration.ReplaceFilters(string(parentType), params.ParentName, params.Data, t, v)
+	if err != nil {
+		e := misc.HandleError(err)
+		return filter.NewReplaceAllFilterBackendDefault(int(*e.Code)).WithPayload(e)
+	}
+
+	if params.TransactionID == nil {
+		if *params.ForceReload {
+			err := h.ReloadAgent.ForceReload()
+			if err != nil {
+				e := misc.HandleError(err)
+				return filter.NewReplaceAllFilterBackendDefault(int(*e.Code)).WithPayload(e)
+			}
+			return filter.NewReplaceAllFilterBackendOK().WithPayload(params.Data)
+		}
+		rID := h.ReloadAgent.Reload()
+		return filter.NewReplaceAllFilterBackendAccepted().WithReloadID(rID).WithPayload(params.Data)
+	}
+	return filter.NewReplaceAllFilterBackendAccepted().WithPayload(params.Data)
 }

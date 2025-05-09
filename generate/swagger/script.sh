@@ -1,6 +1,8 @@
 #!/bin/bash
 
 set -e
+GO_VERSION=$(go version)
+echo " ---> go version: $GO_VERSION"
 SPEC_DIR=$(mktemp -d)
 echo " ---> source folder: $SPEC_DIR"
 DST_DIR=$(mktemp -d)
@@ -64,6 +66,7 @@ swagger generate server -f $SPEC_DIR/haproxy_spec.yaml \
     --skip-models \
     -s dataplaneapi \
     --additional-initialism=FCGI \
+    --additional-initialism=QUIC \
     --tags=Discovery \
     --tags=ServiceDiscovery \
     --tags=Information \
@@ -121,6 +124,11 @@ swagger generate server -f $SPEC_DIR/haproxy_spec.yaml \
     --tags=MailerEntry \
     --tags=Mailers \
     --tags=Table \
+    --tags=CrtStore \
+    --tags=CrtLoad \
+    --tags=QUICInitialRule \
+    --tags=Traces \
+    --tags=LogProfile \
     -r $SPEC_DIR/copyright.txt \
     --template-dir generate/swagger/templates
 

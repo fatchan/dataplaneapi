@@ -18,6 +18,7 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	client_native "github.com/haproxytech/client-native/v6"
+	cnconstants "github.com/haproxytech/client-native/v6/configuration/parents"
 	"github.com/haproxytech/client-native/v6/models"
 
 	"github.com/haproxytech/dataplaneapi/haproxy"
@@ -42,8 +43,8 @@ type GetHTTPCheckHandlerImpl struct {
 	Client client_native.HAProxyClient
 }
 
-// GetHTTPChecksHandlerImpl implementation of the GetHTTPChecksHandler interface using client-native client
-type GetHTTPChecksHandlerImpl struct {
+// GetAllHTTPCheckHandlerImpl implementation of the GetHTTPChecksHandler interface using client-native client
+type GetAllHTTPCheckHandlerImpl struct {
 	Client client_native.HAProxyClient
 }
 
@@ -53,19 +54,21 @@ type ReplaceHTTPCheckHandlerImpl struct {
 	ReloadAgent haproxy.IReloadAgent
 }
 
+// ReplaceAllHTTPCheckHandlerImpl implementation of the ReplaceHTTPChecksHandler interface using client-native client
+type ReplaceAllHTTPCheckHandlerImpl struct {
+	Client      client_native.HAProxyClient
+	ReloadAgent haproxy.IReloadAgent
+}
+
 // Handle executing the request and returning a response
-func (h *CreateHTTPCheckHandlerImpl) Handle(params http_check.CreateHTTPCheckParams, principal interface{}) middleware.Responder {
+func (h *CreateHTTPCheckHandlerImpl) Handle(parentType cnconstants.CnParentType, params http_check.CreateHTTPCheckBackendParams, principal interface{}) middleware.Responder {
 	t := ""
 	v := int64(0)
-	pName := ""
 	if params.TransactionID != nil {
 		t = *params.TransactionID
 	}
 	if params.Version != nil {
 		v = *params.Version
-	}
-	if params.ParentName != nil {
-		pName = *params.ParentName
 	}
 
 	if t != "" && *params.ForceReload {
@@ -75,19 +78,19 @@ func (h *CreateHTTPCheckHandlerImpl) Handle(params http_check.CreateHTTPCheckPar
 			Message: &msg,
 			Code:    &c,
 		}
-		return http_check.NewCreateHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewCreateHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return http_check.NewCreateHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewCreateHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	err = configuration.CreateHTTPCheck(params.ParentType, pName, params.Data, t, v)
+	err = configuration.CreateHTTPCheck(params.Index, string(parentType), params.ParentName, params.Data, t, v)
 	if err != nil {
 		e := misc.HandleError(err)
-		return http_check.NewCreateHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewCreateHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
 	if params.TransactionID == nil {
@@ -95,29 +98,25 @@ func (h *CreateHTTPCheckHandlerImpl) Handle(params http_check.CreateHTTPCheckPar
 			err := h.ReloadAgent.ForceReload()
 			if err != nil {
 				e := misc.HandleError(err)
-				return http_check.NewCreateHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+				return http_check.NewCreateHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 			}
-			return http_check.NewCreateHTTPCheckCreated().WithPayload(params.Data)
+			return http_check.NewCreateHTTPCheckBackendCreated().WithPayload(params.Data)
 		}
 		rID := h.ReloadAgent.Reload()
-		return http_check.NewCreateHTTPCheckAccepted().WithReloadID(rID).WithPayload(params.Data)
+		return http_check.NewCreateHTTPCheckBackendAccepted().WithReloadID(rID).WithPayload(params.Data)
 	}
-	return http_check.NewCreateHTTPCheckAccepted().WithPayload(params.Data)
+	return http_check.NewCreateHTTPCheckBackendAccepted().WithPayload(params.Data)
 }
 
 // Handle executing the request and returning a response
-func (h *DeleteHTTPCheckHandlerImpl) Handle(params http_check.DeleteHTTPCheckParams, principal interface{}) middleware.Responder {
+func (h *DeleteHTTPCheckHandlerImpl) Handle(parentType cnconstants.CnParentType, params http_check.DeleteHTTPCheckBackendParams, principal interface{}) middleware.Responder {
 	t := ""
 	v := int64(0)
-	pName := ""
 	if params.TransactionID != nil {
 		t = *params.TransactionID
 	}
 	if params.Version != nil {
 		v = *params.Version
-	}
-	if params.ParentName != nil {
-		pName = *params.ParentName
 	}
 
 	if t != "" && *params.ForceReload {
@@ -127,101 +126,89 @@ func (h *DeleteHTTPCheckHandlerImpl) Handle(params http_check.DeleteHTTPCheckPar
 			Message: &msg,
 			Code:    &c,
 		}
-		return http_check.NewDeleteHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewDeleteHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return http_check.NewDeleteHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewDeleteHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	err = configuration.DeleteHTTPCheck(params.Index, params.ParentType, pName, t, v)
+	err = configuration.DeleteHTTPCheck(params.Index, string(parentType), params.ParentName, t, v)
 	if err != nil {
 		e := misc.HandleError(err)
-		return http_check.NewDeleteHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewDeleteHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 	if params.TransactionID == nil {
 		if *params.ForceReload {
 			err := h.ReloadAgent.ForceReload()
 			if err != nil {
 				e := misc.HandleError(err)
-				return http_check.NewDeleteHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+				return http_check.NewDeleteHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 			}
-			return http_check.NewDeleteHTTPCheckNoContent()
+			return http_check.NewDeleteHTTPCheckBackendNoContent()
 		}
 		rID := h.ReloadAgent.Reload()
-		return http_check.NewDeleteHTTPCheckAccepted().WithReloadID(rID)
+		return http_check.NewDeleteHTTPCheckBackendAccepted().WithReloadID(rID)
 	}
-	return http_check.NewDeleteHTTPCheckAccepted()
+	return http_check.NewDeleteHTTPCheckBackendAccepted()
 }
 
 // Handle executing the request and returning a response
-func (h *GetHTTPCheckHandlerImpl) Handle(params http_check.GetHTTPCheckParams, principal interface{}) middleware.Responder {
+func (h *GetHTTPCheckHandlerImpl) Handle(parentType cnconstants.CnParentType, params http_check.GetHTTPCheckBackendParams, principal interface{}) middleware.Responder {
 	t := ""
-	pName := ""
 	if params.TransactionID != nil {
 		t = *params.TransactionID
-	}
-	if params.ParentName != nil {
-		pName = *params.ParentName
 	}
 
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return http_check.NewGetHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewGetHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	_, rule, err := configuration.GetHTTPCheck(params.Index, params.ParentType, pName, t)
+	_, rule, err := configuration.GetHTTPCheck(params.Index, string(parentType), params.ParentName, t)
 	if err != nil {
 		e := misc.HandleError(err)
-		return http_check.NewGetHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewGetHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
-	return http_check.NewGetHTTPCheckOK().WithPayload(rule)
+	return http_check.NewGetHTTPCheckBackendOK().WithPayload(rule)
 }
 
 // Handle executing the request and returning a response
-func (h *GetHTTPChecksHandlerImpl) Handle(params http_check.GetHTTPChecksParams, principal interface{}) middleware.Responder {
+func (h *GetAllHTTPCheckHandlerImpl) Handle(parentType cnconstants.CnParentType, params http_check.GetAllHTTPCheckBackendParams, principal interface{}) middleware.Responder {
 	t := ""
-	pName := ""
 	if params.TransactionID != nil {
 		t = *params.TransactionID
-	}
-	if params.ParentName != nil {
-		pName = *params.ParentName
 	}
 
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return http_check.NewGetHTTPChecksDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewGetAllHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	_, rules, err := configuration.GetHTTPChecks(params.ParentType, pName, t)
+	_, rules, err := configuration.GetHTTPChecks(string(parentType), params.ParentName, t)
 	if err != nil {
 		e := misc.HandleContainerGetError(err)
 		if *e.Code == misc.ErrHTTPOk {
-			return http_check.NewGetHTTPChecksOK().WithPayload(models.HTTPChecks{})
+			return http_check.NewGetAllHTTPCheckBackendOK().WithPayload(models.HTTPChecks{})
 		}
-		return http_check.NewGetHTTPChecksDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewGetAllHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
-	return http_check.NewGetHTTPChecksOK().WithPayload(rules)
+	return http_check.NewGetAllHTTPCheckBackendOK().WithPayload(rules)
 }
 
 // Handle executing the request and returning a response
-func (h *ReplaceHTTPCheckHandlerImpl) Handle(params http_check.ReplaceHTTPCheckParams, principal interface{}) middleware.Responder {
+func (h *ReplaceHTTPCheckHandlerImpl) Handle(parentType cnconstants.CnParentType, params http_check.ReplaceHTTPCheckBackendParams, principal interface{}) middleware.Responder {
 	t := ""
 	v := int64(0)
-	pName := ""
 	if params.TransactionID != nil {
 		t = *params.TransactionID
 	}
 	if params.Version != nil {
 		v = *params.Version
-	}
-	if params.ParentName != nil {
-		pName = *params.ParentName
 	}
 
 	if t != "" && *params.ForceReload {
@@ -231,31 +218,78 @@ func (h *ReplaceHTTPCheckHandlerImpl) Handle(params http_check.ReplaceHTTPCheckP
 			Message: &msg,
 			Code:    &c,
 		}
-		return http_check.NewReplaceHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewReplaceHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
 	configuration, err := h.Client.Configuration()
 	if err != nil {
 		e := misc.HandleError(err)
-		return http_check.NewReplaceHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewReplaceHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	err = configuration.EditHTTPCheck(params.Index, params.ParentType, pName, params.Data, t, v)
+	err = configuration.EditHTTPCheck(params.Index, string(parentType), params.ParentName, params.Data, t, v)
 	if err != nil {
 		e := misc.HandleError(err)
-		return http_check.NewReplaceHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+		return http_check.NewReplaceHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 	}
 	if params.TransactionID == nil {
 		if *params.ForceReload {
 			err := h.ReloadAgent.ForceReload()
 			if err != nil {
 				e := misc.HandleError(err)
-				return http_check.NewReplaceHTTPCheckDefault(int(*e.Code)).WithPayload(e)
+				return http_check.NewReplaceHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
 			}
-			return http_check.NewReplaceHTTPCheckOK().WithPayload(params.Data)
+			return http_check.NewReplaceHTTPCheckBackendOK().WithPayload(params.Data)
 		}
 		rID := h.ReloadAgent.Reload()
-		return http_check.NewReplaceHTTPCheckAccepted().WithReloadID(rID).WithPayload(params.Data)
+		return http_check.NewReplaceHTTPCheckBackendAccepted().WithReloadID(rID).WithPayload(params.Data)
 	}
-	return http_check.NewReplaceHTTPCheckAccepted().WithPayload(params.Data)
+	return http_check.NewReplaceHTTPCheckBackendAccepted().WithPayload(params.Data)
+}
+
+// Handle executing the request and returning a response
+func (h *ReplaceAllHTTPCheckHandlerImpl) Handle(parentType cnconstants.CnParentType, params http_check.ReplaceAllHTTPCheckBackendParams, principal interface{}) middleware.Responder {
+	t := ""
+	v := int64(0)
+	if params.TransactionID != nil {
+		t = *params.TransactionID
+	}
+	if params.Version != nil {
+		v = *params.Version
+	}
+
+	if t != "" && *params.ForceReload {
+		msg := "Both force_reload and transaction specified, specify only one"
+		c := misc.ErrHTTPBadRequest
+		e := &models.Error{
+			Message: &msg,
+			Code:    &c,
+		}
+		return http_check.NewReplaceAllHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
+	}
+
+	configuration, err := h.Client.Configuration()
+	if err != nil {
+		e := misc.HandleError(err)
+		return http_check.NewReplaceAllHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
+	}
+	err = configuration.ReplaceHTTPChecks(string(parentType), params.ParentName, params.Data, t, v)
+	if err != nil {
+		e := misc.HandleError(err)
+		return http_check.NewReplaceAllHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
+	}
+
+	if params.TransactionID == nil {
+		if *params.ForceReload {
+			err := h.ReloadAgent.ForceReload()
+			if err != nil {
+				e := misc.HandleError(err)
+				return http_check.NewReplaceAllHTTPCheckBackendDefault(int(*e.Code)).WithPayload(e)
+			}
+			return http_check.NewReplaceAllHTTPCheckBackendOK().WithPayload(params.Data)
+		}
+		rID := h.ReloadAgent.Reload()
+		return http_check.NewReplaceAllHTTPCheckBackendAccepted().WithReloadID(rID).WithPayload(params.Data)
+	}
+	return http_check.NewReplaceAllHTTPCheckBackendAccepted().WithPayload(params.Data)
 }

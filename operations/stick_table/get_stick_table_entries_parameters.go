@@ -28,7 +28,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // NewGetStickTableEntriesParams creates a new GetStickTableEntriesParams object
@@ -64,16 +63,11 @@ type GetStickTableEntriesParams struct {
 	  In: query
 	*/
 	Offset *int64
-	/*Process number if master-worker mode, if not only first process is returned
+	/*Parent name
 	  Required: true
-	  In: query
+	  In: path
 	*/
-	Process int64
-	/*Stick table name
-	  Required: true
-	  In: query
-	*/
-	StickTable string
+	ParentName string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -107,13 +101,8 @@ func (o *GetStickTableEntriesParams) BindRequest(r *http.Request, route *middlew
 		res = append(res, err)
 	}
 
-	qProcess, qhkProcess, _ := qs.GetOK("process")
-	if err := o.bindProcess(qProcess, qhkProcess, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qStickTable, qhkStickTable, _ := qs.GetOK("stick_table")
-	if err := o.bindStickTable(qStickTable, qhkStickTable, route.Formats); err != nil {
+	rParentName, rhkParentName, _ := route.Params.GetOK("parent_name")
+	if err := o.bindParentName(rParentName, rhkParentName, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -204,49 +193,16 @@ func (o *GetStickTableEntriesParams) bindOffset(rawData []string, hasKey bool, f
 	return nil
 }
 
-// bindProcess binds and validates parameter Process from query.
-func (o *GetStickTableEntriesParams) bindProcess(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	if !hasKey {
-		return errors.Required("process", "query", rawData)
-	}
+// bindParentName binds and validates parameter ParentName from path.
+func (o *GetStickTableEntriesParams) bindParentName(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
 
 	// Required: true
-	// AllowEmptyValue: false
-
-	if err := validate.RequiredString("process", "query", raw); err != nil {
-		return err
-	}
-
-	value, err := swag.ConvertInt64(raw)
-	if err != nil {
-		return errors.InvalidType("process", "query", "int64", raw)
-	}
-	o.Process = value
-
-	return nil
-}
-
-// bindStickTable binds and validates parameter StickTable from query.
-func (o *GetStickTableEntriesParams) bindStickTable(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	if !hasKey {
-		return errors.Required("stick_table", "query", rawData)
-	}
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: true
-	// AllowEmptyValue: false
-
-	if err := validate.RequiredString("stick_table", "query", raw); err != nil {
-		return err
-	}
-	o.StickTable = raw
+	// Parameter is provided by construction from the route
+	o.ParentName = raw
 
 	return nil
 }

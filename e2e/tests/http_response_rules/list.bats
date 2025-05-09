@@ -25,7 +25,8 @@ load '../../libs/haproxy_version'
 load 'utils/_helpers'
 
 @test "http_response_rules: Return an array of all HTTP Response Rules from frontend" {
-  resource_get "$_RES_RULES_BASE_PATH" "parent_type=frontend&parent_name=test_frontend"
+  PARENT_NAME="test_frontend"
+  resource_get "$_FRONTEND_BASE_PATH/$PARENT_NAME/http_response_rules"
 	assert_equal "$SC" 200
 	if haproxy_version_ge "2.8"; then
 	    assert_equal "$(get_json_path "$BODY" ". | length")" 3
@@ -42,7 +43,6 @@ load 'utils/_helpers'
 	assert_equal "$(get_json_path "$BODY" ".[1].cond_test")" "{ src 10.1.0.0/16 }"
 	if haproxy_version_ge "2.8"; then
         assert_equal "$(get_json_path "$BODY" ".[2].type")" "sc-add-gpc"
-        assert_equal "$(get_json_path "$BODY" ".[2].index")" "2"
         assert_equal "$(get_json_path "$BODY" ".[2].sc_id")" "1"
         assert_equal "$(get_json_path "$BODY" ".[2].sc_int")" "1"
         assert_equal "$(get_json_path "$BODY" ".[2].cond")" "if"
@@ -51,7 +51,8 @@ load 'utils/_helpers'
 }
 
 @test "http_response_rules: Return one HTTP Response Rule from backend" {
-	resource_get "$_RES_RULES_BASE_PATH" "parent_type=backend&parent_name=test_backend"
+	PARENT_NAME="test_backend"
+	resource_get "$_BACKEND_BASE_PATH/$PARENT_NAME/http_response_rules"
 	assert_equal "$SC" 200
 	assert_equal 2 "$(get_json_path "$BODY" ". | length")"
     assert_equal "$(get_json_path "$BODY" ".[0].type")" "add-header"

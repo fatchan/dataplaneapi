@@ -28,10 +28,11 @@ load 'utils/_helpers'
 		skip "http-after-response is not supported in HAProxy 2.1"
 	fi
 
-	resource_put "$_RES_RULES_BASE_PATH/0" "data/put.json" "parent_type=frontend&parent_name=test_frontend&force_reload=true"
+	PARENT_NAME="test_frontend"
+	resource_put "$_FRONTEND_BASE_PATH/$PARENT_NAME/http_after_response_rules/0" "data/put.json" "force_reload=true"
 	assert_equal "$SC" 200
 
-	resource_get "$_RES_RULES_BASE_PATH/0" "parent_type=frontend&parent_name=test_frontend&force_reload=true"
+	resource_get "$_FRONTEND_BASE_PATH/$PARENT_NAME/http_after_response_rules/0" "force_reload=true"
 	assert_equal "$SC" 200
 	assert_equal "$(get_json_path "$BODY" ".cond")" "if"
 	assert_equal "$(get_json_path "$BODY" ".cond_test")" "{ src 192.168.0.0/16 }"
@@ -45,14 +46,28 @@ load 'utils/_helpers'
 		skip "http-after-response is not supported in HAProxy 2.1"
 	fi
 
-	resource_put "$_RES_RULES_BASE_PATH/0" "data/put.json" "parent_type=backend&parent_name=test_backend&force_reload=true"
+	PARENT_NAME="test_backend"
+	resource_put "$_BACKEND_BASE_PATH/$PARENT_NAME/http_after_response_rules/0" "data/put.json" "force_reload=true"
 	assert_equal "$SC" 200
 
-	resource_get "$_RES_RULES_BASE_PATH/0" "parent_type=backend&parent_name=test_backend&force_reload=true"
+	resource_get "$_BACKEND_BASE_PATH/$PARENT_NAME/http_after_response_rules/0" "force_reload=true"
 	assert_equal "$SC" 200
 	assert_equal "$(get_json_path "$BODY" ".cond")" "if"
 	assert_equal "$(get_json_path "$BODY" ".cond_test")" "{ src 192.168.0.0/16 }"
 	assert_equal "$(get_json_path "$BODY" ".type")" "add-header"
 	assert_equal "$(get_json_path "$BODY" ".hdr_name")" "X-Haproxy-Current-Date"
 	assert_equal "$(get_json_path "$BODY" ".hdr_format")" "%T"
+}
+
+@test "http_after_response_rules: Replace all HTTP After Response Rules of backend" {
+	if [[ "$HAPROXY_VERSION" == "2.1" ]]; then
+		skip "http-after-response is not supported in HAProxy 2.1"
+	fi
+
+	PARENT_NAME="test_backend"
+	resource_put "$_BACKEND_BASE_PATH/$PARENT_NAME/http_after_response_rules" "data/replace-all.json" "force_reload=true"
+	assert_equal "$SC" 200
+
+    resource_get "$_BACKEND_BASE_PATH/$PARENT_NAME/http_after_response_rules"
+	assert_equal "$(get_json_path "$BODY" ".")" "$(get_json_path "$(cat "$BATS_TEST_DIRNAME/data/replace-all.json")" ".")"
 }

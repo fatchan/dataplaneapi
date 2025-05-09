@@ -9,7 +9,8 @@ GIT_MODIFIED=${GIT_MODIFIED1}${GIT_MODIFIED2}
 SWAGGER_VERSION=${shell curl -s https://raw.githubusercontent.com/haproxytech/client-native/master/Makefile | grep SWAGGER_VERSION -m 1 | awk -F"=" '{print $$2}'}
 BUILD_DATE=$(shell date -u '+%Y-%m-%dT%H:%M:%SZ')
 CGO_ENABLED?=0
-GOLANGCI_LINT_VERSION=1.57.1
+GOLANGCI_LINT_VERSION=1.64.5
+CHECK_COMMIT=5.0.4
 
 all: update clean build
 
@@ -46,6 +47,15 @@ experimental-minified-build-ultra-brute:
 e2e: build
 	TESTNAME=$(TESTNAME) TESTNUMBER=$(TESTNUMBER) TESTDESCRIPTION="$(TESTDESCRIPTION)" SKIP_CLEANUP=$(SKIP_CLEANUP) PREWIPE=$(PREWIPE) HAPROXY_VERSION=$(HAPROXY_VERSION) ./e2e/run.bash
 
+.PHONY: generate-parent-aliases_no_formatting
+generate-parent-aliases_no_formatting:
+	rm -f handlers/parent_*_generated.go
+	go run generate/parents/*.go
+
+.PHONY: generate-parent-aliases
+generate-parent-aliases: generate-parent-aliases_no_formatting gofumpt
+
+
 .PHONY: generate
 generate:
 	cd generate/swagger;docker build \
@@ -60,3 +70,12 @@ generate:
 generate-native:
 	generate/swagger/script.sh
 	generate/post_swagger.sh
+
+.PHONY: test
+test:
+	go test ./...
+
+.PHONY: check-commit
+check-commit:
+	cd bin;CHECK_COMMIT=${CHECK_COMMIT} sh check-commit.sh
+	bin/check-commit

@@ -48,6 +48,11 @@ type ReplaceDeclareCaptureHandlerImpl struct {
 	ReloadAgent haproxy.IReloadAgent
 }
 
+type ReplaceDeclareCapturesHandlerImpl struct {
+	Client      client_native.HAProxyClient
+	ReloadAgent haproxy.IReloadAgent
+}
+
 func (h *CreateDeclareCaptureHandlerImpl) Handle(params capture.CreateDeclareCaptureParams, principal interface{}) middleware.Responder {
 	t := ""
 	v := int64(0)
@@ -72,14 +77,14 @@ func (h *CreateDeclareCaptureHandlerImpl) Handle(params capture.CreateDeclareCap
 		e := misc.HandleError(err)
 		return capture.NewGetDeclareCaptureDefault(int(*e.Code)).WithPayload(e)
 	}
-	_, frontend, err := configuration.GetFrontend(params.Frontend, t)
+	_, frontend, err := configuration.GetFrontend(params.ParentName, t)
 	if frontend == nil {
 		return capture.NewGetDeclareCaptureNotFound()
 	}
 	if err != nil {
 		return capture.NewGetDeclareCaptureNotFound()
 	}
-	err = configuration.CreateDeclareCapture(params.Frontend, params.Data, t, v)
+	err = configuration.CreateDeclareCapture(params.Index, params.ParentName, params.Data, t, v)
 	if err != nil {
 		e := misc.HandleError(err)
 		return capture.NewCreateDeclareCaptureDefault(int(*e.Code)).WithPayload(e)
@@ -123,7 +128,7 @@ func (h *DeleteDeclareCaptureHandlerImpl) Handle(params capture.DeleteDeclareCap
 		e := misc.HandleError(err)
 		return capture.NewDeleteDeclareCaptureDefault(int(*e.Code)).WithPayload(e)
 	}
-	err = configuration.DeleteDeclareCapture(params.Index, params.Frontend, t, v)
+	err = configuration.DeleteDeclareCapture(params.Index, params.ParentName, t, v)
 	if err != nil {
 		e := misc.HandleError(err)
 		return capture.NewDeleteDeclareCaptureDefault(int(*e.Code)).WithPayload(e)
@@ -155,14 +160,14 @@ func (h *GetDeclareCaptureHandlerImpl) Handle(params capture.GetDeclareCapturePa
 		return capture.NewGetDeclareCaptureDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	_, frontend, err := configuration.GetFrontend(params.Frontend, t)
+	_, frontend, err := configuration.GetFrontend(params.ParentName, t)
 	if frontend == nil {
 		return capture.NewGetDeclareCaptureNotFound()
 	}
 	if err != nil {
 		return capture.NewGetDeclareCaptureNotFound()
 	}
-	_, data, err := configuration.GetDeclareCapture(params.Index, params.Frontend, t)
+	_, data, err := configuration.GetDeclareCapture(params.Index, params.ParentName, t)
 	if err != nil {
 		e := misc.HandleError(err)
 		return capture.NewGetDeclareCaptureDefault(int(*e.Code)).WithPayload(e)
@@ -182,14 +187,14 @@ func (h *GetDeclareCapturesHandlerImpl) Handle(params capture.GetDeclareCaptures
 		return capture.NewGetDeclareCapturesDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	_, frontend, err := configuration.GetFrontend(params.Frontend, t)
+	_, frontend, err := configuration.GetFrontend(params.ParentName, t)
 	if frontend == nil {
 		return capture.NewGetDeclareCaptureNotFound()
 	}
 	if err != nil {
 		return capture.NewGetDeclareCaptureNotFound()
 	}
-	_, data, err := configuration.GetDeclareCaptures(params.Frontend, t)
+	_, data, err := configuration.GetDeclareCaptures(params.ParentName, t)
 	if err != nil {
 		e := misc.HandleContainerGetError(err)
 		if *e.Code == misc.ErrHTTPOk {
@@ -225,14 +230,14 @@ func (h *ReplaceDeclareCaptureHandlerImpl) Handle(params capture.ReplaceDeclareC
 		return capture.NewReplaceDeclareCaptureDefault(int(*e.Code)).WithPayload(e)
 	}
 
-	_, frontend, err := configuration.GetFrontend(params.Frontend, t)
+	_, frontend, err := configuration.GetFrontend(params.ParentName, t)
 	if frontend == nil {
 		return capture.NewGetDeclareCaptureNotFound()
 	}
 	if err != nil {
 		return capture.NewGetDeclareCaptureNotFound()
 	}
-	err = configuration.EditDeclareCapture(params.Index, params.Frontend, params.Data, t, v)
+	err = configuration.EditDeclareCapture(params.Index, params.ParentName, params.Data, t, v)
 	if err != nil {
 		e := misc.HandleError(err)
 		return capture.NewReplaceDeclareCaptureDefault(int(*e.Code)).WithPayload(e)
@@ -250,4 +255,51 @@ func (h *ReplaceDeclareCaptureHandlerImpl) Handle(params capture.ReplaceDeclareC
 		return capture.NewReplaceDeclareCaptureAccepted().WithReloadID(rID).WithPayload(params.Data)
 	}
 	return capture.NewReplaceDeclareCaptureAccepted().WithPayload(params.Data)
+}
+
+// Handle executing the request and returning a response
+func (h *ReplaceDeclareCapturesHandlerImpl) Handle(params capture.ReplaceDeclareCapturesParams, principal interface{}) middleware.Responder {
+	t := ""
+	v := int64(0)
+	if params.TransactionID != nil {
+		t = *params.TransactionID
+	}
+	if params.Version != nil {
+		v = *params.Version
+	}
+
+	if t != "" && *params.ForceReload {
+		msg := "Both force_reload and transaction specified, specify only one"
+		c := misc.ErrHTTPBadRequest
+		e := &models.Error{
+			Message: &msg,
+			Code:    &c,
+		}
+		return capture.NewReplaceDeclareCapturesDefault(int(*e.Code)).WithPayload(e)
+	}
+
+	configuration, err := h.Client.Configuration()
+	if err != nil {
+		e := misc.HandleError(err)
+		return capture.NewReplaceDeclareCapturesDefault(int(*e.Code)).WithPayload(e)
+	}
+	err = configuration.ReplaceDeclareCaptures(params.ParentName, params.Data, t, v)
+	if err != nil {
+		e := misc.HandleError(err)
+		return capture.NewReplaceDeclareCapturesDefault(int(*e.Code)).WithPayload(e)
+	}
+
+	if params.TransactionID == nil {
+		if *params.ForceReload {
+			err := h.ReloadAgent.ForceReload()
+			if err != nil {
+				e := misc.HandleError(err)
+				return capture.NewReplaceDeclareCapturesDefault(int(*e.Code)).WithPayload(e)
+			}
+			return capture.NewReplaceDeclareCapturesOK().WithPayload(params.Data)
+		}
+		rID := h.ReloadAgent.Reload()
+		return capture.NewReplaceDeclareCapturesAccepted().WithReloadID(rID).WithPayload(params.Data)
+	}
+	return capture.NewReplaceDeclareCapturesAccepted().WithPayload(params.Data)
 }

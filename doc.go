@@ -24,7 +24,7 @@
 //	  https
 //	Host: localhost
 //	BasePath: /v3
-//	Version: 3.0
+//	Version: 3.1
 //	Contact: HAProxy Support<support@haproxy.com> https://my.haproxy.com/portal/cust/login
 //
 //	Consumes:
@@ -35,6 +35,7 @@
 //	Produces:
 //	  - application/octet-stream
 //	  - application/json
+//	  - text/plain
 //
 // swagger:meta
 package dataplaneapi

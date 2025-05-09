@@ -24,8 +24,6 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/runtime"
-
-	"github.com/haproxytech/client-native/v6/models"
 )
 
 // GetHAProxyConfigurationOKCode is the HTTP code returned for type GetHAProxyConfigurationOK
@@ -53,7 +51,7 @@ type GetHAProxyConfigurationOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *GetHAProxyConfigurationOKBody `json:"body,omitempty"`
+	Payload string `json:"body,omitempty"`
 }
 
 // NewGetHAProxyConfigurationOK creates GetHAProxyConfigurationOK with default headers values
@@ -96,13 +94,13 @@ func (o *GetHAProxyConfigurationOK) SetConfigurationVersion(configurationVersion
 }
 
 // WithPayload adds the payload to the get h a proxy configuration o k response
-func (o *GetHAProxyConfigurationOK) WithPayload(payload *GetHAProxyConfigurationOKBody) *GetHAProxyConfigurationOK {
+func (o *GetHAProxyConfigurationOK) WithPayload(payload string) *GetHAProxyConfigurationOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get h a proxy configuration o k response
-func (o *GetHAProxyConfigurationOK) SetPayload(payload *GetHAProxyConfigurationOKBody) {
+func (o *GetHAProxyConfigurationOK) SetPayload(payload string) {
 	o.Payload = payload
 }
 
@@ -131,11 +129,9 @@ func (o *GetHAProxyConfigurationOK) WriteResponse(rw http.ResponseWriter, produc
 	}
 
 	rw.WriteHeader(200)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
 
@@ -154,7 +150,7 @@ type GetHAProxyConfigurationDefault struct {
 	/*
 	  In: Body
 	*/
-	Payload *models.Error `json:"body,omitempty"`
+	Payload string `json:"body,omitempty"`
 }
 
 // NewGetHAProxyConfigurationDefault creates GetHAProxyConfigurationDefault with default headers values
@@ -191,13 +187,13 @@ func (o *GetHAProxyConfigurationDefault) SetConfigurationVersion(configurationVe
 }
 
 // WithPayload adds the payload to the get h a proxy configuration default response
-func (o *GetHAProxyConfigurationDefault) WithPayload(payload *models.Error) *GetHAProxyConfigurationDefault {
+func (o *GetHAProxyConfigurationDefault) WithPayload(payload string) *GetHAProxyConfigurationDefault {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get h a proxy configuration default response
-func (o *GetHAProxyConfigurationDefault) SetPayload(payload *models.Error) {
+func (o *GetHAProxyConfigurationDefault) SetPayload(payload string) {
 	o.Payload = payload
 }
 
@@ -212,10 +208,8 @@ func (o *GetHAProxyConfigurationDefault) WriteResponse(rw http.ResponseWriter, p
 	}
 
 	rw.WriteHeader(o._statusCode)
-	if o.Payload != nil {
-		payload := o.Payload
-		if err := producer.Produce(rw, payload); err != nil {
-			panic(err) // let the recovery middleware deal with this
-		}
+	payload := o.Payload
+	if err := producer.Produce(rw, payload); err != nil {
+		panic(err) // let the recovery middleware deal with this
 	}
 }
