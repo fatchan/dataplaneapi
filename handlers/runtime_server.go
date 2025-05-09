@@ -250,9 +250,9 @@ func SerializeRuntimeAddServer(srv *models.RuntimeAddServer) string { //nolint:c
 	pushq := func(key, val string) {
 		fmt.Fprintf(b, ` %s "%s"`, key, val)
 	} // push a quoted string
-	pushnq := func(key, val string) {
-		fmt.Fprintf(b, ` %s %s`, key, val)
-	}
+	// pushnq := func(key, val string) {
+	// 	fmt.Fprintf(b, ` %s %s`, key, val)
+	// }
 	enabled := func(s string) bool {
 		return s == "enabled"
 	}
