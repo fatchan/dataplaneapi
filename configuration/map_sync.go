@@ -55,6 +55,8 @@ var skipSyncMaps = map[string]bool{
 	"/etc/haproxy/map/alt-svc.map":           t,
 	"/etc/haproxy/map/lfp.map":               t,
 	"/etc/haproxy/map/bfp.map":               t,
+	"/etc/haproxy/map/vpn.map":               t,
+	"/etc/haproxy/map/dc.map":                t,
 }
 
 // SyncAll sync maps file entries with runtime maps entries for all configured files.
