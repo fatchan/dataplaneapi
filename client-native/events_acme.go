@@ -80,7 +80,7 @@ func (h *HAProxyEventListener) handleAcmeNewCertEvent(args string) {
 	if err != nil {
 		if errors.Is(err, configuration.ErrObjectDoesNotExist) {
 			rc := io.NopCloser(strings.NewReader(pem))
-			_, _, err = storage.Create(storageName, rc)
+			_, _, _, err = storage.Create(storageName, rc)
 		}
 	} else {
 		_, err = storage.Replace(storageName, pem)

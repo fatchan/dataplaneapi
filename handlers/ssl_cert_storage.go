@@ -379,23 +379,23 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 }
 
 // NOTE: haproxy method:
-// func pushCertToRuntime(c client_native.HAProxyClient, filename, body string, newCert bool) error {
-// 	runtime, err := c.Runtime()
-// 	if err != nil {
-// 		return err
-// 	}
+func pushCertToRuntime(c client_native.HAProxyClient, filename, body string, newCert bool) error {
+	runtime, err := c.Runtime()
+	if err != nil {
+		return err
+	}
 
-// 	if newCert {
-// 		err = runtime.NewCertEntry(filename)
-// 		if err != nil {
-// 			return err
-// 		}
-// 	}
+	if newCert {
+		err = runtime.NewCertEntry(filename)
+		if err != nil {
+			return err
+		}
+	}
 
-// 	err = runtime.SetCertEntry(filename, body)
-// 	if err != nil {
-// 		return err
-// 	}
+	err = runtime.SetCertEntry(filename, body)
+	if err != nil {
+		return err
+	}
 
-// 	return runtime.CommitCertEntry(filename)
-// }
+	return runtime.CommitCertEntry(filename)
+}

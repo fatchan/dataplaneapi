@@ -235,7 +235,7 @@ func (h *StorageCreateStorageSSLCrtListFileHandlerImpl) Handle(params storage.Cr
 	if !ok {
 		return storage.NewCreateStorageSSLCrtListFileBadRequest()
 	}
-	filename, size, err := crtListStorage.Create(file.Header.Filename, params.FileUpload)
+	filename, size, _, err := crtListStorage.Create(file.Header.Filename, params.FileUpload)
 	if err != nil {
 		e := misc.HandleError(err)
 		return storage.NewCreateStorageSSLCrtListFileDefault(int(*e.Code)).WithPayload(e)
@@ -332,7 +332,7 @@ func (h *StorageCreateStorageSSLCrtListEntryHandlerImpl) Handle(params storage.C
 	if err == nil {
 		_, err = crtListStorage.Replace(params.Name, content+line)
 	} else if errors.Is(err, cnconf.ErrObjectDoesNotExist) {
-		_, _, err = crtListStorage.Create(params.Name, io.NopCloser(strings.NewReader(line)))
+		_, _, _, err = crtListStorage.Create(params.Name, io.NopCloser(strings.NewReader(line)))
 	}
 	if err != nil {
 		e := misc.HandleError(err)
