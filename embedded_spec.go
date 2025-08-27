@@ -52,7 +52,7 @@ func init() {
       "url": "https://my.haproxy.com/portal/cust/login",
       "email": "support@haproxy.com"
     },
-    "version": "3.1"
+    "version": "3.2"
   },
   "basePath": "/v3",
   "paths": {
@@ -679,6 +679,245 @@ func init() {
             "schema": {
               "$ref": "#/definitions/endpoints"
             }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/acme": {
+      "get": {
+        "description": "Returns an array of all the configured ACME providers",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Return all the ACME providers",
+        "operationId": "getAcmeProviders",
+        "parameters": [
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acme_providers"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new acme section",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Add a new Acme provider",
+        "operationId": "createAcmeProvider",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Log Profile created",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/acme/{name}": {
+      "get": {
+        "description": "Find an acme section by its name",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Find an ACME provider",
+        "operationId": "getAcmeProvider",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "acme section name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Modifies a acme_provider's configuration by its name",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Modify an ACME provider",
+        "operationId": "editAcmeProvider",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "acme section name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "acme_provider configuration updated",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes an acme section from the configuration",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Delete an ACME provider",
+        "operationId": "deleteAcmeProvider",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "acme section name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "acme provider deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
           },
           "default": {
             "$ref": "#/responses/DefaultError"
@@ -6638,6 +6877,646 @@ func init() {
         }
       }
     },
+    "/services/haproxy/configuration/defaults/{parent_name}/acls": {
+      "get": {
+        "description": "Returns all ACL lines that are configured in specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Return an array of all ACL lines",
+        "operationId": "getAllAclDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "type": "string",
+            "description": "ACL name",
+            "name": "acl_name",
+            "in": "query"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acls"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of ACLs with the list given in parameter",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Replace an ACL list",
+        "operationId": "replaceAllAclDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acls"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All ACL lines replaced",
+            "schema": {
+              "$ref": "#/definitions/acls"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acls"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/acls/{index}": {
+      "get": {
+        "description": "Returns one ACL line configuration by it's index in the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Return one ACL line",
+        "operationId": "getAclDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a ACL line configuration by it's index in the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Replace a ACL line",
+        "operationId": "replaceAclDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ACL line replaced",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new ACL line of the specified type in the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Add a new ACL line",
+        "operationId": "createAclDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "ACL line created",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a ACL line configuration by it's index from the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Delete a ACL line",
+        "operationId": "deleteAclDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "ACL line deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_after_response_rules": {
+      "get": {
+        "description": "Returns all HTTP After Response Rules that are configured in specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Return an array of all HTTP After Response Rules",
+        "operationId": "getAllHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of HTTP After Response Rules with the list given in parameter",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Replace an HTTP After Response Rules list",
+        "operationId": "replaceAllHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rules"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All TTP After Response Rules lines replaced",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_after_response_rules/{index}": {
+      "get": {
+        "description": "Returns one HTTP After Response Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Return one HTTP After Response Rule",
+        "operationId": "getHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a HTTP After Response Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Replace a HTTP After Response Rule",
+        "operationId": "replaceHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP After Response Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new HTTP After Response Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Add a new HTTP After Response Rule",
+        "operationId": "createHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a HTTP After Response Rule configuration by it's index from the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Delete a HTTP After Response Rule",
+        "operationId": "deleteHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "HTTP After Response Rule deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
     "/services/haproxy/configuration/defaults/{parent_name}/http_checks": {
       "get": {
         "description": "Returns all HTTP checks that are configured in specified parent.",
@@ -7262,6 +8141,640 @@ func init() {
           },
           "204": {
             "description": "HTTP Error Rule deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_request_rules": {
+      "get": {
+        "description": "Returns all HTTP Request Rules that are configured in specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Return an array of all HTTP Request Rules",
+        "operationId": "getAllHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_request_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of HTTP Request Rules with the list given in parameter",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Replace an HTTP Request Rule list",
+        "operationId": "replaceAllHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_request_rules"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All HTTP Request Rule lines replaced",
+            "schema": {
+              "$ref": "#/definitions/http_request_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_request_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_request_rules/{index}": {
+      "get": {
+        "description": "Returns one HTTP Request Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Return one HTTP Request Rule",
+        "operationId": "getHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a HTTP Request Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Replace a HTTP Request Rule",
+        "operationId": "replaceHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP Request Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new HTTP Request Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Add a new HTTP Request Rule",
+        "operationId": "createHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Request Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a HTTP Request Rule configuration by it's index from the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Delete a HTTP Request Rule",
+        "operationId": "deleteHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "HTTP Request Rule deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_response_rules": {
+      "get": {
+        "description": "Returns all HTTP Response Rules that are configured in specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Return an array of all HTTP Response Rules",
+        "operationId": "getAllHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_response_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of HTTP Response Rules with the list given in parameter",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Replace an HTTP Response Rule list",
+        "operationId": "replaceAllHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_response_rules"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All HTTP Response Rule lines replaced",
+            "schema": {
+              "$ref": "#/definitions/http_response_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_response_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_response_rules/{index}": {
+      "get": {
+        "description": "Returns one HTTP Response Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Return one HTTP Response Rule",
+        "operationId": "getHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a HTTP Response Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Replace a HTTP Response Rule",
+        "operationId": "replaceHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP Response Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new HTTP Response Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Add a new HTTP Response Rule",
+        "operationId": "createHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a HTTP Response Rule configuration by it's index from the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Delete a HTTP Response Rule",
+        "operationId": "deleteHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "HTTP Response Rule deleted"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -8213,6 +9726,640 @@ func init() {
           },
           "204": {
             "description": "TCP check deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/tcp_request_rules": {
+      "get": {
+        "description": "Returns all TCP Request Rules that are configured in specified parent and parent type.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Return an array of all TCP Request Rules",
+        "operationId": "getAllTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of TCP Request Rules with the list given in parameter",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Replace an TCP Request Rule list",
+        "operationId": "replaceAllTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rules"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All TCP Request Rule lines replaced",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/tcp_request_rules/{index}": {
+      "get": {
+        "description": "Returns one TCP Request Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Return one TCP Request Rule",
+        "operationId": "getTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a TCP Request Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Replace a TCP Request Rule",
+        "operationId": "replaceTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TCP Request Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new TCP Request Rule of the specified type in the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Add a new TCP Request Rule",
+        "operationId": "createTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP Request Rule created",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a TCP Request Rule configuration by it's index from the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Delete a TCP Request Rule",
+        "operationId": "deleteTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "TCP Request Rule deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/tcp_response_rules": {
+      "get": {
+        "description": "Returns all TCP Response Rules that are configured in specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Return an array of all TCP Response Rules",
+        "operationId": "getAllTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of TCP Response Rules with the list given in parameter",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Replace a TCP Response Rule list",
+        "operationId": "replaceAllTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rules"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All TCP Response Rule lines replaced",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/tcp_response_rules/{index}": {
+      "get": {
+        "description": "Returns one TCP Response Rule configuration by it's index in the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Return one TCP Response Rule",
+        "operationId": "getTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a TCP Response Rule configuration by it's Index in the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Replace a TCP Response Rule",
+        "operationId": "replaceTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TCP Response Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new TCP Response Rule of the specified type in the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Add a new TCP Response Rule",
+        "operationId": "createTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a TCP Response Rule configuration by it's index from the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Delete a TCP Response Rule",
+        "operationId": "deleteTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "TCP Response Rule deleted"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -12468,6 +14615,260 @@ func init() {
           },
           "204": {
             "description": "QUIC Initial Rule deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/frontends/{parent_name}/ssl_front_uses": {
+      "get": {
+        "description": "Returns an array of all SSLFrontUses that are configured in specified frontend.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Return an array of SSLFrontUses",
+        "operationId": "getAllSSLFrontUses",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_uses"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new SSLFrontUse in the specified frontend in the configuration file.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Add a new SSLFrontUse",
+        "operationId": "createSSLFrontUse",
+        "parameters": [
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "SSLFrontUse created",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/frontends/{parent_name}/ssl_front_uses/{index}": {
+      "get": {
+        "description": "Returns one SSLFrontUse configuration by its index in the specified frontend.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Return one SSLFrontUse",
+        "operationId": "getSSLFrontUse",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "SSLFrontUse index (zero-based)",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces an SSLFrontUse configuration by its index in the specified frontend.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Replace an SSLFrontUse",
+        "operationId": "replaceSSLFrontUse",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "SSLFrontUse index (zero-based)",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            }
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSLFrontUse replaced",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes an SSLFrontUse configuration by its index in the specified frontend.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Delete an SSLFrontUse",
+        "operationId": "deleteSSLFrontUse",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "SSLFrontUse index (zero-based)",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/parent_name"
+          },
+          {
+            "$ref": "#/parameters/transaction_id"
+          },
+          {
+            "$ref": "#/parameters/version"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "SSLFrontUse deleted"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -19643,6 +22044,58 @@ func init() {
         }
       }
     },
+    "/services/haproxy/runtime/acme": {
+      "get": {
+        "description": "Returns the status of each managed ACME certificate.",
+        "tags": [
+          "AcmeRuntime"
+        ],
+        "summary": "ACME Status",
+        "operationId": "getAcmeStatus",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acme_status"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Force renewal of an ACME certificate.",
+        "tags": [
+          "AcmeRuntime"
+        ],
+        "summary": "Renew ACME certificate",
+        "operationId": "renewAcmeCertificate",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Certificate file name",
+            "name": "certificate",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation started"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
     "/services/haproxy/runtime/backends/{parent_name}/servers": {
       "get": {
         "description": "Returns an array of all servers' runtime settings.",
@@ -20201,6 +22654,739 @@ func init() {
         "responses": {
           "204": {
             "description": "Map key/value deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_ca_files": {
+      "get": {
+        "description": "Returns all SSL CA files using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return an array of all SSL CA files",
+        "operationId": "getAllCaFiles",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_ca_files"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new SSL CA file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Creates a new SSL CA file",
+        "operationId": "createCaFile",
+        "parameters": [
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "CA certificate file",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "SSL CA file created"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_ca_files/{name}": {
+      "get": {
+        "description": "Returns an SSL CA file by name using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return an SSL CA file",
+        "operationId": "getCaFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_ca_file"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replace the contents of a CA file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Update the contents of a CA file",
+        "operationId": "setCaFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSL CA payload added"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a CA file",
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Deletes a CA file",
+        "operationId": "deleteCaFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "SSL CA deleted"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_ca_files/{name}/entries": {
+      "post": {
+        "description": "Adds an entry to an existing CA file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Add a certificate to a CA file",
+        "operationId": "addCaEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "Payload of the cert entry",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificate"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_ca_files/{name}/entries/{index}": {
+      "get": {
+        "description": "Returns an SSL CA file cert entry.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return an SSL CA file cert entry",
+        "operationId": "getCaEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "SSL CA file index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificate"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_certs": {
+      "get": {
+        "description": "Returns certificate files descriptions from runtime.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return a list of SSL certificate files",
+        "operationId": "getAllCerts",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificates"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new SSL certificate file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Create a new SSL certificate file",
+        "operationId": "createCert",
+        "parameters": [
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "Certificate file",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Certificate created"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_certs/{name}": {
+      "get": {
+        "description": "Returns one structured certificate using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return one structured certificate",
+        "operationId": "getCert",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL certificate name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificate"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Sets a certificate payload using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Replace the contents of a certificate",
+        "operationId": "replaceCert",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL certificate name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File updated"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a certificate using the runtime socket.",
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Delete a certificate",
+        "operationId": "deleteCert",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL certificate name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "File deleted"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_crl_files": {
+      "get": {
+        "description": "Returns all the certificate revocation list files using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return an array of all the CRL files",
+        "operationId": "getAllCrl",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crls"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new CRL file with its contents using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Create a new CRL file",
+        "operationId": "createCrl",
+        "parameters": [
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "CRL file",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "CRL file created"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_crl_files/{name}": {
+      "get": {
+        "description": "Returns one or all entries in a CRL file using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Get the contents of a CRL file",
+        "operationId": "getCrl",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "CRL file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "x-nullable": true,
+            "description": "Entry index to return. Starts at 1. If not provided, all entries are returned.",
+            "name": "index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crl_entries"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces the contents of a CRL file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Replace the contents of a CRL file",
+        "operationId": "replaceCrl",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "CRL file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "CRL file contents",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File modified"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a CRL file using the runtime socket.",
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Delete a CRL file",
+        "operationId": "deleteCrl",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "CRL file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "File deleted"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_crt_lists": {
+      "get": {
+        "description": "Returns an array of crt-list file descriptions from runtime.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Get the list of all crt-list files",
+        "operationId": "getAllCrtLists",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_lists"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_crt_lists/entries": {
+      "get": {
+        "description": "Returns an array of entries present inside the given crt-list file. Their index can be used to delete them.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Get all the entries inside a crt-list",
+        "operationId": "getAllCrtListEntries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt-list filename",
+            "name": "name",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entries"
+            }
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Appends an entry to the given crt-list using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Add an entry into a crt-list",
+        "operationId": "addCrtListEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt-list filename",
+            "name": "name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entry"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single entry from the given crt-list using the runtime socket.",
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Delete an entry from a crt-list",
+        "operationId": "deleteCrtListEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt list name",
+            "name": "name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "SSL cert entry name",
+            "name": "cert_file",
+            "in": "query",
+            "required": true
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "x-nullable": true,
+            "description": "The line number where the entry is located, in case several entries share the same certificate.",
+            "name": "line_number",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
           },
           "404": {
             "$ref": "#/responses/NotFound"
@@ -22592,6 +25778,378 @@ func init() {
         }
       }
     },
+    "/services/haproxy/storage/ssl_crt_lists": {
+      "get": {
+        "description": "Returns all available certificate lists on disk.",
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Return all available certificate lists on disk",
+        "operationId": "getAllStorageSSLCrtListFiles",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_files"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a certificate list.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Create a certificate list",
+        "operationId": "createStorageSSLCrtListFile",
+        "parameters": [
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "The certificate list to upload",
+            "name": "file_upload",
+            "in": "formData"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Certificate list created",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_file"
+            }
+          },
+          "202": {
+            "description": "Certificate list created requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_file"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/storage/ssl_crt_lists/{name}": {
+      "get": {
+        "description": "Returns one certificate list from disk.",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Return one certificate list from disk",
+        "operationId": "getOneStorageSSLCrtListFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Certificate list name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a certificate list on disk.",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Replace a certificate lists on disk",
+        "operationId": "replaceStorageSSLCrtListFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Certificate list name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/parameters/skip_reload"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Certificate list replaced",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_file"
+            }
+          },
+          "202": {
+            "description": "Certificate list replaced and reload requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_file"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a certificate list from disk.",
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Delete a certificate list from disk",
+        "operationId": "deleteStorageSSLCrtListFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Certificate list name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/skip_reload"
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Certificate list deleted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "Certificate list deleted"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
+    "/services/haproxy/storage/ssl_crt_lists/{name}/entries": {
+      "get": {
+        "description": "Returns all the entries in a certificate list.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Returns all the entries in a CrtList",
+        "operationId": "GetStorageSSLCrtListEntries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt-list file",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entries"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new entry in a certificate list.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Creates a new entry in a CrtList",
+        "operationId": "CreateStorageSSLCrtListEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt-list file",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "SSL crt-list entry",
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entry"
+            }
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New entry added",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entry"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "409": {
+            "$ref": "#/responses/AlreadyExists"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes an entry from a certificate list.",
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Deletes an entry from CrtList file",
+        "operationId": "DeleteStorageSSLCrtListEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt list name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "SSL certificate filename",
+            "name": "certificate",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "The line number in the crt-list",
+            "name": "line_number",
+            "in": "query",
+            "required": true
+          },
+          {
+            "$ref": "#/parameters/force_reload"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "default": {
+            "$ref": "#/responses/DefaultError"
+          }
+        }
+      }
+    },
     "/services/haproxy/transactions": {
       "get": {
         "description": "Returns a list of HAProxy configuration transactions. Transactions can be filtered by their status.",
@@ -22881,6 +26439,11 @@ func init() {
           "pattern": "^[^\\s]+$",
           "x-nullable": false
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "value": {
           "type": "string",
           "x-nullable": false
@@ -22940,6 +26503,125 @@ func init() {
       "title": "ACL Lines Array",
       "items": {
         "$ref": "#/definitions/acl"
+      }
+    },
+    "acme_certificate_status": {
+      "description": "Status of a single ACME certificate from runtime.",
+      "type": "object",
+      "title": "ACME certificate status",
+      "properties": {
+        "acme_section": {
+          "description": "ACME section which generated the certificate.",
+          "type": "string"
+        },
+        "certificate": {
+          "description": "Certificate name",
+          "type": "string"
+        },
+        "expiries_in": {
+          "description": "Duration until certificate expiry.",
+          "type": "string"
+        },
+        "expiry_date": {
+          "description": "Certificate expiration date.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "renewal_in": {
+          "description": "Duration until the next planned renewal.",
+          "type": "string"
+        },
+        "scheduled_renewal": {
+          "description": "Planned date for certificate renewal.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "state": {
+          "description": "State of the ACME task, either \"Running\" or \"Scheduled\".",
+          "type": "string"
+        }
+      }
+    },
+    "acme_provider": {
+      "description": "Define an ACME provider to generate certificates automatically",
+      "type": "object",
+      "title": "ACME Provider",
+      "required": [
+        "name",
+        "directory"
+      ],
+      "properties": {
+        "account_key": {
+          "description": "Path where the the ACME account key is stored",
+          "type": "string"
+        },
+        "bits": {
+          "description": "Number of bits to generate an RSA certificate",
+          "type": "integer",
+          "minimum": 1024,
+          "x-nullable": true,
+          "x-omitempty": true
+        },
+        "challenge": {
+          "description": "ACME challenge type. Only http-01 and dns-01 are supported.",
+          "type": "string",
+          "enum": [
+            "http-01",
+            "dns-01"
+          ]
+        },
+        "contact": {
+          "description": "Contact email for the ACME account",
+          "type": "string"
+        },
+        "curves": {
+          "description": "Curves used with the ECDSA key type",
+          "type": "string"
+        },
+        "directory": {
+          "description": "URL to the ACME provider's directory. For example:\nhttps://acme-staging-v02.api.letsencrypt.org/directory\n",
+          "type": "string",
+          "pattern": "^https://[^\\s]+$",
+          "x-nullable": false
+        },
+        "keytype": {
+          "description": "Type of key to generate",
+          "type": "string",
+          "enum": [
+            "RSA",
+            "ECDSA"
+          ]
+        },
+        "map": {
+          "description": "The map which will be used to store the ACME token (key) and thumbprint",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "name": {
+          "description": "ACME provider's name",
+          "type": "string",
+          "x-nullable": false
+        }
+      }
+    },
+    "acme_providers": {
+      "description": "List of ACME sections.",
+      "type": "array",
+      "items": {
+        "x-omitempty": true,
+        "$ref": "#/definitions/acme_provider"
+      }
+    },
+    "acme_status": {
+      "description": "Status of all the ACME certificates from runtime.",
+      "type": "array",
+      "title": "ACME status",
+      "items": {
+        "$ref": "#/definitions/acme_certificate_status"
       }
     },
     "awsFilters": {
@@ -23401,6 +27083,14 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
+        "hash_preserve_affinity": {
+          "type": "string",
+          "enum": [
+            "always",
+            "maxconn",
+            "maxqueue"
+          ]
+        },
         "hash_type": {
           "$ref": "#/definitions/hash_type"
         },
@@ -23416,6 +27106,14 @@ func init() {
             }
           },
           "x-display-name": "HTTP bufferrequest"
+        },
+        "http-drop-request-trailers": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Drop HTTP Request Trailers"
         },
         "http-no-delay": {
           "type": "string",
@@ -23639,6 +27337,11 @@ func init() {
           "type": "integer",
           "x-display-name": "Maximum keep alive queue",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mode": {
           "type": "string",
@@ -23907,6 +27610,11 @@ func init() {
             "property": "acl_name"
           }
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -24094,6 +27802,11 @@ func init() {
               "pattern": "^[^\\s]+$",
               "example": "127.0.0.1"
             },
+            "metadata": {
+              "additionalProperties": {
+                "type": "object"
+              }
+            },
             "port": {
               "type": "integer",
               "maximum": 65535,
@@ -24249,6 +27962,18 @@ func init() {
           "type": "boolean",
           "x-deprecated": true
         },
+        "force_strict_sni": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          }
+        },
         "force_tlsv10": {
           "description": "This field is deprecated in favor of tlsv10, and will be removed in a future release",
           "type": "boolean",
@@ -24293,7 +28018,16 @@ func init() {
           "type": "string",
           "x-display-name": "Socket ID"
         },
+        "idle_ping": {
+          "type": "integer",
+          "x-default-unit": "ms",
+          "x-duration": true,
+          "x-nullable": true
+        },
         "interface": {
+          "type": "string"
+        },
+        "label": {
           "type": "string"
         },
         "level": {
@@ -24358,13 +28092,24 @@ func init() {
           },
           "x-deprecated": true
         },
-        "no_tls_tickets": {
+        "no_strict_sni": {
           "type": "boolean",
           "x-dependency": {
             "ssl": {
               "value": true
             }
-          }
+          },
+          "x-deprecated": true
+        },
+        "no_tls_tickets": {
+          "description": "This field is deprecated in favor of tls_tickets, and will be removed in a future release",
+          "type": "boolean",
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          },
+          "x-deprecated": true
         },
         "no_tlsv10": {
           "description": "This field is deprecated in favor of tlsv10, and will be removed in a future release",
@@ -24532,7 +28277,8 @@ func init() {
             "ssl": {
               "value": true
             }
-          }
+          },
+          "x-deprecated": true
         },
         "tcp_user_timeout": {
           "type": "integer",
@@ -24546,6 +28292,18 @@ func init() {
         },
         "tls_ticket_keys": {
           "type": "string"
+        },
+        "tls_tickets": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          }
         },
         "tlsv10": {
           "type": "string",
@@ -24655,6 +28413,11 @@ func init() {
         "max_secondary_entries": {
           "type": "integer"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$"
@@ -24689,6 +28452,11 @@ func init() {
         "length": {
           "type": "integer",
           "x-nullable": false
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "type": {
           "type": "string",
@@ -24848,6 +28616,16 @@ func init() {
           ],
           "x-omitempty": true
         },
+        "minsize_req": {
+          "type": "integer",
+          "x-display-name": "Minimum Size for Requests",
+          "x-size": true
+        },
+        "minsize_res": {
+          "type": "integer",
+          "x-display-name": "Minimum Size for Responses",
+          "x-size": true
+        },
         "offload": {
           "type": "boolean"
         },
@@ -24888,6 +28666,11 @@ func init() {
           "x-display-name": "Key Length",
           "x-nullable": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "nopurge": {
           "type": "boolean",
           "x-display-name": "No Purge"
@@ -24895,6 +28678,10 @@ func init() {
         "peers": {
           "type": "string",
           "pattern": "^[^\\s]+$"
+        },
+        "recv_only": {
+          "type": "boolean",
+          "x-display-name": "Receive Only"
         },
         "size": {
           "type": "integer",
@@ -25146,6 +28933,10 @@ func init() {
         "certificate"
       ],
       "properties": {
+        "acme": {
+          "description": "ACME section name to use",
+          "type": "string"
+        },
         "alias": {
           "description": "Certificate alias",
           "type": "string"
@@ -25155,6 +28946,15 @@ func init() {
           "type": "string",
           "x-nullable": false
         },
+        "domains": {
+          "description": "List of domains used to generate the certificate with ACME",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Domains",
+          "x-omitempty": true
+        },
         "issuer": {
           "description": "OCSP issuer filename",
           "type": "string"
@@ -25162,6 +28962,11 @@ func init() {
         "key": {
           "description": "Private key filename",
           "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "ocsp": {
           "description": "OCSP response filename",
@@ -25208,6 +29013,11 @@ func init() {
         "loads": {
           "$ref": "#/definitions/crt_loads"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_]+$",
@@ -25234,6 +29044,11 @@ func init() {
         "quiet": {
           "type": "boolean"
         },
+        "stress_level": {
+          "type": "integer",
+          "maximum": 9,
+          "x-nullable": true
+        },
         "zero_warning": {
           "type": "boolean"
         }
@@ -25245,6 +29060,16 @@ func init() {
       "allOf": [
         {
           "$ref": "#/definitions/bind_params"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "metadata": {
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          }
         }
       ]
     },
@@ -25266,6 +29091,14 @@ func init() {
         {
           "type": "object",
           "properties": {
+            "acl_list": {
+              "x-go-name": "AclList",
+              "$ref": "#/definitions/acls"
+            },
+            "http_after_response_rule_list": {
+              "x-go-name": "HTTPAfterResponseRuleList",
+              "$ref": "#/definitions/http_after_response_rules"
+            },
             "http_check_list": {
               "x-go-name": "HTTPCheckList",
               "$ref": "#/definitions/http_checks"
@@ -25273,6 +29106,14 @@ func init() {
             "http_error_rule_list": {
               "x-go-name": "HTTPErrorRuleList",
               "$ref": "#/definitions/http_error_rules"
+            },
+            "http_request_rule_list": {
+              "x-go-name": "HTTPRequestRuleList",
+              "$ref": "#/definitions/http_request_rules"
+            },
+            "http_response_rule_list": {
+              "x-go-name": "HTTPResponseRuleList",
+              "$ref": "#/definitions/http_response_rules"
             },
             "log_target_list": {
               "x-go-name": "LogTargetList",
@@ -25285,6 +29126,14 @@ func init() {
             "tcp_check_rule_list": {
               "x-go-name": "TCPCheckRuleList",
               "$ref": "#/definitions/tcp_checks"
+            },
+            "tcp_request_rule_list": {
+              "x-go-name": "TCPRequestRuleList",
+              "$ref": "#/definitions/tcp_request_rules"
+            },
+            "tcp_response_rule_list": {
+              "x-go-name": "TCPResponseRuleList",
+              "$ref": "#/definitions/tcp_response_rules"
             }
           }
         }
@@ -25563,6 +29412,14 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
+        "hash_preserve_affinity": {
+          "type": "string",
+          "enum": [
+            "always",
+            "maxconn",
+            "maxqueue"
+          ]
+        },
         "hash_type": {
           "$ref": "#/definitions/hash_type"
         },
@@ -25573,6 +29430,22 @@ func init() {
             "disabled"
           ],
           "x-display-name": "HTTP bufferrequest"
+        },
+        "http-drop-request-trailers": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Drop HTTP Request Trailers"
+        },
+        "http-drop-response-trailers": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Drop HTTP Response Trailers"
         },
         "http-use-htx": {
           "type": "string",
@@ -25760,6 +29633,11 @@ func init() {
           "type": "integer",
           "x-display-name": "Max Connections",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mode": {
           "type": "string",
@@ -26024,6 +29902,11 @@ func init() {
         "interface": {
           "type": "string"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -26089,6 +29972,11 @@ func init() {
           "x-dynamic-enum": {
             "operation": "getMailersSections",
             "property": "name"
+          }
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
           }
         },
         "myhostname": {
@@ -26278,6 +30166,11 @@ func init() {
           },
           "x-omitempty": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string"
         }
@@ -26311,6 +30204,11 @@ func init() {
             503,
             504
           ]
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "url": {
           "type": "string"
@@ -26382,6 +30280,11 @@ func init() {
           "type": "integer",
           "default": 1,
           "minimum": 1
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mpxs_conns": {
           "description": "Enables or disables the support of connection multiplexing. If the FastCGI application retrieves the variable FCGI_MPXS_CONNS during connection establishment, it can override this option.",
@@ -26666,6 +30569,11 @@ func init() {
           },
           "x-size": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "min_size": {
           "description": "The optional minimum number of bytes forwarded at a time by a stream excluding the last packet that may be smaller.\nThis value can be specified for per-stream and shared bandwidth limitation filters.\nIt follows the HAProxy size format and is expressed in bytes.",
           "type": "integer",
@@ -26859,6 +30767,10 @@ func init() {
             "quic_initial_rule_list": {
               "x-go-name": "QUICInitialRuleList",
               "$ref": "#/definitions/quic_initial_rules"
+            },
+            "ssl_front_use_list": {
+              "x-go-name": "SSLFrontUses",
+              "$ref": "#/definitions/ssl_front_uses"
             },
             "tcp_request_rule_list": {
               "x-go-name": "TCPRequestRuleList",
@@ -27062,6 +30974,14 @@ func init() {
           ],
           "x-display-name": "HTTP bufferrequest"
         },
+        "http-drop-response-trailers": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Drop HTTP Response Trailers"
+        },
         "http-use-htx": {
           "type": "string",
           "enum": [
@@ -27227,6 +31147,11 @@ func init() {
           "type": "integer",
           "x-display-name": "Max Connections",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mode": {
           "type": "string",
@@ -27452,6 +31377,59 @@ func init() {
           "x-go-name": "CPUMaps",
           "x-omitempty": true
         },
+        "cpu_policy": {
+          "type": "string",
+          "enum": [
+            "none",
+            "efficiency",
+            "first-usable-node",
+            "group-by-2-ccx",
+            "group-by-2-clusters",
+            "group-by-3-ccx",
+            "group-by-3-clusters",
+            "group-by-4-ccx",
+            "group-by-4-cluster",
+            "group-by-ccx",
+            "group-by-cluster",
+            "performance",
+            "resource"
+          ],
+          "x-display-name": "CPU Policy"
+        },
+        "cpu_set": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "directive"
+            ],
+            "properties": {
+              "directive": {
+                "type": "string",
+                "enum": [
+                  "reset",
+                  "drop-cpu",
+                  "only-cpu",
+                  "drop-node",
+                  "only-node",
+                  "drop-cluster",
+                  "only-cluster",
+                  "drop-core",
+                  "only-core",
+                  "drop-thread",
+                  "only-thread"
+                ]
+              },
+              "set": {
+                "type": "string"
+              }
+            },
+            "x-go-name": "CPUSet"
+          },
+          "x-display-name": "CPU Set",
+          "x-go-name": "CPUSets",
+          "x-omitempty": true
+        },
         "daemon": {
           "type": "boolean"
         },
@@ -27492,6 +31470,11 @@ func init() {
         },
         "device_atlas_options": {
           "$ref": "#/definitions/device_atlas_options"
+        },
+        "dns_accept_family": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-display-name": "DNS accept family"
         },
         "environment_options": {
           "$ref": "#/definitions/environment_options"
@@ -27658,6 +31641,11 @@ func init() {
         "master-worker": {
           "type": "boolean",
           "x-display-name": "Master Worker Mode"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mworker_max_reloads": {
           "type": "integer",
@@ -27885,6 +31873,11 @@ func init() {
         "name"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -28142,6 +32135,11 @@ func init() {
             }
           },
           "x-display-name": "Map Value Format"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "sc_expr": {
           "type": "string",
@@ -28455,6 +32453,11 @@ func init() {
             }
           },
           "x-display-name": "Expect Match"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "method": {
           "type": "string",
@@ -28777,6 +32780,11 @@ func init() {
         "status"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "return_content": {
           "type": "string",
           "x-dependency": {
@@ -28905,6 +32913,11 @@ func init() {
             "$ref": "#/definitions/errorfile"
           },
           "x-go-name": "ErrorFiles"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -29092,6 +33105,7 @@ func init() {
               "required": true,
               "value": [
                 "do-resolve",
+                "pause",
                 "set-bc-mark",
                 "set-bc-tos",
                 "set-dst",
@@ -29271,6 +33285,11 @@ func init() {
             }
           },
           "x-display-name": "Mark Value"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "method_fmt": {
           "type": "string",
@@ -29730,6 +33749,7 @@ func init() {
             "early-hint",
             "lua",
             "normalize-uri",
+            "pause",
             "redirect",
             "reject",
             "replace-header",
@@ -30028,6 +34048,7 @@ func init() {
             "type": {
               "required": true,
               "value": [
+                "pause",
                 "set-fc-mark",
                 "set-fc-tos"
               ]
@@ -30176,6 +34197,11 @@ func init() {
             }
           },
           "x-display-name": "Mark Value"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "nice_value": {
           "type": "integer",
@@ -30521,6 +34547,7 @@ func init() {
             "del-map",
             "deny",
             "lua",
+            "pause",
             "redirect",
             "replace-header",
             "replace-value",
@@ -30800,13 +34827,26 @@ func init() {
         "name"
       ],
       "properties": {
+        "assume-rfc6587-ntf": {
+          "type": "boolean",
+          "x-display-name": "Assume RFC-6587 Non-Transparent Framing"
+        },
         "backlog": {
           "type": "integer",
           "x-nullable": true
         },
+        "dont-parse-log": {
+          "type": "boolean",
+          "x-display-name": "Don't Parse Log"
+        },
         "maxconn": {
           "type": "integer",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -30843,6 +34883,11 @@ func init() {
           "description": "Override syslog log tag set by other \"log-tag\" directives.",
           "type": "string"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "description": "Name of the logging profile.",
           "type": "string",
@@ -30873,6 +34918,11 @@ func init() {
         "format": {
           "description": "Override \"log-format\" or \"error-log-format\" strings depending on the step.",
           "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "sd": {
           "description": "Override the \"log-format-sd\" string.",
@@ -31030,6 +35080,11 @@ func init() {
             }
           }
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "minlevel": {
           "type": "string",
           "enum": [
@@ -31168,6 +35223,11 @@ func init() {
           "pattern": "^\\S+$",
           "x-nullable": false
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_]+$",
@@ -31209,6 +35269,11 @@ func init() {
         "name"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_]+$",
@@ -31345,6 +35410,11 @@ func init() {
         "address": {
           "type": "string",
           "pattern": "^[^\\s]+$"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -32177,6 +36247,11 @@ func init() {
           "type": "string",
           "pattern": "^[^\\s]+$"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -32251,6 +36326,11 @@ func init() {
         },
         "enabled": {
           "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -32697,6 +36777,11 @@ func init() {
           "description": "The group to run the command as, if different than the HAProxy group.",
           "type": "string"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -32759,6 +36844,11 @@ func init() {
             "property": "acl_name"
           }
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "type": {
           "type": "string",
           "enum": [
@@ -32799,7 +36889,7 @@ func init() {
         },
         "interval": {
           "type": "integer",
-          "x-nullable": false
+          "x-nullable": true
         }
       }
     },
@@ -32909,6 +36999,11 @@ func init() {
           "x-duration": true,
           "x-nullable": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -33009,6 +37104,11 @@ func init() {
           "type": "integer",
           "x-display-name": "The maximum length of an event message stored into the ring",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -33710,6 +37810,17 @@ func init() {
             "disabled"
           ]
         },
+        "check-pool-conn-name": {
+          "type": "string",
+          "pattern": "^[^\\s]+$"
+        },
+        "check-reuse-pool": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ]
+        },
         "check-send-proxy": {
           "type": "string",
           "enum": [
@@ -33871,6 +37982,12 @@ func init() {
           "type": "integer",
           "maximum": 65535,
           "minimum": 1,
+          "x-nullable": true
+        },
+        "idle_ping": {
+          "type": "integer",
+          "x-default-unit": "ms",
+          "x-duration": true,
           "x-nullable": true
         },
         "init-addr": {
@@ -34068,6 +38185,14 @@ func init() {
           "type": "string",
           "x-display-name": "Prefix"
         },
+        "renegotiate": {
+          "description": "Toggles the secure renegotiation mechanism for an SSL backend.",
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ]
+        },
         "resolve-net": {
           "type": "string",
           "pattern": "^([A-Za-z0-9.:/]+)(,[A-Za-z0-9.:/]+)*$"
@@ -34238,6 +38363,9 @@ func init() {
             "disabled"
           ]
         },
+        "strict-maxconn": {
+          "type": "boolean"
+        },
         "tcp_ut": {
           "type": "integer",
           "x-default-unit": "ms",
@@ -34362,6 +38490,11 @@ func init() {
             "property": "acl_name"
           }
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "target_server": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -34409,6 +38542,11 @@ func init() {
             "id": {
               "type": "integer",
               "x-nullable": true
+            },
+            "metadata": {
+              "additionalProperties": {
+                "type": "object"
+              }
             },
             "num_or_range": {
               "type": "string",
@@ -34948,53 +39086,28 @@ func init() {
         "$ref": "#/definitions/spoe_transaction"
       }
     },
-    "ssl_cert_entry": {
-      "description": "One SSL/TLS certificate",
+    "ssl_ca_file": {
+      "description": "A file containing one or more SSL/TLS certificates and keys",
       "type": "object",
-      "title": "One SSL Certificate Entry",
+      "title": "SSL File",
       "properties": {
-        "algorithm": {
+        "count": {
           "type": "string"
         },
-        "chain_issuer": {
-          "type": "string"
-        },
-        "chain_subject": {
-          "type": "string"
-        },
-        "issuer": {
-          "type": "string"
-        },
-        "not_after": {
-          "type": "string",
-          "format": "date"
-        },
-        "not_before": {
-          "type": "string",
-          "format": "date"
-        },
-        "serial": {
-          "type": "string"
-        },
-        "sha1_finger_print": {
-          "type": "string"
-        },
-        "status": {
+        "file": {
           "type": "string"
         },
         "storage_name": {
           "type": "string"
-        },
-        "subject": {
-          "type": "string"
-        },
-        "subject_alternative_names": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-omitempty": true
         }
+      }
+    },
+    "ssl_ca_files": {
+      "description": "Array of SSL CA files",
+      "type": "array",
+      "title": "SSL CA Files Array",
+      "items": {
+        "$ref": "#/definitions/ssl_ca_file"
       }
     },
     "ssl_certificate": {
@@ -35007,6 +39120,14 @@ func init() {
         },
         "authority_key_id": {
           "type": "string"
+        },
+        "chain_issuer": {
+          "type": "string",
+          "x-omitempty": true
+        },
+        "chain_subject": {
+          "type": "string",
+          "x-omitempty": true
         },
         "description": {
           "type": "string"
@@ -35058,6 +39179,12 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
+        "status": {
+          "description": "Only set when using the runtime API.",
+          "type": "string",
+          "x-omitempty": true,
+          "readOnly": true
+        },
         "storage_name": {
           "type": "string"
         },
@@ -35072,17 +39199,421 @@ func init() {
         }
       }
     },
+    "ssl_certificate_id": {
+      "description": "SSL Certificate ID",
+      "type": "object",
+      "title": "SSL Certificate ID",
+      "properties": {
+        "certificate_id": {
+          "type": "object",
+          "properties": {
+            "hash_algorithm": {
+              "type": "string"
+            },
+            "issuer_key_hash": {
+              "type": "string"
+            },
+            "issuer_name_hash": {
+              "type": "string"
+            },
+            "serial_number": {
+              "type": "string"
+            }
+          },
+          "x-go-name": "CertificateId"
+        },
+        "certificate_id_key": {
+          "type": "string"
+        },
+        "certificate_path": {
+          "type": "string"
+        }
+      }
+    },
     "ssl_certificates": {
       "description": "Array of ssl certificate files",
       "type": "array",
-      "title": "SSL Files Array",
+      "title": "SSL Certificate Files Array",
       "items": {
         "$ref": "#/definitions/ssl_certificate"
+      }
+    },
+    "ssl_crl": {
+      "description": "A file containing one or more SSL/TLS CRLs",
+      "type": "object",
+      "title": "SSL CRL File",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "storage_name": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_crl_entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ssl_crl_entry"
+      }
+    },
+    "ssl_crl_entry": {
+      "description": "A certificate revocation list entry.",
+      "type": "object",
+      "title": "One CRL Entry",
+      "properties": {
+        "issuer": {
+          "type": "string"
+        },
+        "last_update": {
+          "type": "string",
+          "format": "date"
+        },
+        "next_update": {
+          "type": "string",
+          "format": "date"
+        },
+        "revoked_certificates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "revocation_date": {
+                "type": "string",
+                "format": "date"
+              },
+              "serial_number": {
+                "type": "string"
+              }
+            },
+            "x-go-name": "RevokedCertificates"
+          },
+          "x-omitempty": true
+        },
+        "signature_algorithm": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "storage_name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_crls": {
+      "description": "Array of ssl crl files",
+      "type": "array",
+      "title": "SSL CRL Files Array",
+      "items": {
+        "$ref": "#/definitions/ssl_crl"
+      }
+    },
+    "ssl_crt_list": {
+      "description": "SSL Crt List file",
+      "type": "object",
+      "title": "SSL Crt List",
+      "properties": {
+        "file": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_crt_list_entries": {
+      "description": "Array of SSL Crt List Entry",
+      "type": "array",
+      "title": "SSL Crt List Entry Array",
+      "items": {
+        "$ref": "#/definitions/ssl_crt_list_entry"
+      }
+    },
+    "ssl_crt_list_entry": {
+      "description": "SSL Crt List Entry",
+      "type": "object",
+      "title": "SSL Crt List Entry",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line_number": {
+          "type": "integer",
+          "x-nullable": false
+        },
+        "sni_filter": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "SNIFilter",
+          "x-omitempty": true
+        },
+        "ssl_bind_config": {
+          "type": "string",
+          "x-go-name": "SSLBindConfig"
+        }
+      }
+    },
+    "ssl_crt_list_file": {
+      "description": "A file referencing one or more certificates with their configuration.",
+      "type": "object",
+      "title": "SSL CRT List File",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "size": {
+          "description": "File size in bytes.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "storage_name": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_crt_list_files": {
+      "description": "List of SSL certificate list files (crt-list)",
+      "type": "array",
+      "title": "List of SSL certificate list files",
+      "items": {
+        "$ref": "#/definitions/ssl_crt_list_file"
+      }
+    },
+    "ssl_crt_lists": {
+      "description": "Array of SSL Crt List",
+      "type": "array",
+      "title": "SSL Crt List Array",
+      "items": {
+        "$ref": "#/definitions/ssl_crt_list"
+      }
+    },
+    "ssl_front_use": {
+      "description": "Assign a certificate to the current frontend",
+      "type": "object",
+      "title": "SSL Frontend Use certificate",
+      "required": [
+        "certificate"
+      ],
+      "properties": {
+        "allow_0rtt": {
+          "type": "boolean"
+        },
+        "alpn": {
+          "type": "string",
+          "x-display-name": "ALPN Protocols"
+        },
+        "ca_file": {
+          "type": "string"
+        },
+        "certificate": {
+          "description": "Certificate filename",
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-nullable": false
+        },
+        "ciphers": {
+          "type": "string"
+        },
+        "ciphersuites": {
+          "type": "string"
+        },
+        "client_sigalgs": {
+          "type": "string"
+        },
+        "crl_file": {
+          "type": "string"
+        },
+        "curves": {
+          "type": "string"
+        },
+        "ecdhe": {
+          "type": "string"
+        },
+        "issuer": {
+          "description": "OCSP issuer filename",
+          "type": "string"
+        },
+        "key": {
+          "description": "Private key filename",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "no_alpn": {
+          "type": "boolean"
+        },
+        "no_ca_names": {
+          "type": "boolean"
+        },
+        "npn": {
+          "type": "string"
+        },
+        "ocsp": {
+          "description": "OCSP response filename",
+          "type": "string"
+        },
+        "ocsp_update": {
+          "description": "Automatic OCSP response update",
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ]
+        },
+        "sctl": {
+          "description": "Signed Certificate Timestamp List filename",
+          "type": "string"
+        },
+        "sigalgs": {
+          "type": "string"
+        },
+        "ssl_max_ver": {
+          "type": "string",
+          "enum": [
+            "SSLv3",
+            "TLSv1.0",
+            "TLSv1.1",
+            "TLSv1.2",
+            "TLSv1.3"
+          ]
+        },
+        "ssl_min_ver": {
+          "type": "string",
+          "enum": [
+            "SSLv3",
+            "TLSv1.0",
+            "TLSv1.1",
+            "TLSv1.2",
+            "TLSv1.3"
+          ]
+        },
+        "verify": {
+          "type": "string",
+          "enum": [
+            "none",
+            "optional",
+            "required"
+          ]
+        }
+      },
+      "x-go-name": "SSLFrontUse"
+    },
+    "ssl_front_uses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ssl_front_use"
+      },
+      "x-go-name": "SSLFrontUses",
+      "x-omitempty": true
+    },
+    "ssl_ocsp_response": {
+      "description": "SSL OCSP Response",
+      "type": "object",
+      "title": "SSL OCSP Response",
+      "properties": {
+        "base64_response": {
+          "type": "string"
+        },
+        "ocsp_response_status": {
+          "type": "string"
+        },
+        "produced_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "responder_id": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-omitempty": true
+        },
+        "response_type": {
+          "type": "string"
+        },
+        "responses": {
+          "type": "object",
+          "properties": {
+            "cert_status": {
+              "type": "string"
+            },
+            "certificate_id": {
+              "$ref": "#/definitions/ssl_certificate_id/properties/certificate_id"
+            },
+            "next_update": {
+              "type": "string",
+              "format": "date"
+            },
+            "revocation_reason": {
+              "type": "string",
+              "x-omitempty": true
+            },
+            "this_update": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          "x-go-name": "OCSPResponses"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_ocsp_update": {
+      "description": "SSL OCSP Update",
+      "type": "object",
+      "title": "SSL OCSP Update",
+      "properties": {
+        "cert_id": {
+          "type": "string"
+        },
+        "failures": {
+          "type": "integer"
+        },
+        "last_update": {
+          "type": "string"
+        },
+        "last_update_status": {
+          "type": "integer"
+        },
+        "last_update_status_str": {
+          "type": "string"
+        },
+        "next_update": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "successes": {
+          "type": "integer"
+        }
       }
     },
     "ssl_options": {
       "type": "object",
       "properties": {
+        "acme_scheduler": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "off"
+          ],
+          "x-display-name": "ACME Scheduler"
+        },
         "ca_base": {
           "type": "string",
           "x-display-name": "SSL CA Certificates Base Directory"
@@ -35217,6 +39748,19 @@ func init() {
         "skip_self_issued_ca": {
           "type": "boolean",
           "x-display-name": "Self issued CA, aka x509 root CA"
+        }
+      }
+    },
+    "ssl_providers": {
+      "description": "SSL Providers",
+      "type": "object",
+      "title": "SSL Providers",
+      "properties": {
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -35406,6 +39950,11 @@ func init() {
             "freeFormat": true,
             "operation": "getACLs",
             "property": "acl_name"
+          }
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
           }
         },
         "pattern": {
@@ -35651,6 +40200,11 @@ func init() {
           "x-duration": true,
           "x-nullable": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "x-nullable": false
@@ -35658,6 +40212,10 @@ func init() {
         "no_purge": {
           "type": "boolean",
           "x-display-name": "No Purge"
+        },
+        "recv_only": {
+          "type": "boolean",
+          "x-display-name": "Receive Only"
         },
         "size": {
           "type": "string",
@@ -35849,6 +40407,11 @@ func init() {
             }
           },
           "x-display-name": "Expect Match"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "min_recv": {
           "type": "integer",
@@ -36333,6 +40896,11 @@ func init() {
             }
           },
           "x-display-name": "Mark Value"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "nice_value": {
           "type": "integer",
@@ -36909,6 +41477,11 @@ func init() {
           },
           "x-display-name": "Mark Value"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "nice_value": {
           "type": "integer",
           "maximum": 1024,
@@ -37139,6 +41712,11 @@ func init() {
         "trace"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "trace": {
           "description": "Trace parameters",
           "type": "string",
@@ -37153,6 +41731,11 @@ func init() {
       "properties": {
         "entries": {
           "$ref": "#/definitions/trace_entries"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         }
       },
       "additionalProperties": false,
@@ -37282,6 +41865,13 @@ func init() {
     "tune_lua_options": {
       "type": "object",
       "properties": {
+        "bool_sample_conversion": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "pre-3.1-bug"
+          ]
+        },
         "burst_timeout": {
           "type": "integer",
           "x-default-unit": "ms",
@@ -37361,6 +41951,18 @@ func init() {
           "type": "boolean",
           "x-display-name": "Disable zero-copy forwarding"
         },
+        "epoll_mask_events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "err",
+              "hup",
+              "rdhup"
+            ]
+          },
+          "x-omitempty": true
+        },
         "events_max_events_at_once": {
           "type": "integer",
           "maximum": 10000,
@@ -37377,6 +41979,12 @@ func init() {
             "disabled"
           ],
           "x-display-name": "Edge-triggered polling mode"
+        },
+        "glitches_kill_cpu_usage": {
+          "type": "integer",
+          "maximum": 100,
+          "x-display-name": "CPU Usage Kill glitched Connections",
+          "x-nullable": true
         },
         "h1_zero_copy_fwd_recv": {
           "type": "string",
@@ -37515,6 +42123,11 @@ func init() {
           "x-display-name": "Maximum checks per thread",
           "x-nullable": true
         },
+        "max_rules_at_once": {
+          "type": "integer",
+          "x-display-name": "Maximum rules at once",
+          "x-nullable": true
+        },
         "maxaccept": {
           "type": "integer",
           "x-display-name": "Maximum Accept Events"
@@ -37531,6 +42144,18 @@ func init() {
           "type": "integer",
           "x-display-name": "Per-thread Amount of Memory",
           "x-nullable": true
+        },
+        "notsent_lowat_client": {
+          "type": "integer",
+          "x-display-name": "Client Not Sent Low Watermark",
+          "x-nullable": true,
+          "x-size": true
+        },
+        "notsent_lowat_server": {
+          "type": "integer",
+          "x-display-name": "Server Not Sent Low Watermark",
+          "x-nullable": true,
+          "x-size": true
         },
         "pattern_cache_size": {
           "type": "integer",
@@ -37592,6 +42217,15 @@ func init() {
           "type": "integer",
           "x-display-name": "Number of stick-counters",
           "x-nullable": true
+        },
+        "takeover_other_tg_connections": {
+          "type": "string",
+          "enum": [
+            "none",
+            "restricted",
+            "full"
+          ],
+          "x-display-name": "Takeover Other Thread Groups Connections"
         }
       }
     },
@@ -37614,6 +42248,12 @@ func init() {
           "type": "integer",
           "x-display-name": "QUIC Max Number of Bidirectional Streams",
           "x-nullable": true
+        },
+        "frontend_max_tx_memory": {
+          "type": "integer",
+          "x-display-name": "QUIC Frontend Max Tx Memory",
+          "x-nullable": true,
+          "x-size": true
         },
         "max_frame_loss": {
           "type": "integer",
@@ -37761,6 +42401,7 @@ func init() {
     },
     "user": {
       "description": "HAProxy userlist user",
+      "type": "object",
       "title": "User",
       "required": [
         "username",
@@ -37771,6 +42412,11 @@ func init() {
         "groups": {
           "type": "string",
           "x-nullable": false
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "password": {
           "type": "string",
@@ -37819,6 +42465,11 @@ func init() {
         "name"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -37987,6 +42638,9 @@ func init() {
   "tags": [
     {
       "name": "ACL"
+    },
+    {
+      "name": "Acme"
     },
     {
       "description": "Managing backend configurations (advanced mode)",
@@ -38191,7 +42845,7 @@ func init() {
       "url": "https://my.haproxy.com/portal/cust/login",
       "email": "support@haproxy.com"
     },
-    "version": "3.1"
+    "version": "3.2"
   },
   "basePath": "/v3",
   "paths": {
@@ -39135,6 +43789,388 @@ func init() {
             "description": "Success",
             "schema": {
               "$ref": "#/definitions/endpoints"
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/acme": {
+      "get": {
+        "description": "Returns an array of all the configured ACME providers",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Return all the ACME providers",
+        "operationId": "getAcmeProviders",
+        "parameters": [
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acme_providers"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new acme section",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Add a new Acme provider",
+        "operationId": "createAcmeProvider",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Log Profile created",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/acme/{name}": {
+      "get": {
+        "description": "Find an acme section by its name",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Find an ACME provider",
+        "operationId": "getAcmeProvider",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "acme section name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Modifies a acme_provider's configuration by its name",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Modify an ACME provider",
+        "operationId": "editAcmeProvider",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "acme section name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "acme_provider configuration updated",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acme_provider"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes an acme section from the configuration",
+        "tags": [
+          "Acme"
+        ],
+        "summary": "Delete an ACME provider",
+        "operationId": "deleteAcmeProvider",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "acme section name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "acme provider deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
             }
           },
           "default": {
@@ -48785,6 +53821,1040 @@ func init() {
         }
       }
     },
+    "/services/haproxy/configuration/defaults/{parent_name}/acls": {
+      "get": {
+        "description": "Returns all ACL lines that are configured in specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Return an array of all ACL lines",
+        "operationId": "getAllAclDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "ACL name",
+            "name": "acl_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acls"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of ACLs with the list given in parameter",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Replace an ACL list",
+        "operationId": "replaceAllAclDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acls"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All ACL lines replaced",
+            "schema": {
+              "$ref": "#/definitions/acls"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acls"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/acls/{index}": {
+      "get": {
+        "description": "Returns one ACL line configuration by it's index in the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Return one ACL line",
+        "operationId": "getAclDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a ACL line configuration by it's index in the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Replace a ACL line",
+        "operationId": "replaceAclDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ACL line replaced",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new ACL line of the specified type in the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Add a new ACL line",
+        "operationId": "createAclDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "ACL line created",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/acl"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a ACL line configuration by it's index from the specified parent.",
+        "tags": [
+          "ACL"
+        ],
+        "summary": "Delete a ACL line",
+        "operationId": "deleteAclDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "ACL line Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "ACL line deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_after_response_rules": {
+      "get": {
+        "description": "Returns all HTTP After Response Rules that are configured in specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Return an array of all HTTP After Response Rules",
+        "operationId": "getAllHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of HTTP After Response Rules with the list given in parameter",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Replace an HTTP After Response Rules list",
+        "operationId": "replaceAllHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rules"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All TTP After Response Rules lines replaced",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_after_response_rules/{index}": {
+      "get": {
+        "description": "Returns one HTTP After Response Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Return one HTTP After Response Rule",
+        "operationId": "getHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a HTTP After Response Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Replace a HTTP After Response Rule",
+        "operationId": "replaceHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP After Response Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new HTTP After Response Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Add a new HTTP After Response Rule",
+        "operationId": "createHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_after_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a HTTP After Response Rule configuration by it's index from the specified parent.",
+        "tags": [
+          "HTTPAfterResponseRule"
+        ],
+        "summary": "Delete a HTTP After Response Rule",
+        "operationId": "deleteHTTPAfterResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP After Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "HTTP After Response Rule deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
     "/services/haproxy/configuration/defaults/{parent_name}/http_checks": {
       "get": {
         "description": "Returns all HTTP checks that are configured in specified parent.",
@@ -49785,6 +55855,1034 @@ func init() {
           },
           "204": {
             "description": "HTTP Error Rule deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_request_rules": {
+      "get": {
+        "description": "Returns all HTTP Request Rules that are configured in specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Return an array of all HTTP Request Rules",
+        "operationId": "getAllHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_request_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of HTTP Request Rules with the list given in parameter",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Replace an HTTP Request Rule list",
+        "operationId": "replaceAllHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_request_rules"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All HTTP Request Rule lines replaced",
+            "schema": {
+              "$ref": "#/definitions/http_request_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_request_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_request_rules/{index}": {
+      "get": {
+        "description": "Returns one HTTP Request Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Return one HTTP Request Rule",
+        "operationId": "getHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a HTTP Request Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Replace a HTTP Request Rule",
+        "operationId": "replaceHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP Request Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new HTTP Request Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Add a new HTTP Request Rule",
+        "operationId": "createHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Request Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a HTTP Request Rule configuration by it's index from the specified parent.",
+        "tags": [
+          "HTTPRequestRule"
+        ],
+        "summary": "Delete a HTTP Request Rule",
+        "operationId": "deleteHTTPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "HTTP Request Rule deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_response_rules": {
+      "get": {
+        "description": "Returns all HTTP Response Rules that are configured in specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Return an array of all HTTP Response Rules",
+        "operationId": "getAllHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_response_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of HTTP Response Rules with the list given in parameter",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Replace an HTTP Response Rule list",
+        "operationId": "replaceAllHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_response_rules"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All HTTP Response Rule lines replaced",
+            "schema": {
+              "$ref": "#/definitions/http_response_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_response_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/http_response_rules/{index}": {
+      "get": {
+        "description": "Returns one HTTP Response Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Return one HTTP Response Rule",
+        "operationId": "getHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a HTTP Response Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Replace a HTTP Response Rule",
+        "operationId": "replaceHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTTP Response Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new HTTP Response Rule of the specified type in the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Add a new HTTP Response Rule",
+        "operationId": "createHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "HTTP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/http_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a HTTP Response Rule configuration by it's index from the specified parent.",
+        "tags": [
+          "HTTPResponseRule"
+        ],
+        "summary": "Delete a HTTP Response Rule",
+        "operationId": "deleteHTTPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "HTTP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "HTTP Response Rule deleted"
           },
           "404": {
             "description": "The specified resource was not found",
@@ -51327,6 +58425,1034 @@ func init() {
           },
           "204": {
             "description": "TCP check deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/tcp_request_rules": {
+      "get": {
+        "description": "Returns all TCP Request Rules that are configured in specified parent and parent type.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Return an array of all TCP Request Rules",
+        "operationId": "getAllTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of TCP Request Rules with the list given in parameter",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Replace an TCP Request Rule list",
+        "operationId": "replaceAllTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rules"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All TCP Request Rule lines replaced",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/tcp_request_rules/{index}": {
+      "get": {
+        "description": "Returns one TCP Request Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Return one TCP Request Rule",
+        "operationId": "getTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a TCP Request Rule configuration by it's index in the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Replace a TCP Request Rule",
+        "operationId": "replaceTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TCP Request Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new TCP Request Rule of the specified type in the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Add a new TCP Request Rule",
+        "operationId": "createTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP Request Rule created",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_request_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a TCP Request Rule configuration by it's index from the specified parent.",
+        "tags": [
+          "TCPRequestRule"
+        ],
+        "summary": "Delete a TCP Request Rule",
+        "operationId": "deleteTCPRequestRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Request Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "TCP Request Rule deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/tcp_response_rules": {
+      "get": {
+        "description": "Returns all TCP Response Rules that are configured in specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Return an array of all TCP Response Rules",
+        "operationId": "getAllTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rules"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a whole list of TCP Response Rules with the list given in parameter",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Replace a TCP Response Rule list",
+        "operationId": "replaceAllTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rules"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All TCP Response Rule lines replaced",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rules"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rules"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/defaults/{parent_name}/tcp_response_rules/{index}": {
+      "get": {
+        "description": "Returns one TCP Response Rule configuration by it's index in the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Return one TCP Response Rule",
+        "operationId": "getTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a TCP Response Rule configuration by it's Index in the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Replace a TCP Response Rule",
+        "operationId": "replaceTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "TCP Response Rule replaced",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new TCP Response Rule of the specified type in the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Add a new TCP Response Rule",
+        "operationId": "createTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "TCP Response Rule created",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/tcp_response_rule"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a TCP Response Rule configuration by it's index from the specified backend.",
+        "tags": [
+          "TCPResponseRule"
+        ],
+        "summary": "Delete a TCP Response Rule",
+        "operationId": "deleteTCPResponseRuleDefaults",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "TCP Response Rule Index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "TCP Response Rule deleted"
           },
           "404": {
             "description": "The specified resource was not found",
@@ -58230,6 +66356,423 @@ func init() {
           },
           "204": {
             "description": "QUIC Initial Rule deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/frontends/{parent_name}/ssl_front_uses": {
+      "get": {
+        "description": "Returns an array of all SSLFrontUses that are configured in specified frontend.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Return an array of SSLFrontUses",
+        "operationId": "getAllSSLFrontUses",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_uses"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Adds a new SSLFrontUse in the specified frontend in the configuration file.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Add a new SSLFrontUse",
+        "operationId": "createSSLFrontUse",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "SSLFrontUse created",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/configuration/frontends/{parent_name}/ssl_front_uses/{index}": {
+      "get": {
+        "description": "Returns one SSLFrontUse configuration by its index in the specified frontend.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Return one SSLFrontUse",
+        "operationId": "getSSLFrontUse",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "SSLFrontUse index (zero-based)",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces an SSLFrontUse configuration by its index in the specified frontend.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Replace an SSLFrontUse",
+        "operationId": "replaceSSLFrontUse",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "SSLFrontUse index (zero-based)",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            }
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSLFrontUse replaced",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_front_use"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes an SSLFrontUse configuration by its index in the specified frontend.",
+        "tags": [
+          "SSLFrontUse"
+        ],
+        "summary": "Delete an SSLFrontUse",
+        "operationId": "deleteSSLFrontUse",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "SSLFrontUse index (zero-based)",
+            "name": "index",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Parent name",
+            "name": "parent_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "x-nullable": false,
+            "description": "ID of the transaction where we want to add the operation. Cannot be used when version is specified.",
+            "name": "transaction_id",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "x-nullable": false,
+            "description": "Version used for checking configuration version. Cannot be used when transaction is specified, transaction has it's own version.",
+            "name": "version",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "SSLFrontUse deleted"
           },
           "404": {
             "description": "The specified resource was not found",
@@ -69682,6 +78225,94 @@ func init() {
         }
       }
     },
+    "/services/haproxy/runtime/acme": {
+      "get": {
+        "description": "Returns the status of each managed ACME certificate.",
+        "tags": [
+          "AcmeRuntime"
+        ],
+        "summary": "ACME Status",
+        "operationId": "getAcmeStatus",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/acme_status"
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Force renewal of an ACME certificate.",
+        "tags": [
+          "AcmeRuntime"
+        ],
+        "summary": "Renew ACME certificate",
+        "operationId": "renewAcmeCertificate",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Certificate file name",
+            "name": "certificate",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation started"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
     "/services/haproxy/runtime/backends/{parent_name}/servers": {
       "get": {
         "description": "Returns an array of all servers' runtime settings.",
@@ -70568,6 +79199,1109 @@ func init() {
         "responses": {
           "204": {
             "description": "Map key/value deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_ca_files": {
+      "get": {
+        "description": "Returns all SSL CA files using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return an array of all SSL CA files",
+        "operationId": "getAllCaFiles",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_ca_files"
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new SSL CA file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Creates a new SSL CA file",
+        "operationId": "createCaFile",
+        "parameters": [
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "CA certificate file",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "SSL CA file created"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_ca_files/{name}": {
+      "get": {
+        "description": "Returns an SSL CA file by name using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return an SSL CA file",
+        "operationId": "getCaFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_ca_file"
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replace the contents of a CA file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Update the contents of a CA file",
+        "operationId": "setCaFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "SSL CA payload added"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a CA file",
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Deletes a CA file",
+        "operationId": "deleteCaFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "SSL CA deleted"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_ca_files/{name}/entries": {
+      "post": {
+        "description": "Adds an entry to an existing CA file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Add a certificate to a CA file",
+        "operationId": "addCaEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "Payload of the cert entry",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificate"
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_ca_files/{name}/entries/{index}": {
+      "get": {
+        "description": "Returns an SSL CA file cert entry.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return an SSL CA file cert entry",
+        "operationId": "getCaEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL CA file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "minimum": 0,
+            "type": "integer",
+            "description": "SSL CA file index",
+            "name": "index",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificate"
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_certs": {
+      "get": {
+        "description": "Returns certificate files descriptions from runtime.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return a list of SSL certificate files",
+        "operationId": "getAllCerts",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificates"
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new SSL certificate file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Create a new SSL certificate file",
+        "operationId": "createCert",
+        "parameters": [
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "Certificate file",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Certificate created"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_certs/{name}": {
+      "get": {
+        "description": "Returns one structured certificate using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return one structured certificate",
+        "operationId": "getCert",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL certificate name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_certificate"
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Sets a certificate payload using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Replace the contents of a certificate",
+        "operationId": "replaceCert",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL certificate name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File updated"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a certificate using the runtime socket.",
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Delete a certificate",
+        "operationId": "deleteCert",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL certificate name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "File deleted"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_crl_files": {
+      "get": {
+        "description": "Returns all the certificate revocation list files using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Return an array of all the CRL files",
+        "operationId": "getAllCrl",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crls"
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new CRL file with its contents using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Create a new CRL file",
+        "operationId": "createCrl",
+        "parameters": [
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "CRL file",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "CRL file created"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_crl_files/{name}": {
+      "get": {
+        "description": "Returns one or all entries in a CRL file using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Get the contents of a CRL file",
+        "operationId": "getCrl",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "CRL file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "x-nullable": true,
+            "description": "Entry index to return. Starts at 1. If not provided, all entries are returned.",
+            "name": "index",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crl_entries"
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces the contents of a CRL file using the runtime socket.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Replace the contents of a CRL file",
+        "operationId": "replaceCrl",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "CRL file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "CRL file contents",
+            "name": "file_upload",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File modified"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a CRL file using the runtime socket.",
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Delete a CRL file",
+        "operationId": "deleteCrl",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "CRL file name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "File deleted"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_crt_lists": {
+      "get": {
+        "description": "Returns an array of crt-list file descriptions from runtime.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Get the list of all crt-list files",
+        "operationId": "getAllCrtLists",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_lists"
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/runtime/ssl_crt_lists/entries": {
+      "get": {
+        "description": "Returns an array of entries present inside the given crt-list file. Their index can be used to delete them.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Get all the entries inside a crt-list",
+        "operationId": "getAllCrtListEntries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt-list filename",
+            "name": "name",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entries"
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Appends an entry to the given crt-list using the runtime socket.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Add an entry into a crt-list",
+        "operationId": "addCrtListEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt-list filename",
+            "name": "name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entry"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a single entry from the given crt-list using the runtime socket.",
+        "tags": [
+          "SSLRuntime"
+        ],
+        "summary": "Delete an entry from a crt-list",
+        "operationId": "deleteCrtListEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt list name",
+            "name": "name",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "SSL cert entry name",
+            "name": "cert_file",
+            "in": "query",
+            "required": true
+          },
+          {
+            "minimum": 1,
+            "type": "integer",
+            "x-nullable": true,
+            "description": "The line number where the entry is located, in case several entries share the same certificate.",
+            "name": "line_number",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
           },
           "404": {
             "description": "The specified resource was not found",
@@ -74322,6 +84056,587 @@ func init() {
           },
           "204": {
             "description": "SSL certificate deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/storage/ssl_crt_lists": {
+      "get": {
+        "description": "Returns all available certificate lists on disk.",
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Return all available certificate lists on disk",
+        "operationId": "getAllStorageSSLCrtListFiles",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_files"
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a certificate list.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Create a certificate list",
+        "operationId": "createStorageSSLCrtListFile",
+        "parameters": [
+          {
+            "type": "file",
+            "x-mimetype": "text/plain",
+            "description": "The certificate list to upload",
+            "name": "file_upload",
+            "in": "formData"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Certificate list created",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_file"
+            }
+          },
+          "202": {
+            "description": "Certificate list created requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_file"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/storage/ssl_crt_lists/{name}": {
+      "get": {
+        "description": "Returns one certificate list from disk.",
+        "produces": [
+          "application/octet-stream"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Return one certificate list from disk",
+        "operationId": "getOneStorageSSLCrtListFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Certificate list name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "file"
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Replaces a certificate list on disk.",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Replace a certificate lists on disk",
+        "operationId": "replaceStorageSSLCrtListFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Certificate list name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, no reload will be initiated after update",
+            "name": "skip_reload",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Certificate list replaced",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_file"
+            }
+          },
+          "202": {
+            "description": "Certificate list replaced and reload requested",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_file"
+            },
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a certificate list from disk.",
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Delete a certificate list from disk",
+        "operationId": "deleteStorageSSLCrtListFile",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Certificate list name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, no reload will be initiated after update",
+            "name": "skip_reload",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Certificate list deleted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "Certificate list deleted"
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/services/haproxy/storage/ssl_crt_lists/{name}/entries": {
+      "get": {
+        "description": "Returns all the entries in a certificate list.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Returns all the entries in a CrtList",
+        "operationId": "GetStorageSSLCrtListEntries",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt-list file",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entries"
+            }
+          },
+          "404": {
+            "description": "The specified resource was not found",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new entry in a certificate list.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Creates a new entry in a CrtList",
+        "operationId": "CreateStorageSSLCrtListEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt-list file",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "description": "SSL crt-list entry",
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entry"
+            }
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New entry added",
+            "schema": {
+              "$ref": "#/definitions/ssl_crt_list_entry"
+            }
+          },
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "409": {
+            "description": "The specified resource already exists",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          },
+          "default": {
+            "description": "General Error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes an entry from a certificate list.",
+        "tags": [
+          "Storage"
+        ],
+        "summary": "Deletes an entry from CrtList file",
+        "operationId": "DeleteStorageSSLCrtListEntry",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "SSL crt list name",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "SSL certificate filename",
+            "name": "certificate",
+            "in": "query",
+            "required": true
+          },
+          {
+            "minimum": 0,
+            "type": "integer",
+            "description": "The line number in the crt-list",
+            "name": "line_number",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "If set, do a force reload, do not wait for the configured reload-delay. Cannot be used when transaction is specified, as changes in transaction are not applied directly to configuration.",
+            "name": "force_reload",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Configuration change accepted and reload requested",
+            "headers": {
+              "Reload-ID": {
+                "type": "string",
+                "description": "ID of the requested reload"
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad request",
+            "schema": {
+              "$ref": "#/definitions/error"
+            },
+            "headers": {
+              "Configuration-Version": {
+                "type": "string",
+                "description": "Configuration file version"
+              }
+            }
           },
           "404": {
             "description": "The specified resource was not found",
@@ -75006,6 +85321,34 @@ func init() {
       },
       "x-go-name": "CPUMap"
     },
+    "GlobalBaseCPUSetItems0": {
+      "type": "object",
+      "required": [
+        "directive"
+      ],
+      "properties": {
+        "directive": {
+          "type": "string",
+          "enum": [
+            "reset",
+            "drop-cpu",
+            "only-cpu",
+            "drop-node",
+            "only-node",
+            "drop-cluster",
+            "only-cluster",
+            "drop-core",
+            "only-core",
+            "drop-thread",
+            "only-thread"
+          ]
+        },
+        "set": {
+          "type": "string"
+        }
+      },
+      "x-go-name": "CPUSet"
+    },
     "GlobalBaseDefaultPath": {
       "type": "object",
       "required": [
@@ -75491,6 +85834,43 @@ func init() {
         }
       }
     },
+    "SslCrlEntryRevokedCertificatesItems0": {
+      "type": "object",
+      "properties": {
+        "revocation_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "serial_number": {
+          "type": "string"
+        }
+      },
+      "x-go-name": "RevokedCertificates"
+    },
+    "SslOcspResponseResponses": {
+      "type": "object",
+      "properties": {
+        "cert_status": {
+          "type": "string"
+        },
+        "certificate_id": {
+          "$ref": "#/definitions/sslCertificateIdCertificateId"
+        },
+        "next_update": {
+          "type": "string",
+          "format": "date"
+        },
+        "revocation_reason": {
+          "type": "string",
+          "x-omitempty": true
+        },
+        "this_update": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "x-go-name": "OCSPResponses"
+    },
     "SslOptionsEnginesItems0": {
       "type": "object",
       "required": [
@@ -75575,6 +85955,11 @@ func init() {
           "pattern": "^[^\\s]+$",
           "x-nullable": false
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "value": {
           "type": "string",
           "x-nullable": false
@@ -75634,6 +86019,125 @@ func init() {
       "title": "ACL Lines Array",
       "items": {
         "$ref": "#/definitions/acl"
+      }
+    },
+    "acme_certificate_status": {
+      "description": "Status of a single ACME certificate from runtime.",
+      "type": "object",
+      "title": "ACME certificate status",
+      "properties": {
+        "acme_section": {
+          "description": "ACME section which generated the certificate.",
+          "type": "string"
+        },
+        "certificate": {
+          "description": "Certificate name",
+          "type": "string"
+        },
+        "expiries_in": {
+          "description": "Duration until certificate expiry.",
+          "type": "string"
+        },
+        "expiry_date": {
+          "description": "Certificate expiration date.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "renewal_in": {
+          "description": "Duration until the next planned renewal.",
+          "type": "string"
+        },
+        "scheduled_renewal": {
+          "description": "Planned date for certificate renewal.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "state": {
+          "description": "State of the ACME task, either \"Running\" or \"Scheduled\".",
+          "type": "string"
+        }
+      }
+    },
+    "acme_provider": {
+      "description": "Define an ACME provider to generate certificates automatically",
+      "type": "object",
+      "title": "ACME Provider",
+      "required": [
+        "name",
+        "directory"
+      ],
+      "properties": {
+        "account_key": {
+          "description": "Path where the the ACME account key is stored",
+          "type": "string"
+        },
+        "bits": {
+          "description": "Number of bits to generate an RSA certificate",
+          "type": "integer",
+          "minimum": 1024,
+          "x-nullable": true,
+          "x-omitempty": true
+        },
+        "challenge": {
+          "description": "ACME challenge type. Only http-01 and dns-01 are supported.",
+          "type": "string",
+          "enum": [
+            "http-01",
+            "dns-01"
+          ]
+        },
+        "contact": {
+          "description": "Contact email for the ACME account",
+          "type": "string"
+        },
+        "curves": {
+          "description": "Curves used with the ECDSA key type",
+          "type": "string"
+        },
+        "directory": {
+          "description": "URL to the ACME provider's directory. For example:\nhttps://acme-staging-v02.api.letsencrypt.org/directory\n",
+          "type": "string",
+          "pattern": "^https://[^\\s]+$",
+          "x-nullable": false
+        },
+        "keytype": {
+          "description": "Type of key to generate",
+          "type": "string",
+          "enum": [
+            "RSA",
+            "ECDSA"
+          ]
+        },
+        "map": {
+          "description": "The map which will be used to store the ACME token (key) and thumbprint",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "name": {
+          "description": "ACME provider's name",
+          "type": "string",
+          "x-nullable": false
+        }
+      }
+    },
+    "acme_providers": {
+      "description": "List of ACME sections.",
+      "type": "array",
+      "items": {
+        "x-omitempty": true,
+        "$ref": "#/definitions/acme_provider"
+      }
+    },
+    "acme_status": {
+      "description": "Status of all the ACME certificates from runtime.",
+      "type": "array",
+      "title": "ACME status",
+      "items": {
+        "$ref": "#/definitions/acme_certificate_status"
       }
     },
     "awsFilters": {
@@ -76072,6 +86576,14 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
+        "hash_preserve_affinity": {
+          "type": "string",
+          "enum": [
+            "always",
+            "maxconn",
+            "maxqueue"
+          ]
+        },
         "hash_type": {
           "$ref": "#/definitions/hash_type"
         },
@@ -76087,6 +86599,14 @@ func init() {
             }
           },
           "x-display-name": "HTTP bufferrequest"
+        },
+        "http-drop-request-trailers": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Drop HTTP Request Trailers"
         },
         "http-no-delay": {
           "type": "string",
@@ -76288,6 +86808,11 @@ func init() {
           "type": "integer",
           "x-display-name": "Maximum keep alive queue",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mode": {
           "type": "string",
@@ -76561,6 +87086,11 @@ func init() {
             "property": "acl_name"
           }
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -76748,6 +87278,11 @@ func init() {
               "pattern": "^[^\\s]+$",
               "example": "127.0.0.1"
             },
+            "metadata": {
+              "additionalProperties": {
+                "type": "object"
+              }
+            },
             "port": {
               "type": "integer",
               "maximum": 65535,
@@ -76903,6 +87438,18 @@ func init() {
           "type": "boolean",
           "x-deprecated": true
         },
+        "force_strict_sni": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          }
+        },
         "force_tlsv10": {
           "description": "This field is deprecated in favor of tlsv10, and will be removed in a future release",
           "type": "boolean",
@@ -76947,7 +87494,17 @@ func init() {
           "type": "string",
           "x-display-name": "Socket ID"
         },
+        "idle_ping": {
+          "type": "integer",
+          "minimum": 0,
+          "x-default-unit": "ms",
+          "x-duration": true,
+          "x-nullable": true
+        },
         "interface": {
+          "type": "string"
+        },
+        "label": {
           "type": "string"
         },
         "level": {
@@ -77012,13 +87569,24 @@ func init() {
           },
           "x-deprecated": true
         },
-        "no_tls_tickets": {
+        "no_strict_sni": {
           "type": "boolean",
           "x-dependency": {
             "ssl": {
               "value": true
             }
-          }
+          },
+          "x-deprecated": true
+        },
+        "no_tls_tickets": {
+          "description": "This field is deprecated in favor of tls_tickets, and will be removed in a future release",
+          "type": "boolean",
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          },
+          "x-deprecated": true
         },
         "no_tlsv10": {
           "description": "This field is deprecated in favor of tlsv10, and will be removed in a future release",
@@ -77187,7 +87755,8 @@ func init() {
             "ssl": {
               "value": true
             }
-          }
+          },
+          "x-deprecated": true
         },
         "tcp_user_timeout": {
           "type": "integer",
@@ -77201,6 +87770,18 @@ func init() {
         },
         "tls_ticket_keys": {
           "type": "string"
+        },
+        "tls_tickets": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-dependency": {
+            "ssl": {
+              "value": true
+            }
+          }
         },
         "tlsv10": {
           "type": "string",
@@ -77310,6 +87891,11 @@ func init() {
         "max_secondary_entries": {
           "type": "integer"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$"
@@ -77344,6 +87930,11 @@ func init() {
         "length": {
           "type": "integer",
           "x-nullable": false
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "type": {
           "type": "string",
@@ -77477,6 +88068,16 @@ func init() {
           ],
           "x-omitempty": true
         },
+        "minsize_req": {
+          "type": "integer",
+          "x-display-name": "Minimum Size for Requests",
+          "x-size": true
+        },
+        "minsize_res": {
+          "type": "integer",
+          "x-display-name": "Minimum Size for Responses",
+          "x-size": true
+        },
         "offload": {
           "type": "boolean"
         },
@@ -77518,6 +88119,11 @@ func init() {
           "x-display-name": "Key Length",
           "x-nullable": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "nopurge": {
           "type": "boolean",
           "x-display-name": "No Purge"
@@ -77525,6 +88131,10 @@ func init() {
         "peers": {
           "type": "string",
           "pattern": "^[^\\s]+$"
+        },
+        "recv_only": {
+          "type": "boolean",
+          "x-display-name": "Receive Only"
         },
         "size": {
           "type": "integer",
@@ -77763,6 +88373,10 @@ func init() {
         "certificate"
       ],
       "properties": {
+        "acme": {
+          "description": "ACME section name to use",
+          "type": "string"
+        },
         "alias": {
           "description": "Certificate alias",
           "type": "string"
@@ -77772,6 +88386,15 @@ func init() {
           "type": "string",
           "x-nullable": false
         },
+        "domains": {
+          "description": "List of domains used to generate the certificate with ACME",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "Domains",
+          "x-omitempty": true
+        },
         "issuer": {
           "description": "OCSP issuer filename",
           "type": "string"
@@ -77779,6 +88402,11 @@ func init() {
         "key": {
           "description": "Private key filename",
           "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "ocsp": {
           "description": "OCSP response filename",
@@ -77825,6 +88453,11 @@ func init() {
         "loads": {
           "$ref": "#/definitions/crt_loads"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_]+$",
@@ -77852,6 +88485,12 @@ func init() {
         "quiet": {
           "type": "boolean"
         },
+        "stress_level": {
+          "type": "integer",
+          "maximum": 9,
+          "minimum": 0,
+          "x-nullable": true
+        },
         "zero_warning": {
           "type": "boolean"
         }
@@ -77863,6 +88502,16 @@ func init() {
       "allOf": [
         {
           "$ref": "#/definitions/bind_params"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "metadata": {
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          }
         }
       ]
     },
@@ -77884,6 +88533,14 @@ func init() {
         {
           "type": "object",
           "properties": {
+            "acl_list": {
+              "x-go-name": "AclList",
+              "$ref": "#/definitions/acls"
+            },
+            "http_after_response_rule_list": {
+              "x-go-name": "HTTPAfterResponseRuleList",
+              "$ref": "#/definitions/http_after_response_rules"
+            },
             "http_check_list": {
               "x-go-name": "HTTPCheckList",
               "$ref": "#/definitions/http_checks"
@@ -77891,6 +88548,14 @@ func init() {
             "http_error_rule_list": {
               "x-go-name": "HTTPErrorRuleList",
               "$ref": "#/definitions/http_error_rules"
+            },
+            "http_request_rule_list": {
+              "x-go-name": "HTTPRequestRuleList",
+              "$ref": "#/definitions/http_request_rules"
+            },
+            "http_response_rule_list": {
+              "x-go-name": "HTTPResponseRuleList",
+              "$ref": "#/definitions/http_response_rules"
             },
             "log_target_list": {
               "x-go-name": "LogTargetList",
@@ -77903,6 +88568,14 @@ func init() {
             "tcp_check_rule_list": {
               "x-go-name": "TCPCheckRuleList",
               "$ref": "#/definitions/tcp_checks"
+            },
+            "tcp_request_rule_list": {
+              "x-go-name": "TCPRequestRuleList",
+              "$ref": "#/definitions/tcp_request_rules"
+            },
+            "tcp_response_rule_list": {
+              "x-go-name": "TCPResponseRuleList",
+              "$ref": "#/definitions/tcp_response_rules"
             }
           }
         }
@@ -78184,6 +88857,14 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
+        "hash_preserve_affinity": {
+          "type": "string",
+          "enum": [
+            "always",
+            "maxconn",
+            "maxqueue"
+          ]
+        },
         "hash_type": {
           "$ref": "#/definitions/hash_type"
         },
@@ -78194,6 +88875,22 @@ func init() {
             "disabled"
           ],
           "x-display-name": "HTTP bufferrequest"
+        },
+        "http-drop-request-trailers": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Drop HTTP Request Trailers"
+        },
+        "http-drop-response-trailers": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Drop HTTP Response Trailers"
         },
         "http-use-htx": {
           "type": "string",
@@ -78383,6 +89080,11 @@ func init() {
           "type": "integer",
           "x-display-name": "Max Connections",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mode": {
           "type": "string",
@@ -78652,6 +89354,11 @@ func init() {
         "interface": {
           "type": "string"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -78717,6 +89424,11 @@ func init() {
           "x-dynamic-enum": {
             "operation": "getMailersSections",
             "property": "name"
+          }
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
           }
         },
         "myhostname": {
@@ -78876,6 +89588,11 @@ func init() {
           },
           "x-omitempty": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string"
         }
@@ -78909,6 +89626,11 @@ func init() {
             503,
             504
           ]
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "url": {
           "type": "string"
@@ -78980,6 +89702,11 @@ func init() {
           "type": "integer",
           "default": 1,
           "minimum": 1
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mpxs_conns": {
           "description": "Enables or disables the support of connection multiplexing. If the FastCGI application retrieves the variable FCGI_MPXS_CONNS during connection establishment, it can override this option.",
@@ -79264,6 +89991,11 @@ func init() {
           },
           "x-size": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "min_size": {
           "description": "The optional minimum number of bytes forwarded at a time by a stream excluding the last packet that may be smaller.\nThis value can be specified for per-stream and shared bandwidth limitation filters.\nIt follows the HAProxy size format and is expressed in bytes.",
           "type": "integer",
@@ -79457,6 +90189,10 @@ func init() {
             "quic_initial_rule_list": {
               "x-go-name": "QUICInitialRuleList",
               "$ref": "#/definitions/quic_initial_rules"
+            },
+            "ssl_front_use_list": {
+              "x-go-name": "SSLFrontUses",
+              "$ref": "#/definitions/ssl_front_uses"
             },
             "tcp_request_rule_list": {
               "x-go-name": "TCPRequestRuleList",
@@ -79662,6 +90398,14 @@ func init() {
           ],
           "x-display-name": "HTTP bufferrequest"
         },
+        "http-drop-response-trailers": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ],
+          "x-display-name": "Drop HTTP Response Trailers"
+        },
         "http-use-htx": {
           "type": "string",
           "enum": [
@@ -79829,6 +90573,11 @@ func init() {
           "type": "integer",
           "x-display-name": "Max Connections",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mode": {
           "type": "string",
@@ -80041,6 +90790,34 @@ func init() {
           "x-go-name": "CPUMaps",
           "x-omitempty": true
         },
+        "cpu_policy": {
+          "type": "string",
+          "enum": [
+            "none",
+            "efficiency",
+            "first-usable-node",
+            "group-by-2-ccx",
+            "group-by-2-clusters",
+            "group-by-3-ccx",
+            "group-by-3-clusters",
+            "group-by-4-ccx",
+            "group-by-4-cluster",
+            "group-by-ccx",
+            "group-by-cluster",
+            "performance",
+            "resource"
+          ],
+          "x-display-name": "CPU Policy"
+        },
+        "cpu_set": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GlobalBaseCPUSetItems0"
+          },
+          "x-display-name": "CPU Set",
+          "x-go-name": "CPUSets",
+          "x-omitempty": true
+        },
         "daemon": {
           "type": "boolean"
         },
@@ -80081,6 +90858,11 @@ func init() {
         },
         "device_atlas_options": {
           "$ref": "#/definitions/device_atlas_options"
+        },
+        "dns_accept_family": {
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-display-name": "DNS accept family"
         },
         "environment_options": {
           "$ref": "#/definitions/environment_options"
@@ -80237,6 +91019,11 @@ func init() {
         "master-worker": {
           "type": "boolean",
           "x-display-name": "Master Worker Mode"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "mworker_max_reloads": {
           "type": "integer",
@@ -80404,6 +91191,11 @@ func init() {
         "name"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -80661,6 +91453,11 @@ func init() {
             }
           },
           "x-display-name": "Map Value Format"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "sc_expr": {
           "type": "string",
@@ -80974,6 +91771,11 @@ func init() {
             }
           },
           "x-display-name": "Expect Match"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "method": {
           "type": "string",
@@ -81297,6 +92099,11 @@ func init() {
         "status"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "return_content": {
           "type": "string",
           "x-dependency": {
@@ -81425,6 +92232,11 @@ func init() {
             "$ref": "#/definitions/errorfile"
           },
           "x-go-name": "ErrorFiles"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -81612,6 +92424,7 @@ func init() {
               "required": true,
               "value": [
                 "do-resolve",
+                "pause",
                 "set-bc-mark",
                 "set-bc-tos",
                 "set-dst",
@@ -81791,6 +92604,11 @@ func init() {
             }
           },
           "x-display-name": "Mark Value"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "method_fmt": {
           "type": "string",
@@ -82250,6 +93068,7 @@ func init() {
             "early-hint",
             "lua",
             "normalize-uri",
+            "pause",
             "redirect",
             "reject",
             "replace-header",
@@ -82549,6 +93368,7 @@ func init() {
             "type": {
               "required": true,
               "value": [
+                "pause",
                 "set-fc-mark",
                 "set-fc-tos"
               ]
@@ -82697,6 +93517,11 @@ func init() {
             }
           },
           "x-display-name": "Mark Value"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "nice_value": {
           "type": "integer",
@@ -83042,6 +93867,7 @@ func init() {
             "del-map",
             "deny",
             "lua",
+            "pause",
             "redirect",
             "replace-header",
             "replace-value",
@@ -83322,13 +94148,26 @@ func init() {
         "name"
       ],
       "properties": {
+        "assume-rfc6587-ntf": {
+          "type": "boolean",
+          "x-display-name": "Assume RFC-6587 Non-Transparent Framing"
+        },
         "backlog": {
           "type": "integer",
           "x-nullable": true
         },
+        "dont-parse-log": {
+          "type": "boolean",
+          "x-display-name": "Don't Parse Log"
+        },
         "maxconn": {
           "type": "integer",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -83366,6 +94205,11 @@ func init() {
           "description": "Override syslog log tag set by other \"log-tag\" directives.",
           "type": "string"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "description": "Name of the logging profile.",
           "type": "string",
@@ -83396,6 +94240,11 @@ func init() {
         "format": {
           "description": "Override \"log-format\" or \"error-log-format\" strings depending on the step.",
           "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "sd": {
           "description": "Override the \"log-format-sd\" string.",
@@ -83553,6 +94402,11 @@ func init() {
             }
           }
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "minlevel": {
           "type": "string",
           "enum": [
@@ -83664,6 +94518,11 @@ func init() {
           "pattern": "^\\S+$",
           "x-nullable": false
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_]+$",
@@ -83705,6 +94564,11 @@ func init() {
         "name"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_]+$",
@@ -83842,6 +94706,11 @@ func init() {
         "address": {
           "type": "string",
           "pattern": "^[^\\s]+$"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -84674,6 +95543,11 @@ func init() {
           "type": "string",
           "pattern": "^[^\\s]+$"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -84748,6 +95622,11 @@ func init() {
         },
         "enabled": {
           "type": "boolean"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -85195,6 +96074,11 @@ func init() {
           "description": "The group to run the command as, if different than the HAProxy group.",
           "type": "string"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -85257,6 +96141,11 @@ func init() {
             "property": "acl_name"
           }
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "type": {
           "type": "string",
           "enum": [
@@ -85297,7 +96186,7 @@ func init() {
         },
         "interval": {
           "type": "integer",
-          "x-nullable": false
+          "x-nullable": true
         }
       }
     },
@@ -85413,6 +96302,11 @@ func init() {
           "x-duration": true,
           "x-nullable": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -85515,6 +96409,11 @@ func init() {
           "type": "integer",
           "x-display-name": "The maximum length of an event message stored into the ring",
           "x-nullable": true
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "name": {
           "type": "string",
@@ -86226,6 +97125,17 @@ func init() {
             "disabled"
           ]
         },
+        "check-pool-conn-name": {
+          "type": "string",
+          "pattern": "^[^\\s]+$"
+        },
+        "check-reuse-pool": {
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ]
+        },
         "check-send-proxy": {
           "type": "string",
           "enum": [
@@ -86389,6 +97299,13 @@ func init() {
           "type": "integer",
           "maximum": 65535,
           "minimum": 1,
+          "x-nullable": true
+        },
+        "idle_ping": {
+          "type": "integer",
+          "minimum": 0,
+          "x-default-unit": "ms",
+          "x-duration": true,
           "x-nullable": true
         },
         "init-addr": {
@@ -86588,6 +97505,14 @@ func init() {
           "type": "string",
           "x-display-name": "Prefix"
         },
+        "renegotiate": {
+          "description": "Toggles the secure renegotiation mechanism for an SSL backend.",
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ]
+        },
         "resolve-net": {
           "type": "string",
           "pattern": "^([A-Za-z0-9.:/]+)(,[A-Za-z0-9.:/]+)*$"
@@ -86759,6 +97684,9 @@ func init() {
             "disabled"
           ]
         },
+        "strict-maxconn": {
+          "type": "boolean"
+        },
         "tcp_ut": {
           "type": "integer",
           "minimum": 0,
@@ -86884,6 +97812,11 @@ func init() {
             "property": "acl_name"
           }
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "target_server": {
           "type": "string",
           "pattern": "^[^\\s]+$",
@@ -86931,6 +97864,11 @@ func init() {
             "id": {
               "type": "integer",
               "x-nullable": true
+            },
+            "metadata": {
+              "additionalProperties": {
+                "type": "object"
+              }
             },
             "num_or_range": {
               "type": "string",
@@ -87406,53 +98344,47 @@ func init() {
         "$ref": "#/definitions/spoe_transaction"
       }
     },
-    "ssl_cert_entry": {
-      "description": "One SSL/TLS certificate",
+    "sslCertificateIdCertificateId": {
       "type": "object",
-      "title": "One SSL Certificate Entry",
       "properties": {
-        "algorithm": {
+        "hash_algorithm": {
           "type": "string"
         },
-        "chain_issuer": {
+        "issuer_key_hash": {
           "type": "string"
         },
-        "chain_subject": {
+        "issuer_name_hash": {
           "type": "string"
         },
-        "issuer": {
+        "serial_number": {
+          "type": "string"
+        }
+      },
+      "x-go-gen-location": "models",
+      "x-go-name": "CertificateId"
+    },
+    "ssl_ca_file": {
+      "description": "A file containing one or more SSL/TLS certificates and keys",
+      "type": "object",
+      "title": "SSL File",
+      "properties": {
+        "count": {
           "type": "string"
         },
-        "not_after": {
-          "type": "string",
-          "format": "date"
-        },
-        "not_before": {
-          "type": "string",
-          "format": "date"
-        },
-        "serial": {
-          "type": "string"
-        },
-        "sha1_finger_print": {
-          "type": "string"
-        },
-        "status": {
+        "file": {
           "type": "string"
         },
         "storage_name": {
           "type": "string"
-        },
-        "subject": {
-          "type": "string"
-        },
-        "subject_alternative_names": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "x-omitempty": true
         }
+      }
+    },
+    "ssl_ca_files": {
+      "description": "Array of SSL CA files",
+      "type": "array",
+      "title": "SSL CA Files Array",
+      "items": {
+        "$ref": "#/definitions/ssl_ca_file"
       }
     },
     "ssl_certificate": {
@@ -87465,6 +98397,14 @@ func init() {
         },
         "authority_key_id": {
           "type": "string"
+        },
+        "chain_issuer": {
+          "type": "string",
+          "x-omitempty": true
+        },
+        "chain_subject": {
+          "type": "string",
+          "x-omitempty": true
         },
         "description": {
           "type": "string"
@@ -87516,6 +98456,12 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
+        "status": {
+          "description": "Only set when using the runtime API.",
+          "type": "string",
+          "x-omitempty": true,
+          "readOnly": true
+        },
         "storage_name": {
           "type": "string"
         },
@@ -87530,17 +98476,397 @@ func init() {
         }
       }
     },
+    "ssl_certificate_id": {
+      "description": "SSL Certificate ID",
+      "type": "object",
+      "title": "SSL Certificate ID",
+      "properties": {
+        "certificate_id": {
+          "$ref": "#/definitions/sslCertificateIdCertificateId"
+        },
+        "certificate_id_key": {
+          "type": "string"
+        },
+        "certificate_path": {
+          "type": "string"
+        }
+      }
+    },
     "ssl_certificates": {
       "description": "Array of ssl certificate files",
       "type": "array",
-      "title": "SSL Files Array",
+      "title": "SSL Certificate Files Array",
       "items": {
         "$ref": "#/definitions/ssl_certificate"
+      }
+    },
+    "ssl_crl": {
+      "description": "A file containing one or more SSL/TLS CRLs",
+      "type": "object",
+      "title": "SSL CRL File",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "storage_name": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_crl_entries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ssl_crl_entry"
+      }
+    },
+    "ssl_crl_entry": {
+      "description": "A certificate revocation list entry.",
+      "type": "object",
+      "title": "One CRL Entry",
+      "properties": {
+        "issuer": {
+          "type": "string"
+        },
+        "last_update": {
+          "type": "string",
+          "format": "date"
+        },
+        "next_update": {
+          "type": "string",
+          "format": "date"
+        },
+        "revoked_certificates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SslCrlEntryRevokedCertificatesItems0"
+          },
+          "x-omitempty": true
+        },
+        "signature_algorithm": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "storage_name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_crls": {
+      "description": "Array of ssl crl files",
+      "type": "array",
+      "title": "SSL CRL Files Array",
+      "items": {
+        "$ref": "#/definitions/ssl_crl"
+      }
+    },
+    "ssl_crt_list": {
+      "description": "SSL Crt List file",
+      "type": "object",
+      "title": "SSL Crt List",
+      "properties": {
+        "file": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_crt_list_entries": {
+      "description": "Array of SSL Crt List Entry",
+      "type": "array",
+      "title": "SSL Crt List Entry Array",
+      "items": {
+        "$ref": "#/definitions/ssl_crt_list_entry"
+      }
+    },
+    "ssl_crt_list_entry": {
+      "description": "SSL Crt List Entry",
+      "type": "object",
+      "title": "SSL Crt List Entry",
+      "properties": {
+        "file": {
+          "type": "string"
+        },
+        "line_number": {
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": false
+        },
+        "sni_filter": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-go-name": "SNIFilter",
+          "x-omitempty": true
+        },
+        "ssl_bind_config": {
+          "type": "string",
+          "x-go-name": "SSLBindConfig"
+        }
+      }
+    },
+    "ssl_crt_list_file": {
+      "description": "A file referencing one or more certificates with their configuration.",
+      "type": "object",
+      "title": "SSL CRT List File",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "size": {
+          "description": "File size in bytes.",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "storage_name": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_crt_list_files": {
+      "description": "List of SSL certificate list files (crt-list)",
+      "type": "array",
+      "title": "List of SSL certificate list files",
+      "items": {
+        "$ref": "#/definitions/ssl_crt_list_file"
+      }
+    },
+    "ssl_crt_lists": {
+      "description": "Array of SSL Crt List",
+      "type": "array",
+      "title": "SSL Crt List Array",
+      "items": {
+        "$ref": "#/definitions/ssl_crt_list"
+      }
+    },
+    "ssl_front_use": {
+      "description": "Assign a certificate to the current frontend",
+      "type": "object",
+      "title": "SSL Frontend Use certificate",
+      "required": [
+        "certificate"
+      ],
+      "properties": {
+        "allow_0rtt": {
+          "type": "boolean"
+        },
+        "alpn": {
+          "type": "string",
+          "x-display-name": "ALPN Protocols"
+        },
+        "ca_file": {
+          "type": "string"
+        },
+        "certificate": {
+          "description": "Certificate filename",
+          "type": "string",
+          "pattern": "^[^\\s]+$",
+          "x-nullable": false
+        },
+        "ciphers": {
+          "type": "string"
+        },
+        "ciphersuites": {
+          "type": "string"
+        },
+        "client_sigalgs": {
+          "type": "string"
+        },
+        "crl_file": {
+          "type": "string"
+        },
+        "curves": {
+          "type": "string"
+        },
+        "ecdhe": {
+          "type": "string"
+        },
+        "issuer": {
+          "description": "OCSP issuer filename",
+          "type": "string"
+        },
+        "key": {
+          "description": "Private key filename",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "no_alpn": {
+          "type": "boolean"
+        },
+        "no_ca_names": {
+          "type": "boolean"
+        },
+        "npn": {
+          "type": "string"
+        },
+        "ocsp": {
+          "description": "OCSP response filename",
+          "type": "string"
+        },
+        "ocsp_update": {
+          "description": "Automatic OCSP response update",
+          "type": "string",
+          "enum": [
+            "enabled",
+            "disabled"
+          ]
+        },
+        "sctl": {
+          "description": "Signed Certificate Timestamp List filename",
+          "type": "string"
+        },
+        "sigalgs": {
+          "type": "string"
+        },
+        "ssl_max_ver": {
+          "type": "string",
+          "enum": [
+            "SSLv3",
+            "TLSv1.0",
+            "TLSv1.1",
+            "TLSv1.2",
+            "TLSv1.3"
+          ]
+        },
+        "ssl_min_ver": {
+          "type": "string",
+          "enum": [
+            "SSLv3",
+            "TLSv1.0",
+            "TLSv1.1",
+            "TLSv1.2",
+            "TLSv1.3"
+          ]
+        },
+        "verify": {
+          "type": "string",
+          "enum": [
+            "none",
+            "optional",
+            "required"
+          ]
+        }
+      },
+      "x-go-name": "SSLFrontUse"
+    },
+    "ssl_front_uses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ssl_front_use"
+      },
+      "x-go-name": "SSLFrontUses",
+      "x-omitempty": true
+    },
+    "ssl_ocsp_response": {
+      "description": "SSL OCSP Response",
+      "type": "object",
+      "title": "SSL OCSP Response",
+      "properties": {
+        "base64_response": {
+          "type": "string"
+        },
+        "ocsp_response_status": {
+          "type": "string"
+        },
+        "produced_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "responder_id": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "x-omitempty": true
+        },
+        "response_type": {
+          "type": "string"
+        },
+        "responses": {
+          "type": "object",
+          "properties": {
+            "cert_status": {
+              "type": "string"
+            },
+            "certificate_id": {
+              "$ref": "#/definitions/sslCertificateIdCertificateId"
+            },
+            "next_update": {
+              "type": "string",
+              "format": "date"
+            },
+            "revocation_reason": {
+              "type": "string",
+              "x-omitempty": true
+            },
+            "this_update": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          "x-go-name": "OCSPResponses"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "ssl_ocsp_update": {
+      "description": "SSL OCSP Update",
+      "type": "object",
+      "title": "SSL OCSP Update",
+      "properties": {
+        "cert_id": {
+          "type": "string"
+        },
+        "failures": {
+          "type": "integer"
+        },
+        "last_update": {
+          "type": "string"
+        },
+        "last_update_status": {
+          "type": "integer"
+        },
+        "last_update_status_str": {
+          "type": "string"
+        },
+        "next_update": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "successes": {
+          "type": "integer"
+        }
       }
     },
     "ssl_options": {
       "type": "object",
       "properties": {
+        "acme_scheduler": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "off"
+          ],
+          "x-display-name": "ACME Scheduler"
+        },
         "ca_base": {
           "type": "string",
           "x-display-name": "SSL CA Certificates Base Directory"
@@ -87661,6 +98987,19 @@ func init() {
         "skip_self_issued_ca": {
           "type": "boolean",
           "x-display-name": "Self issued CA, aka x509 root CA"
+        }
+      }
+    },
+    "ssl_providers": {
+      "description": "SSL Providers",
+      "type": "object",
+      "title": "SSL Providers",
+      "properties": {
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -87851,6 +99190,11 @@ func init() {
             "freeFormat": true,
             "operation": "getACLs",
             "property": "acl_name"
+          }
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
           }
         },
         "pattern": {
@@ -88052,6 +99396,11 @@ func init() {
           "x-duration": true,
           "x-nullable": true
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "x-nullable": false
@@ -88059,6 +99408,10 @@ func init() {
         "no_purge": {
           "type": "boolean",
           "x-display-name": "No Purge"
+        },
+        "recv_only": {
+          "type": "boolean",
+          "x-display-name": "Receive Only"
         },
         "size": {
           "type": "string",
@@ -88250,6 +99603,11 @@ func init() {
             }
           },
           "x-display-name": "Expect Match"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "min_recv": {
           "type": "integer",
@@ -88734,6 +100092,11 @@ func init() {
             }
           },
           "x-display-name": "Mark Value"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "nice_value": {
           "type": "integer",
@@ -89310,6 +100673,11 @@ func init() {
           },
           "x-display-name": "Mark Value"
         },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "nice_value": {
           "type": "integer",
           "maximum": 1024,
@@ -89540,6 +100908,11 @@ func init() {
         "trace"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "trace": {
           "description": "Trace parameters",
           "type": "string",
@@ -89554,6 +100927,11 @@ func init() {
       "properties": {
         "entries": {
           "$ref": "#/definitions/trace_entries"
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         }
       },
       "additionalProperties": false,
@@ -89683,6 +101061,13 @@ func init() {
     "tune_lua_options": {
       "type": "object",
       "properties": {
+        "bool_sample_conversion": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "pre-3.1-bug"
+          ]
+        },
         "burst_timeout": {
           "type": "integer",
           "minimum": 0,
@@ -89766,6 +101151,18 @@ func init() {
           "type": "boolean",
           "x-display-name": "Disable zero-copy forwarding"
         },
+        "epoll_mask_events": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "err",
+              "hup",
+              "rdhup"
+            ]
+          },
+          "x-omitempty": true
+        },
         "events_max_events_at_once": {
           "type": "integer",
           "maximum": 10000,
@@ -89782,6 +101179,13 @@ func init() {
             "disabled"
           ],
           "x-display-name": "Edge-triggered polling mode"
+        },
+        "glitches_kill_cpu_usage": {
+          "type": "integer",
+          "maximum": 100,
+          "minimum": 0,
+          "x-display-name": "CPU Usage Kill glitched Connections",
+          "x-nullable": true
         },
         "h1_zero_copy_fwd_recv": {
           "type": "string",
@@ -89921,6 +101325,12 @@ func init() {
           "x-display-name": "Maximum checks per thread",
           "x-nullable": true
         },
+        "max_rules_at_once": {
+          "type": "integer",
+          "minimum": 0,
+          "x-display-name": "Maximum rules at once",
+          "x-nullable": true
+        },
         "maxaccept": {
           "type": "integer",
           "x-display-name": "Maximum Accept Events"
@@ -89937,6 +101347,18 @@ func init() {
           "type": "integer",
           "x-display-name": "Per-thread Amount of Memory",
           "x-nullable": true
+        },
+        "notsent_lowat_client": {
+          "type": "integer",
+          "x-display-name": "Client Not Sent Low Watermark",
+          "x-nullable": true,
+          "x-size": true
+        },
+        "notsent_lowat_server": {
+          "type": "integer",
+          "x-display-name": "Server Not Sent Low Watermark",
+          "x-nullable": true,
+          "x-size": true
         },
         "pattern_cache_size": {
           "type": "integer",
@@ -89998,6 +101420,15 @@ func init() {
           "type": "integer",
           "x-display-name": "Number of stick-counters",
           "x-nullable": true
+        },
+        "takeover_other_tg_connections": {
+          "type": "string",
+          "enum": [
+            "none",
+            "restricted",
+            "full"
+          ],
+          "x-display-name": "Takeover Other Thread Groups Connections"
         }
       }
     },
@@ -90021,6 +101452,12 @@ func init() {
           "type": "integer",
           "x-display-name": "QUIC Max Number of Bidirectional Streams",
           "x-nullable": true
+        },
+        "frontend_max_tx_memory": {
+          "type": "integer",
+          "x-display-name": "QUIC Frontend Max Tx Memory",
+          "x-nullable": true,
+          "x-size": true
         },
         "max_frame_loss": {
           "type": "integer",
@@ -90170,6 +101607,7 @@ func init() {
     },
     "user": {
       "description": "HAProxy userlist user",
+      "type": "object",
       "title": "User",
       "required": [
         "username",
@@ -90180,6 +101618,11 @@ func init() {
         "groups": {
           "type": "string",
           "x-nullable": false
+        },
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
         },
         "password": {
           "type": "string",
@@ -90228,6 +101671,11 @@ func init() {
         "name"
       ],
       "properties": {
+        "metadata": {
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
         "name": {
           "type": "string",
           "pattern": "^[A-Za-z0-9-_.:]+$",
@@ -90396,6 +101844,9 @@ func init() {
   "tags": [
     {
       "name": "ACL"
+    },
+    {
+      "name": "Acme"
     },
     {
       "description": "Managing backend configurations (advanced mode)",

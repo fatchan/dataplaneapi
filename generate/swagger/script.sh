@@ -129,6 +129,10 @@ swagger generate server -f $SPEC_DIR/haproxy_spec.yaml \
     --tags=QUICInitialRule \
     --tags=Traces \
     --tags=LogProfile \
+    --tags=SSLFrontUse \
+    --tags=SSLRuntime \
+    --tags=Acme \
+    --tags=AcmeRuntime \
     -r $SPEC_DIR/copyright.txt \
     --template-dir generate/swagger/templates
 

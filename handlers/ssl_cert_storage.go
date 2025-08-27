@@ -17,7 +17,9 @@ package handlers
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"io"
 	"path/filepath"
 	"strings"
 
@@ -28,6 +30,7 @@ import (
 	models "github.com/haproxytech/client-native/v6/models"
 
 	"github.com/haproxytech/dataplaneapi/haproxy"
+	"github.com/haproxytech/dataplaneapi/log"
 	"github.com/haproxytech/dataplaneapi/misc"
 	"github.com/haproxytech/dataplaneapi/operations/storage"
 )
@@ -188,6 +191,13 @@ func (h *StorageDeleteStorageSSLCertificateHandlerImpl) Handle(params storage.De
 		return storage.NewDeleteStorageSSLCertificateNoContent()
 	}
 
+	if runtime, err := h.Client.Runtime(); err != nil {
+		if err = runtime.DeleteCertEntry(params.Name); err == nil {
+			return storage.NewDeleteStorageSSLCertificateNoContent()
+		}
+		log.Debugf("failed to delete certificate via runtime, reloading instead: %s", err.Error())
+	}
+
 	rID := h.ReloadAgent.Reload()
 	return storage.NewDeleteStorageSSLCertificateAccepted().WithReloadID(rID)
 }
@@ -254,8 +264,15 @@ func (h *StorageReplaceStorageSSLCertificateHandlerImpl) Handle(params storage.R
 		return storage.NewReplaceStorageSSLCertificateOK().WithPayload(retf)
 	}
 
-	rID := h.ReloadAgent.Reload()
-	return storage.NewReplaceStorageSSLCertificateAccepted().WithReloadID(rID).WithPayload(retf)
+	// Try to push the new cert to HAProxy using the runtime socket.
+	err = pushCertToRuntime(h.Client, filename, params.Data, false)
+	if err != nil {
+		log.Debugf("failed to push certificate via runtime, reloading instead: %s", err.Error())
+		rID := h.ReloadAgent.Reload()
+		return storage.NewReplaceStorageSSLCertificateAccepted().WithReloadID(rID).WithPayload(retf)
+	}
+
+	return storage.NewReplaceStorageSSLCertificateOK().WithPayload(retf)
 }
 
 // StorageCreateStorageSSLCertificateHandlerImpl implementation of the StorageCreateStorageSSLCertificateHandler interface
@@ -282,7 +299,18 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 	if !ok {
 		return storage.NewCreateStorageSSLCertificateBadRequest()
 	}
-	filename, size, contents, err := sslStorage.Create(file.Header.Filename, params.FileUpload)
+
+	// We need to read the cert here because we are going to write it twice:
+	// once to the filesystem, and (optionally) to HAProxy's runtime socket.
+	certBody, err := io.ReadAll(file)
+	file.Close()
+	if err != nil {
+		e := misc.HandleError(err)
+		return storage.NewCreateStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
+	}
+
+	filename, size, contents, err := sslStorage.Create(file.Header.Filename, io.NopCloser(bytes.NewReader(certBody)))
+
 	if err != nil {
 		e := misc.HandleError(err)
 		return storage.NewCreateStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
@@ -297,8 +325,6 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 		Description: "managed SSL file",
 		StorageName: filepath.Base(filename),
 		Size:        &size,
-		// NotAfter:    strfmt.Date(info.NotAfter),
-		// NotBefore:   strfmt.Date(info.NotBefore),
 		NotAfter:    (*strfmt.DateTime)(info.NotAfter),
 		NotBefore:   (*strfmt.DateTime)(info.NotBefore),
 		Issuers:     info.Issuers,
@@ -326,11 +352,21 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 		err := h.ReloadAgent.ForceReload()
 		if err != nil {
 			e := misc.HandleError(err)
-			return storage.NewReplaceStorageMapFileDefault(int(*e.Code)).WithPayload(e)
+			return storage.NewCreateStorageSSLCertificateDefault(int(*e.Code)).WithPayload(e)
 		}
 		return storage.NewCreateStorageSSLCertificateCreated().WithPayload(retf)
 	}
 
+	// NOTE: haproxy method:
+	// Try to push the new cert to HAProxy using the runtime socket.
+	// err = pushCertToRuntime(h.Client, filename, string(certBody), true)
+	// if err != nil {
+	// 	log.Debugf("failed to push certificate via runtime, reloading instead: %s", err.Error())
+	// 	rID := h.ReloadAgent.Reload()
+	// 	return storage.NewCreateStorageSSLCertificateAccepted().WithReloadID(rID).WithPayload(retf)
+	// }
+
+	// NOTE: our method:
 	// fmt.Printf("%s\n%s\n", filename, contents)
 	err2 := runtimeClient.AddSetCommitSSLCert(filename, contents)
 	if err2 != nil {
@@ -341,3 +377,25 @@ func (h *StorageCreateStorageSSLCertificateHandlerImpl) Handle(params storage.Cr
 	return storage.NewCreateStorageSSLCertificateCreated().WithPayload(retf)
 
 }
+
+// NOTE: haproxy method:
+// func pushCertToRuntime(c client_native.HAProxyClient, filename, body string, newCert bool) error {
+// 	runtime, err := c.Runtime()
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	if newCert {
+// 		err = runtime.NewCertEntry(filename)
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
+
+// 	err = runtime.SetCertEntry(filename, body)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	return runtime.CommitCertEntry(filename)
+// }

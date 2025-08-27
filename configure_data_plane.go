@@ -33,7 +33,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi2"
 	"github.com/getkin/kin-openapi/openapi2conv"
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/go-openapi/errors"
+	api_errors "github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -79,6 +79,7 @@ var (
 	AccLogger             *log.Logger
 	serverStartedCallback func()
 	clientMutex           sync.Mutex
+	eventListener         *cn.HAProxyEventListener
 )
 
 func SetServerStartedCallback(callFunc func()) {
@@ -159,7 +160,7 @@ func configureAPI(api *operations.DataPlaneAPI) http.Handler { //nolint:cyclop,m
 	// end overriding options with env variables
 
 	// configure the api here
-	api.ServeError = errors.ServeError
+	api.ServeError = api_errors.ServeError
 
 	// Set your custom logger if needed. Default one is log.Printf
 	// Expected interface func(string, ...interface{})
@@ -191,6 +192,8 @@ func configureAPI(api *operations.DataPlaneAPI) http.Handler { //nolint:cyclop,m
 	client := configureNativeClient(clientCtx, haproxyOptions, mWorker)
 
 	initDataplaneStorage(haproxyOptions.DataplaneStorageDir, client)
+
+	configureEventListener(clientCtx, client)
 
 	users := dataplaneapi_config.GetUsersStore()
 	// this is not part of GetUsersStore(),
@@ -847,6 +850,53 @@ func configureAPI(api *operations.DataPlaneAPI) http.Handler { //nolint:cyclop,m
 	api.LogProfileEditLogProfileHandler = &handlers.EditLogProfileHandler{Client: client, ReloadAgent: ra}
 	api.LogProfileDeleteLogProfileHandler = &handlers.DeleteLogProfileHandlerImpl{Client: client, ReloadAgent: ra}
 
+	// ssl-f-use handlers
+	api.SslFrontUseGetAllSSLFrontUsesHandler = &handlers.GetAllSSLFrontUsesHandlerImpl{Client: client}
+	api.SslFrontUseCreateSSLFrontUseHandler = &handlers.CreateSSLFrontUseHandlerImpl{Client: client, ReloadAgent: ra}
+	api.SslFrontUseGetSSLFrontUseHandler = &handlers.GetSSLFrontUseHandlerImpl{Client: client}
+	api.SslFrontUseReplaceSSLFrontUseHandler = &handlers.ReplaceSSLFrontUseHandlerImpl{Client: client, ReloadAgent: ra}
+	api.SslFrontUseDeleteSSLFrontUseHandler = &handlers.DeleteSSLFrontUseHandlerImpl{Client: client, ReloadAgent: ra}
+
+	// Runtime SSL CA Files
+	api.SslRuntimeGetAllCaFilesHandler = &handlers.GetAllCaFilesHandlerImpl{Client: client}
+	api.SslRuntimeCreateCaFileHandler = &handlers.CreateCaFileHandlerImpl{Client: client}
+	api.SslRuntimeGetCaFileHandler = &handlers.GetCaFileHandlerImpl{Client: client}
+	api.SslRuntimeSetCaFileHandler = &handlers.SetCaFileHandlerImpl{Client: client}
+	api.SslRuntimeDeleteCaFileHandler = &handlers.DeleteCaFileHandlerImpl{Client: client}
+	api.SslRuntimeAddCaEntryHandler = &handlers.AddCaEntryHandlerImpl{Client: client}
+	api.SslRuntimeGetCaEntryHandler = &handlers.GetCaEntryHandlerImpl{Client: client}
+
+	// Runtime SSL Cert
+	api.SslRuntimeGetAllCertsHandler = &handlers.GetAllCertsHandlerImpl{Client: client}
+	api.SslRuntimeCreateCertHandler = &handlers.CreateCertHandlerImpl{Client: client}
+	api.SslRuntimeGetCertHandler = &handlers.GetCertHandlerImpl{Client: client}
+	api.SslRuntimeReplaceCertHandler = &handlers.ReplaceCertHandlerImpl{Client: client}
+	api.SslRuntimeDeleteCertHandler = &handlers.DeleteCertHandlerImpl{Client: client}
+
+	// Runtime SSL Crl Files
+	api.SslRuntimeGetAllCrlHandler = &handlers.GetAllCrlHandlerImpl{Client: client}
+	api.SslRuntimeCreateCrlHandler = &handlers.CreateCrlHandlerImpl{Client: client}
+	api.SslRuntimeGetCrlHandler = &handlers.GetCrlHandlerImpl{Client: client}
+	api.SslRuntimeReplaceCrlHandler = &handlers.ReplaceCrlHandlerImpl{Client: client}
+	api.SslRuntimeDeleteCrlHandler = &handlers.DeleteCrlHandlerImpl{Client: client}
+
+	// Runtime SSL Crt List
+	api.SslRuntimeGetAllCrtListsHandler = &handlers.GetAllCrtListsHandlerImpl{Client: client}
+	api.SslRuntimeGetAllCrtListEntriesHandler = &handlers.GetAllCrtListEntriesHandlerImpl{Client: client}
+	api.SslRuntimeAddCrtListEntryHandler = &handlers.AddCrtListEntryHandlerImpl{Client: client}
+	api.SslRuntimeDeleteCrtListEntryHandler = &handlers.DeleteCrtListEntryHandlerImpl{Client: client}
+
+	// ACME providers
+	api.AcmeGetAcmeProvidersHandler = &handlers.GetAcmeProvidersHandlerImpl{Client: client}
+	api.AcmeGetAcmeProviderHandler = &handlers.GetAcmeProviderHandlerImpl{Client: client}
+	api.AcmeCreateAcmeProviderHandler = &handlers.CreateAcmeProviderHandlerImpl{Client: client, ReloadAgent: ra}
+	api.AcmeEditAcmeProviderHandler = &handlers.EditAcmeProviderHandler{Client: client, ReloadAgent: ra}
+	api.AcmeDeleteAcmeProviderHandler = &handlers.DeleteAcmeProviderHandlerImpl{Client: client, ReloadAgent: ra}
+
+	// ACME runtime
+	api.AcmeRuntimeGetAcmeStatusHandler = &handlers.GetAcmeStatusHandlerImpl{Client: client}
+	api.AcmeRuntimeRenewAcmeCertificateHandler = &handlers.RenewAcmeCertificateHandlerImpl{Client: client}
+
 	// setup info handler
 	api.InformationGetInfoHandler = &handlers.GetInfoHandlerImpl{SystemInfo: haproxyOptions.ShowSystemInfo, BuildTime: BuildTime, Version: Version}
 
@@ -940,6 +990,17 @@ func configureAPI(api *operations.DataPlaneAPI) http.Handler { //nolint:cyclop,m
 	api.StorageDeleteStorageSSLCertificateHandler = &handlers.StorageDeleteStorageSSLCertificateHandlerImpl{Client: client, ReloadAgent: ra}
 	api.StorageReplaceStorageSSLCertificateHandler = &handlers.StorageReplaceStorageSSLCertificateHandlerImpl{Client: client, ReloadAgent: ra}
 	api.StorageCreateStorageSSLCertificateHandler = &handlers.StorageCreateStorageSSLCertificateHandlerImpl{Client: client, ReloadAgent: ra}
+
+	// SSL certificate lists storage handlers
+	api.StorageGetAllStorageSSLCrtListFilesHandler = &handlers.StorageGetAllStorageSSLCrtListFilesHandlerImpl{Client: client}
+	api.StorageGetOneStorageSSLCrtListFileHandler = &handlers.StorageGetOneStorageSSLCrtListFileHandlerImpl{Client: client}
+	api.StorageCreateStorageSSLCrtListFileHandler = &handlers.StorageCreateStorageSSLCrtListFileHandlerImpl{Client: client, ReloadAgent: ra}
+	api.StorageReplaceStorageSSLCrtListFileHandler = &handlers.StorageReplaceStorageSSLCrtListFileHandlerImpl{Client: client, ReloadAgent: ra}
+	api.StorageDeleteStorageSSLCrtListFileHandler = &handlers.StorageDeleteStorageSSLCrtListFileHandlerImpl{Client: client, ReloadAgent: ra}
+	// crt-list entries
+	api.StorageGetStorageSSLCrtListEntriesHandler = &handlers.StorageGetStorageSSLCrtListEntriesHandlerImpl{Client: client}
+	api.StorageCreateStorageSSLCrtListEntryHandler = &handlers.StorageCreateStorageSSLCrtListEntryHandlerImpl{Client: client, ReloadAgent: ra}
+	api.StorageDeleteStorageSSLCrtListEntryHandler = &handlers.StorageDeleteStorageSSLCrtListEntryHandlerImpl{Client: client, ReloadAgent: ra}
 
 	// general file storage handlers
 	api.StorageCreateStorageGeneralFileHandler = &handlers.StorageCreateStorageGeneralFileHandlerImpl{Client: client}
@@ -1187,8 +1248,15 @@ func configureNativeClient(cyx context.Context, haproxyOptions dataplaneapi_conf
 			log.Fatalf("error initializing SSL certs storage: %v", err)
 		}
 		opt = append(opt, options.SSLCertStorage(sslCertStorage))
+		// crt-lists use the same directory
+		var crtListStorage storage.Storage
+		crtListStorage, err = storage.New(haproxyOptions.SSLCertsDir, storage.CrtListType)
+		if err != nil {
+			log.Fatalf("error initializing CRT Lists storage: %v", err)
+		}
+		opt = append(opt, options.CrtListStorage(crtListStorage))
 	} else {
-		log.Fatalf("error trying to use empty string for managed map directory")
+		log.Fatalf("error trying to use empty string for managed SSL certificates directory")
 	}
 
 	if haproxyOptions.GeneralStorageDir != "" {
@@ -1225,6 +1293,28 @@ func configureNativeClient(cyx context.Context, haproxyOptions dataplaneapi_conf
 	return client
 }
 
+func configureEventListener(ctx context.Context, client client_native.HAProxyClient) {
+	rt, err := client.Runtime()
+	if err != nil {
+		return
+	}
+
+	if eventListener != nil {
+		err = eventListener.Reconfigure(ctx, rt)
+		if err != nil {
+			// Stop the listener if the new conf has no master socket.
+			log.Info("Stopping the EventListener:", err.Error())
+			_ = eventListener.Stop()
+		}
+	} else {
+		// First start.
+		eventListener, err = cn.ListenHAProxyEvents(ctx, client)
+		if err != nil && err != cn.ErrNoMasterSocket && err != cn.ErrOldVersion {
+			log.Error("Failed to start HAProxy's event listener:", err.Error())
+		}
+	}
+}
+
 func handleSignals(ctx context.Context, cancel context.CancelFunc, sigs chan os.Signal, client client_native.HAProxyClient, haproxyOptions dataplaneapi_config.HAProxyConfiguration, users *dataplaneapi_config.Users) {
 	for {
 		select {
@@ -1238,6 +1328,7 @@ func handleSignals(ctx context.Context, cancel context.CancelFunc, sigs chan os.
 					log.Infof("Unable to reload Data Plane API: %s", err.Error())
 				} else {
 					client.ReplaceRuntime(cn.ConfigureRuntimeClient(clientCtx, configuration, haproxyOptions))
+					configureEventListener(clientCtx, client)
 					log.Info("Reloaded Data Plane API")
 				}
 			} else if sig == syscall.SIGUSR2 {
@@ -1278,6 +1369,9 @@ func startWatcher(ctx context.Context, client client_native.HAProxyClient, hapro
 		if callbackNeeded {
 			reloadAgent.ReloadWithCallback(reconfigureFunc)
 		}
+
+		// Reconfigure the event listener if needed.
+		configureEventListener(ctx, client)
 
 		// get the last configuration which has been updated by reloadConfigurationFile and increment version in config file.
 		configuration, err := client.Configuration()

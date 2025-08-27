@@ -1,4 +1,5 @@
 stages:
+  - bots
   - lint
   - checks
   - build
@@ -7,10 +8,34 @@ stages:
 variables:
   DOCKER_HOST: tcp://docker:2375
   DOCKER_BASE_IMAGE: $CI_REGISTRY_GO/haproxy-debian
-  BATS_VERSION: v1.4.1
+  BATS_VERSION: v1.10.0
   GO_VERSION: "1.24"
   DOCKER_VERSION: "26.0"
 
+pipelines-check:
+  stage: bots
+  needs: []
+  image:
+    name: $CI_REGISTRY_GO/docker:$DOCKER_VERSION-go$GO_VERSION
+    entrypoint: [""]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  tags:
+    - go
+  script:
+    - go run cmd/gitlab-mr-pipelines/main.go
+mr-backport-question:
+  stage: bots
+  needs: []
+  image:
+    name: $CI_REGISTRY_GO/docker:$DOCKER_VERSION-go$GO_VERSION
+    entrypoint: [ "" ]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
+  tags:
+    - go
+  script:
+    - go run cmd/gitlab-mr-checker/main.go
 diff:
   stage: lint
   image:
@@ -191,12 +216,6 @@ HAProxy_2_8:
     matrix:
       - TESTPART: ["1/2", "2/2"]
         HAPROXY_VERSION: "2.8"
-HAProxy_2_9:
-  extends: .e2e
-  parallel:
-    matrix:
-      - TESTPART: ["1/2", "2/2"]
-        HAPROXY_VERSION: "2.9"
 HAProxy_3_0:
   extends: .e2e
   parallel:
@@ -209,3 +228,15 @@ HAProxy_3_1:
     matrix:
       - TESTPART: ["1/2", "2/2"]
         HAPROXY_VERSION: "3.0"
+HAProxy_3_2:
+  extends: .e2e
+  parallel:
+    matrix:
+      - TESTPART: ["1/2", "2/2"]
+        HAPROXY_VERSION: "3.2"
+HAProxy_3_3:
+  extends: .e2e
+  parallel:
+    matrix:
+      - TESTPART: ["1/2", "2/2"]
+        HAPROXY_VERSION: "3.3"

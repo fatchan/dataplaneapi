@@ -23,6 +23,7 @@ allowed:
   - frontend
   - frontends
   - tcp
+  - cpu
   - crd
   - linter
   - linters
@@ -31,3 +32,11 @@ allowed:
   - quic
   - userlist
   - cve
+  - ssl
+  - crl
+  - crt
+  - ocsp
+  - logrus
+  - backport
+  - dns
+  - newcert
